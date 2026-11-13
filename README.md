@@ -45,8 +45,9 @@ Streamlit prints a local address, usually `http://localhost:8501`. Open that
 in a browser. The home page is the dashboard. **Pantry** and **Grow** are in
 the top bar.
 
-The look (dark theme, fonts, cards) lives in `.streamlit/config.toml` and
-`fallow_ui.py`. After editing `fallow_ui.py`, stop the server with Ctrl+C and
+The look (lavender backdrop, white cards, lime accents) lives in
+`.streamlit/config.toml` and `fallow_ui.py`. The Plus Jakarta Sans font is
+served from `static/fonts/`, so the app looks the same with no internet. After editing `fallow_ui.py`, stop the server with Ctrl+C and
 start it again so Streamlit picks up the new styles.
 
 Leave this command running while you use the site. Stop it with Ctrl+C in
@@ -75,7 +76,8 @@ every meal uses food already in the inventory.
 ├── .env.example                 # LLM_API_KEY, SENSOR_MODE=mock|live
 ├── app.py                       # Streamlit entry: theme + top navigation
 ├── fallow_ui.py                 # Shared styles and card components
-├── .streamlit/config.toml       # Dark theme, fonts, colors
+├── .streamlit/config.toml       # Theme, colors, font files
+├── static/fonts/                # Plus Jakarta Sans (SIL Open Font License)
 ├── views/
 │   ├── dashboard.py
 │   ├── pantry.py                # Was pages/1_Inventory.py

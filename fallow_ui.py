@@ -1,105 +1,159 @@
 """Shared look for every Fallow page: one stylesheet plus small HTML blocks.
 
-Pages pass in the same models the ``larder`` package returns. Every string
-that came from the inventory or the sensor is escaped before it goes into
-HTML, so a food named ``<b>`` shows up as text.
+Style: soft lavender backdrop, an off-white app panel, white rounded cards,
+pastel icon tiles, a dark feature card and lime accents. Built phone-first;
+on a wide screen the panel sits centered on the lavender backdrop.
+
+Every string that came from the inventory or the sensor is escaped before it
+goes into HTML, so a food named ``<b>`` shows up as text.
 """
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from html import escape
 
 import streamlit as st
 
-from larder.models import GrowPlan, MealPlan, SpoilageRisk
+from larder.models import GrowPlan, InventoryItem, MealPlan, SpoilageRisk
 from larder.sensors.base import SensorSnapshot
 
+# Category -> (Material Symbols icon, pastel tile tone)
+CATEGORY_ICON = {
+    "leafy_greens": ("eco", "lime"),
+    "produce": ("nutrition", "lime"),
+    "berries": ("nutrition", "lav"),
+    "dairy": ("water_full", "lav"),
+    "meat": ("kebab_dining", "peach"),
+    "fish": ("set_meal", "lav"),
+    "eggs": ("egg", "cream"),
+    "bread": ("bakery_dining", "cream"),
+    "leftovers": ("takeout_dining", "peach"),
+    "grain": ("rice_bowl", "cream"),
+    "pantry": ("inventory_2", "cream"),
+    "frozen": ("ac_unit", "lav"),
+    "herb": ("spa", "lime"),
+}
 RISK_LABEL = {"critical": "Critical", "high": "High", "medium": "Medium", "low": "Low"}
-FILL_TONE = {"fresh food": "green", "calorie staples": "yellow", "protein": "blue"}
+RISK_TONE = {"critical": "red", "high": "peach", "medium": "cream", "low": "lime"}
+RISK_COLOR = {"critical": "#F0604D", "high": "#F29B4B", "medium": "#E2B93B", "low": "#8DC63F"}
+FILL_TONE = {"fresh food": "lime", "calorie staples": "cream", "protein": "lav"}
+TILE_TONES = ["peach", "lime", "lav", "cream"]
 
 CSS = """
 <style>
 :root{
-  --bg:#0F1410; --panel:#161D17; --panel2:#1C251E; --line:#2A352C;
-  --text:#E7EDE3; --muted:#9AA89C; --accent:#A6E35F;
-  --critical:#FF6B5B; --high:#FFA24C; --medium:#F2D45C; --low:#6FCF97; --blue:#7FB6FF;
-  --mono:'JetBrains Mono',ui-monospace,monospace; --head:'Space Grotesk',Inter,sans-serif;
+  --lav-bg:#BBA6F0; --panel:#F6F5F2; --card:#FFFFFF; --ink:#1C1C28; --muted:#7D7C8C; --line:#ECEBF0;
+  --dark:#1E1E2A; --lime:#D7F26E; --lime-ink:#3F5A00;
+  --t-peach:#FCE6DA; --t-lime:#EEF8CF; --t-lav:#E6E2FB; --t-cream:#FFF0D6; --t-red:#FDE0DC;
 }
-[data-testid="stMainBlockContainer"]{padding-top:5rem !important; max-width:1240px}
-h1,h2,h3{letter-spacing:-0.02em}
-.fw-hero{display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between;
-  padding:22px 24px; border:1px solid var(--line); border-radius:18px;
-  background:linear-gradient(180deg,#18211A 0%,#131A14 100%); margin-bottom:6px}
-.fw-brand{display:flex; gap:14px; align-items:center}
-.fw-mark{width:46px; height:46px; border-radius:12px; background:var(--accent); display:flex;
-  flex-direction:column; justify-content:center; gap:5px; padding:0 10px; box-sizing:border-box; flex-shrink:0}
-.fw-mark span{display:block; height:4px; border-radius:2px; background:#0F1410}
-.fw-mark span:nth-child(1){width:60%}
-.fw-title{font-family:var(--head); font-size:34px; font-weight:700; line-height:1; margin:0; color:var(--text)}
-.fw-tag{color:var(--muted); font-size:14px; margin-top:6px}
-.fw-chips{display:flex; flex-wrap:wrap; gap:8px}
-.fw-chip{font-family:var(--mono); font-size:12px; padding:5px 10px; border-radius:999px;
-  border:1px solid var(--line); color:var(--muted); background:var(--panel)}
-.fw-chip b{color:var(--text); font-weight:600}
-.fw-chip.green{color:#0F1410; background:var(--low); border-color:var(--low)}
-.fw-chip.yellow{color:#0F1410; background:var(--medium); border-color:var(--medium)}
-.fw-chip.blue{color:#0F1410; background:var(--blue); border-color:var(--blue)}
-.fw-chip.red{color:#0F1410; background:var(--critical); border-color:var(--critical)}
-.fw-kpis{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:10px 0 4px}
-@media (max-width:900px){.fw-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.fw-kpi{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px}
-.fw-kpi .v{font-family:var(--head); font-size:32px; font-weight:700; line-height:1.1}
-.fw-kpi .l{font-size:13px; color:var(--muted); margin-top:2px}
-.fw-kpi.alert .v{color:var(--critical)}
-.fw-kpi.good .v{color:var(--accent)}
-.fw-sec{font-family:var(--mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase;
-  color:var(--muted); margin:18px 0 10px}
-.fw-list{display:flex; flex-direction:column; gap:8px}
-.fw-risk{display:grid; grid-template-columns:6px 1fr auto; gap:14px; align-items:center;
-  background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:12px 16px 12px 0; overflow:hidden}
-.fw-risk .bar{align-self:stretch; border-radius:0 4px 4px 0}
-.fw-risk .name{font-weight:600; font-size:16px; text-transform:capitalize}
-.fw-risk .why{font-size:13px; color:var(--muted); margin-top:2px}
-.fw-risk .meter{height:4px; background:var(--line); border-radius:2px; margin-top:8px; overflow:hidden}
-.fw-risk .meter span{display:block; height:100%; border-radius:2px}
-.fw-risk .days{text-align:right}
-.fw-risk .days .n{font-family:var(--head); font-size:22px; font-weight:700; line-height:1}
-.fw-risk .days .t{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-top:4px}
-.fw-meal{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px;
-  display:grid; grid-template-columns:52px 1fr; gap:14px}
-.fw-day{font-family:var(--mono); text-align:center; border-radius:10px; background:var(--panel2);
-  border:1px solid var(--line); padding:8px 0; height:fit-content}
-.fw-day .d{font-size:10px; color:var(--muted); letter-spacing:.1em}
-.fw-day .n{font-family:var(--head); font-size:22px; font-weight:700; color:var(--accent)}
-.fw-meal .name{font-weight:600; font-size:16px}
-.fw-meal .why{font-size:13px; color:var(--muted); margin:4px 0 8px}
-.fw-uses{display:flex; flex-wrap:wrap; gap:6px}
-.fw-use{font-size:12px; padding:3px 9px; border-radius:999px; background:var(--panel2);
-  border:1px solid var(--line); text-transform:capitalize}
-.fw-cond{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px}
-@media (max-width:900px){.fw-cond{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.fw-tile{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px}
-.fw-tile .l{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
-.fw-tile .v{font-family:var(--head); font-size:24px; font-weight:600; margin-top:6px; line-height:1.15}
-.fw-tile .s{font-size:13px; color:var(--muted); margin-top:4px}
-.fw-gauge{height:6px; background:var(--line); border-radius:3px; margin-top:10px; overflow:hidden}
-.fw-gauge span{display:block; height:100%; background:var(--blue)}
-.fw-crops{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px}
-@media (max-width:900px){.fw-crops{grid-template-columns:1fr}}
-.fw-crop{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px;
-  display:flex; flex-direction:column; gap:8px}
-.fw-crop .top{display:flex; justify-content:space-between; align-items:center; gap:8px}
-.fw-crop .name{font-family:var(--head); font-size:20px; font-weight:600; text-transform:capitalize}
-.fw-crop .why{font-size:13px; color:var(--muted); line-height:1.45}
-.fw-note{background:var(--panel); border:1px solid var(--line); border-left:0; border-radius:14px;
-  padding:14px 16px; display:flex; gap:12px; align-items:center; flex-wrap:wrap}
-.fw-note .txt{font-size:15px; flex:1 1 260px}
-.fw-empty{background:var(--panel); border:1px dashed var(--line); border-radius:14px; padding:18px;
-  color:var(--muted); font-size:14px}
-.fw-item .name{font-weight:600; font-size:16px; text-transform:capitalize}
-.fw-item .meta{font-size:13px; color:var(--muted); margin-top:2px}
-.fw-item .row{display:flex; justify-content:space-between; align-items:center; gap:8px}
+[data-testid="stAppViewContainer"]{background:var(--lav-bg)}
+[data-testid="stHeader"]{background:transparent}
+[data-testid="stMainBlockContainer"]{background:var(--panel); border-radius:32px; max-width:1180px;
+  margin:72px auto 32px; padding:28px 32px 40px !important; box-shadow:0 30px 60px -30px rgba(60,40,120,.35)}
+@media (max-width:640px){
+  [data-testid="stAppViewContainer"]{background:var(--panel)}
+  [data-testid="stMainBlockContainer"]{border-radius:0; margin:48px 0 0; padding:16px 16px 40px !important; box-shadow:none}
+}
+.ms{font-family:'Material Symbols Rounded'; font-weight:400; font-style:normal; font-size:20px; line-height:1;
+  letter-spacing:normal; text-transform:none; white-space:nowrap; direction:ltr; -webkit-font-smoothing:antialiased;
+  font-feature-settings:'liga'; display:inline-block}
+.fw-top{display:flex; align-items:center; justify-content:space-between; gap:12px}
+.fw-hello{font-size:28px; font-weight:800; letter-spacing:-0.03em; margin:0; color:var(--ink); line-height:1.15}
+.fw-sub{color:var(--muted); font-size:14px; margin-top:4px}
+.fw-avatar{width:48px; height:48px; border-radius:50%; background:var(--lime); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; color:var(--dark); box-shadow:0 0 0 3px #fff}
+.fw-avatar .ms{font-size:24px}
+.fw-search{display:flex; align-items:center; gap:10px; background:var(--card); border-radius:999px; height:48px;
+  padding:0 18px; color:var(--muted); font-size:14px; text-decoration:none; margin-top:16px}
+.fw-search:hover{color:var(--ink)}
+.fw-h{display:flex; align-items:center; justify-content:space-between; margin:26px 0 12px}
+.fw-h h3{font-size:20px; font-weight:700; margin:0; color:var(--ink); letter-spacing:-0.02em; padding:0}
+.fw-h a{font-size:13px; color:var(--ink); font-weight:600}
+.fw-pill{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; padding:6px 12px;
+  border-radius:999px; white-space:nowrap}
+.fw-pill.lime{background:var(--t-lime); color:var(--lime-ink)}
+.fw-pill.lav{background:var(--t-lav); color:#3D358F}
+.fw-pill.peach{background:var(--t-peach); color:#8A3B12}
+.fw-pill.cream{background:var(--t-cream); color:#7A5200}
+.fw-pill.red{background:var(--t-red); color:#A42A1A}
+.fw-pill.ghost{background:var(--card); color:var(--ink); border:1px solid var(--line)}
+.fw-tile{width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; color:var(--ink)}
+.fw-tile.lime{background:var(--t-lime)} .fw-tile.lav{background:var(--t-lav)}
+.fw-tile.peach{background:var(--t-peach)} .fw-tile.cream{background:var(--t-cream)} .fw-tile.red{background:var(--t-red)}
+.fw-card{background:var(--card); border-radius:22px; padding:18px}
+.fw-feature{background:var(--dark); color:#fff; border-radius:24px; padding:22px; position:relative; overflow:hidden;
+  margin-top:18px}
+.fw-feature .eyebrow{display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:#CFCDE0}
+.fw-feature .title{font-size:24px; font-weight:700; letter-spacing:-0.02em; margin:14px 0 6px; max-width:70%; line-height:1.2}
+.fw-feature .desc{font-size:13px; color:#B7B5C9; max-width:68%; line-height:1.5}
+.fw-feature .cta{display:inline-flex; margin-top:16px; background:var(--lime); color:var(--dark); font-weight:700;
+  font-size:13px; padding:10px 18px; border-radius:999px; text-decoration:none}
+.fw-feature .blob{position:absolute; right:-28px; bottom:-28px; width:150px; height:150px; border-radius:50%;
+  background:#2B2B3B; display:flex; align-items:center; justify-content:center}
+.fw-feature .blob .ms{font-size:64px; color:var(--lime); margin:-18px 0 0 -18px}
+.fw-stats{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px}
+@media (max-width:900px){.fw-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fw-stat{background:var(--card); border-radius:22px; padding:16px; display:flex; flex-direction:column; gap:12px}
+.fw-stat .row{display:flex; align-items:center; gap:10px}
+.fw-stat .name{font-size:14px; font-weight:700; color:var(--ink); line-height:1.2}
+.fw-stat .small{font-size:12px; color:var(--muted)}
+.fw-stat .v{font-size:26px; font-weight:800; letter-spacing:-0.02em; color:var(--ink)}
+.fw-chart .bars{display:flex; align-items:flex-end; justify-content:space-between; gap:10px; height:150px;
+  margin-top:12px; padding:0 4px; background-image:linear-gradient(var(--line) 1px, transparent 1px);
+  background-size:100% 37.5px}
+.fw-chart .col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative}
+.fw-chart .bar{width:10px; border-radius:6px; background:var(--dark)}
+.fw-chart .bar.hot{background:var(--lime); width:12px}
+.fw-chart .tip{position:absolute; top:-6px; background:var(--dark); color:#fff; font-size:11px; font-weight:600;
+  padding:5px 8px; border-radius:8px; white-space:nowrap; left:-4px; transform:translateY(-100%); text-transform:capitalize}
+.fw-chart .labels{display:flex; justify-content:space-between; gap:10px; padding:8px 4px 0}
+.fw-chart .labels span{flex:1; text-align:center; font-size:11px; color:var(--muted); text-transform:capitalize;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.fw-chart .head{display:flex; justify-content:space-between; align-items:flex-start; gap:8px}
+.fw-chart .title{font-size:18px; font-weight:700; color:var(--ink)}
+.fw-chart .note{font-size:12px; color:var(--muted); margin-top:4px}
+.fw-chart .note b{color:#5E7F00}
+.fw-rows{display:flex; flex-direction:column; gap:10px}
+.fw-row{background:var(--card); border-radius:20px; padding:14px; display:flex; align-items:center; gap:12px}
+.fw-row .main{flex:1; min-width:0}
+.fw-row .name{font-size:15px; font-weight:700; color:var(--ink); text-transform:capitalize;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.fw-row .small{font-size:12px; color:var(--muted); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.fw-row .chev{width:30px; height:30px; border-radius:50%; background:var(--panel); display:flex;
+  align-items:center; justify-content:center; flex-shrink:0; color:var(--ink)}
+.fw-row .rem{text-align:left; flex-shrink:0; min-width:64px}
+.fw-row .rem .small{margin-top:0}
+.fw-row .rem b{font-size:14px; color:var(--ink)}
+.fw-ring{display:flex; align-items:center; gap:8px; flex-shrink:0}
+.fw-ring .r{width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center}
+.fw-ring .r i{display:block; width:18px; height:18px; border-radius:50%; background:#fff}
+.fw-ring b{font-size:13px; color:var(--ink); min-width:34px}
+.fw-group{background:var(--card); border-radius:22px; padding:8px 14px}
+.fw-group .fw-row{padding:12px 0; border-radius:0; border-bottom:1px solid var(--line)}
+.fw-group .fw-row:last-child{border-bottom:0}
+.fw-conds{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px}
+@media (max-width:900px){.fw-conds{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fw-cond{background:var(--card); border-radius:20px; padding:14px}
+.fw-cond .l{font-size:12px; color:var(--muted); display:flex; align-items:center; gap:6px}
+.fw-cond .l .ms{font-size:16px}
+.fw-cond .v{font-size:17px; font-weight:700; color:var(--ink); margin-top:8px; line-height:1.2}
+.fw-cond .gauge{height:6px; background:var(--panel); border-radius:3px; margin-top:8px; overflow:hidden}
+.fw-cond .gauge span{display:block; height:100%; background:var(--dark); border-radius:3px}
+.fw-note{background:var(--t-lime); color:#2E4200; border-radius:20px; padding:14px 16px; font-size:14px;
+  font-weight:600; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.fw-empty{background:var(--card); border-radius:20px; padding:18px; color:var(--muted); font-size:14px}
+.fw-grid2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px}
+@media (max-width:900px){.fw-grid2{grid-template-columns:1fr}}
+/* Streamlit widgets in the same style */
+[class*="st-key-card-"], .st-key-addform{background:var(--card); border-radius:22px; padding:16px; gap:6px}
+[class*="st-key-card-"] .fw-row{background:transparent}
+.stButton button[kind="primary"]{background:var(--lime); color:var(--dark); border:0; font-weight:700; border-radius:999px; min-height:48px}
+.stButton button[kind="primary"]:hover{background:#C9E85A; color:var(--dark)}
+.stButton button[kind="tertiary"]{color:var(--muted)}
+[data-testid="stTextInputRootElement"], [data-baseweb="select"] > div, [data-testid="stNumberInputContainer"],
+[data-testid="stDateInputField"]{background:var(--panel) !important; border-radius:14px !important}
 </style>
 """
 
@@ -108,8 +162,17 @@ def inject_css() -> None:
     st.html(CSS)
 
 
+def icon(name: str, size: int | None = None) -> str:
+    style = f' style="font-size:{size}px"' if size else ""
+    return f'<span class="ms" aria-hidden="true"{style}>{escape(name)}</span>'
+
+
+def item_icon(category: str) -> tuple[str, str]:
+    return CATEGORY_ICON.get(category, ("restaurant", "cream"))
+
+
 def days_text(days: int) -> tuple[str, str]:
-    """Big number and its label for a days-left count."""
+    """Number and label for a days-left count."""
     if days < 0:
         return str(-days), "days over"
     if days == 0:
@@ -117,111 +180,171 @@ def days_text(days: int) -> tuple[str, str]:
     return str(days), "day left" if days == 1 else "days left"
 
 
-def hero(subtitle: str, chips: list[tuple[str, str]]) -> None:
-    chip_html = "".join(
-        f'<span class="fw-chip">{escape(label)} <b>{escape(value)}</b></span>' for label, value in chips
-    )
+def days_short(days: int) -> str:
+    if days < 0:
+        return f"{-days}d over"
+    if days == 0:
+        return "Today"
+    return f"{days} day" if days == 1 else f"{days} days"
+
+
+def greeting() -> str:
+    hour = datetime.now().hour
+    if hour < 12:
+        return "Good morning"
+    if hour < 18:
+        return "Good afternoon"
+    return "Good evening"
+
+
+def today_label() -> str:
+    return date.today().strftime("%A, %b %d").replace(" 0", " ")
+
+
+def top(title: str, subtitle: str, avatar_icon: str = "eco") -> None:
     st.html(
-        f'<div class="fw-hero"><div class="fw-brand"><div class="fw-mark"><span></span><span></span><span></span></div>'
-        f'<div><p class="fw-title">Fallow</p><div class="fw-tag">{escape(subtitle)}</div></div></div>'
-        f'<div class="fw-chips">{chip_html}</div></div>'
+        f'<div class="fw-top"><div><p class="fw-hello">{escape(title)}</p>'
+        f'<div class="fw-sub">{escape(subtitle)}</div></div>'
+        f'<div class="fw-avatar">{icon(avatar_icon)}</div></div>'
     )
 
 
-def section(label: str) -> None:
-    st.html(f'<div class="fw-sec">{escape(label)}</div>')
+def search_link(label: str, href: str = "pantry") -> None:
+    st.html(f'<a class="fw-search" href="{escape(href)}" target="_self">{icon("search")}{escape(label)}</a>')
 
 
-def kpis(rows: list[tuple[str, str, str]]) -> None:
-    """rows: (value, label, tone) where tone is '', 'alert' or 'good'."""
+def heading(
+    title: str, link_label: str | None = None, href: str | None = None, pill: str | None = None, anchor: str | None = None
+) -> None:
+    right = ""
+    if link_label and href:
+        right = f'<a href="{escape(href)}" target="_self">{escape(link_label)}</a>'
+    elif pill:
+        right = f'<span class="fw-pill ghost">{escape(pill)}</span>'
+    ident = f' id="{escape(anchor)}"' if anchor else ""
+    st.html(f'<div class="fw-h"{ident}><h3>{escape(title)}</h3>{right}</div>')
+
+
+def feature(eyebrow: str, title: str, desc: str, cta: str, href: str, glyph: str) -> None:
+    st.html(
+        f'<div class="fw-feature"><div class="eyebrow">{icon("bolt", 18)}{escape(eyebrow)}</div>'
+        f'<div class="title">{escape(title)}</div><div class="desc">{escape(desc)}</div>'
+        f'<a class="cta" href="{escape(href)}" target="_self">{escape(cta)}</a>'
+        f'<div class="blob">{icon(glyph)}</div></div>'
+    )
+
+
+def stats(rows: list[tuple[str, str, str, str]]) -> None:
+    """rows: (icon, tone, value, label)."""
     cells = "".join(
-        f'<div class="fw-kpi {escape(tone)}"><div class="v">{escape(value)}</div>'
-        f'<div class="l">{escape(label)}</div></div>'
-        for value, label, tone in rows
+        f'<div class="fw-stat"><div class="row"><div class="fw-tile {escape(tone)}">{icon(ic)}</div>'
+        f'<div class="name">{escape(label)}</div></div><div class="v">{escape(value)}</div></div>'
+        for ic, tone, value, label in rows
     )
-    st.html(f'<div class="fw-kpis">{cells}</div>')
+    st.html(f'<div class="fw-stats">{cells}</div>')
 
 
 def empty(text: str) -> None:
     st.html(f'<div class="fw-empty">{escape(text)}</div>')
 
 
-def risk_list(risks: list[SpoilageRisk], limit: int | None = None) -> None:
-    shown = risks[:limit] if limit else risks
-    rows = []
-    for risk in shown:
-        color = f"var(--{risk.risk})"
-        n, label = days_text(risk.days_remaining)
-        fresh = max(0, min(risk.days_remaining, 14)) / 14 * 100
-        rows.append(
-            f'<div class="fw-risk"><div class="bar" style="background:{color}"></div>'
-            f'<div><div class="name">{escape(risk.item_name)}</div>'
-            f'<div class="why">{escape(risk.reason)}</div>'
-            f'<div class="meter"><span style="width:{fresh:.0f}%;background:{color}"></span></div></div>'
-            f'<div class="days"><div class="n" style="color:{color}">{n}</div>'
-            f'<div class="t" style="color:{color}">{label}</div></div></div>'
+def days_chart(risks: list[SpoilageRisk], limit: int = 7, cap: int = 7) -> None:
+    """Bar chart of days left for the soonest items; the most urgent bar is lime."""
+    shown = risks[:limit]
+    if not shown:
+        return
+    cols, labels = [], []
+    for i, risk in enumerate(shown):
+        d = max(0, min(risk.days_remaining, cap))
+        height = 14 + d / cap * 86
+        hot = i == 0
+        tip = f'<div class="tip">{escape(risk.item_name)} &middot; {escape(days_short(risk.days_remaining))}</div>' if hot else ""
+        cols.append(
+            f'<div class="col"><div class="bar{" hot" if hot else ""}" '
+            f'style="height:{height:.0f}%;position:relative">{tip}</div></div>'
         )
-    st.html(f'<div class="fw-list">{"".join(rows)}</div>')
+        labels.append(f"<span>{escape(risk.item_name)}</span>")
+    urgent = sum(1 for r in risks if r.days_remaining <= 2)
+    st.html(
+        '<div class="fw-card fw-chart"><div class="head"><div><div class="title">Days left</div>'
+        f'<div class="note"><b>{urgent}</b> to cook within 2 days &middot; bars cap at {cap}</div></div>'
+        f'<span class="fw-pill ghost">Soonest {len(shown)}</span></div>'
+        f'<div class="bars" style="margin-top:44px">{"".join(cols)}</div>'
+        f'<div class="labels">{"".join(labels)}</div></div>'
+    )
 
 
-def meal_list(plan: MealPlan) -> None:
+def risk_rows(risks: list[SpoilageRisk], items: list[InventoryItem], limit: int | None = None) -> None:
+    by_id = {i.id: i for i in items}
     rows = []
-    for meal in plan.meals:
-        uses = "".join(f'<span class="fw-use">{escape(u)}</span>' for u in meal.uses)
+    for risk in risks[:limit] if limit else risks:
+        item = by_id.get(risk.item_id)
+        ic, tone = item_icon(item.category if item else "")
+        where = f"{item.quantity:g} {item.unit} &middot; {escape(item.location)}" if item else ""
         rows.append(
-            f'<div class="fw-meal"><div class="fw-day"><div class="d">DAY</div>'
-            f'<div class="n">{meal.day}</div></div>'
-            f'<div><div class="name">{escape(meal.name)}</div>'
-            f'<div class="why">{escape(meal.why)}</div><div class="fw-uses">{uses}</div></div></div>'
+            f'<div class="fw-row"><div class="fw-tile {tone}">{icon(ic)}</div>'
+            f'<div class="main"><div class="name">{escape(risk.item_name)}</div><div class="small">{where}</div></div>'
+            f'<div class="rem"><div class="small">Remaining</div><b>{escape(days_short(risk.days_remaining))}</b></div>'
+            f'<span class="fw-pill {RISK_TONE[risk.risk]}">{RISK_LABEL[risk.risk]}</span></div>'
         )
-    st.html(f'<div class="fw-list">{"".join(rows)}</div>')
+    st.html(f'<div class="fw-rows">{"".join(rows)}</div>')
+
+
+def meal_rows(plan: MealPlan) -> None:
+    rows = []
+    for i, meal in enumerate(plan.meals):
+        tone = TILE_TONES[i % len(TILE_TONES)]
+        uses = ", ".join(meal.uses)
+        rows.append(
+            f'<div class="fw-row"><div class="fw-tile {tone}">{icon("skillet")}</div>'
+            f'<div class="main"><div class="name" style="text-transform:none;white-space:normal">{escape(meal.name)}</div>'
+            f'<div class="small">Day {meal.day} &middot; {escape(uses)}</div></div>'
+            f'<div class="chev">{icon("chevron_right", 18)}</div></div>'
+        )
+    st.html(f'<div class="fw-card fw-group">{"".join(rows)}</div>')
 
 
 def conditions(snapshot: SensorSnapshot) -> None:
     moisture = snapshot.soil_moisture
     gauge = (
-        f'<div class="fw-gauge"><span style="width:{moisture * 100:.0f}%"></span></div>'
-        if moisture is not None
-        else ""
+        f'<div class="gauge"><span style="width:{moisture * 100:.0f}%"></span></div>' if moisture is not None else ""
     )
-    moist_text = f"{moisture * 100:.0f}% moisture" if moisture is not None else "moisture unknown"
-    frost_tone = "red" if snapshot.frost_risk else "green"
-    frost_text = "Frost risk" if snapshot.frost_risk else "No frost"
+    frost = '<span class="fw-pill red">Frost risk</span>' if snapshot.frost_risk else '<span class="fw-pill lime">No frost</span>'
     st.html(
-        '<div class="fw-cond">'
-        f'<div class="fw-tile"><div class="l">Location</div><div class="v">{escape(snapshot.location)}</div>'
-        f'<div class="s">Reading {escape(snapshot.captured_at.strftime("%b %d, %H:%M UTC"))}</div></div>'
-        f'<div class="fw-tile"><div class="l">Weather</div><div class="v">{snapshot.temp_c:.0f}&deg;C</div>'
-        f'<div class="s">{escape(snapshot.weather)}</div></div>'
-        f'<div class="fw-tile"><div class="l">Soil</div><div class="v">{escape(snapshot.soil_condition)}</div>'
-        f'<div class="s">{moist_text}</div>{gauge}</div>'
-        f'<div class="fw-tile"><div class="l">Frost</div><div class="v" style="margin-top:10px">'
-        f'<span class="fw-chip {frost_tone}">{frost_text}</span></div></div>'
+        '<div class="fw-conds">'
+        f'<div class="fw-cond"><div class="l">{icon("location_on")}Location</div><div class="v">{escape(snapshot.location)}</div></div>'
+        f'<div class="fw-cond"><div class="l">{icon("thermostat")}Weather</div><div class="v">{snapshot.temp_c:.0f}&deg;C</div><div class="l" style="margin-top:4px">{escape(snapshot.weather)}</div></div>'
+        f'<div class="fw-cond"><div class="l">{icon("water_drop")}Soil</div><div class="v">{escape(snapshot.soil_condition.capitalize())}</div>{gauge}</div>'
+        f'<div class="fw-cond"><div class="l">{icon("ac_unit")}Frost</div><div class="v">{frost}</div></div>'
         "</div>"
     )
 
 
 def balance(grow: GrowPlan) -> None:
-    gaps = "".join(f'<span class="fw-chip yellow">{escape(g)}</span>' for g in grow.gaps)
-    label = '<span class="fw-chip">Thin reserves</span>' if grow.gaps else ""
-    st.html(
-        f'<div class="fw-note"><div class="txt">{escape(grow.balance_notes)}</div>'
-        f'<div class="fw-chips">{label}{gaps}</div></div>'
-    )
+    gaps = "".join(f'<span class="fw-pill cream">{escape(g)}</span>' for g in grow.gaps)
+    st.html(f'<div class="fw-note">{icon("balance")}<span style="flex:1 1 200px">{escape(grow.balance_notes)}</span>{gaps}</div>')
 
 
-def crop_grid(grow: GrowPlan) -> None:
-    cards = []
+def crop_rows(grow: GrowPlan) -> None:
+    rows = []
     for crop in grow.crops:
-        tone = FILL_TONE.get(crop.fills, "green")
-        action_tone = "green" if crop.action == "plant now" else ""
-        cards.append(
-            f'<div class="fw-crop"><div class="top"><span class="name">{escape(crop.crop)}</span>'
-            f'<span class="fw-chip {action_tone}">{escape(crop.action)}</span></div>'
-            f'<div class="why">{escape(crop.reason)}</div>'
-            f'<div><span class="fw-chip {tone}">fills {escape(crop.fills)}</span></div></div>'
+        tone = FILL_TONE.get(crop.fills, "lime")
+        status = '<span class="fw-pill lime">Plant now</span>' if crop.action == "plant now" else '<span class="fw-pill peach">Wait</span>'
+        rows.append(
+            f'<div class="fw-row"><div class="fw-tile {tone}">{icon("potted_plant")}</div>'
+            f'<div class="main"><div class="name">{escape(crop.crop)}</div>'
+            f'<div class="small">Fills {escape(crop.fills)}</div></div>{status}</div>'
         )
-    st.html(f'<div class="fw-crops">{"".join(cards)}</div>')
+    st.html(f'<div class="fw-rows">{"".join(rows)}</div>')
+
+
+def crop_reasons(grow: GrowPlan) -> None:
+    rows = "".join(
+        f'<div class="fw-row"><div class="main"><div class="name">{escape(c.crop)}</div>'
+        f'<div class="small" style="white-space:normal">{escape(c.reason)}</div></div></div>'
+        for c in grow.crops
+    )
+    st.html(f'<div class="fw-card fw-group">{rows}</div>')
 
 
 def source_note(risks: list[SpoilageRisk]) -> str:
@@ -231,7 +354,3 @@ def source_note(risks: list[SpoilageRisk]) -> str:
     if sources == {"llm"}:
         return "AI model"
     return "AI model + table"
-
-
-def today_label() -> str:
-    return date.today().strftime("%a %b %d").replace(" 0", " ")

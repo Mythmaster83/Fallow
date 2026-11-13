@@ -23,10 +23,7 @@ items = store.list_items()
 risks = predict_spoilage(items, client=LLMClient.from_env())
 risk_by_id = {r.item_id: r for r in risks}
 
-ui.hero(
-    "Everything on hand, soonest to spoil first.",
-    [("today", ui.today_label()), ("items", str(len(items))), ("spoilage", ui.source_note(risks))],
-)
+ui.top("Pantry", f"{len(items)} items \u00b7 soonest to spoil first", avatar_icon="kitchen")
 
 # A message set before a rerun, shown once after it.
 flash = st.session_state.pop("pantry_flash", None)
@@ -77,7 +74,7 @@ def _remove(item_id: str, name: str) -> None:
 left, right = st.columns([1.6, 1], gap="large")
 
 with left:
-    ui.section("On hand")
+    ui.heading("On hand")
     where = st.segmented_control(
         "Where", ["all"] + LOCATIONS, default="all", label_visibility="collapsed"
     )
@@ -103,22 +100,18 @@ with left:
         cols = st.columns(2)
         for col, item in zip(cols, shown[row_start : row_start + 2]):
             risk = risk_by_id.get(item.id)
-            with col.container(border=True):
+            with col.container(key=f"card-{item.id}"):
+                ic, tone = ui.item_icon(item.category)
                 if risk:
-                    n, label = ui.days_text(risk.days_remaining)
-                    badge = (
-                        f'<span class="fw-chip" style="color:var(--{risk.risk});border-color:var(--{risk.risk})">'
-                        f"{label if label == 'today' else n + ' ' + label}</span>"
-                    )
+                    pill = f'<span class="fw-pill {ui.RISK_TONE[risk.risk]}">{escape(ui.days_short(risk.days_remaining))}</span>'
                 else:
-                    badge = '<span class="fw-chip">used up</span>'
-                qty = f"{item.quantity:g} {item.unit}"
+                    pill = '<span class="fw-pill ghost">used up</span>'
                 expires = f"expires {item.expires_on:%b %d}" if item.expires_on else "no expiry date"
+                meta = f"{item.quantity:g} {item.unit} \u00b7 {item.location} \u00b7 {expires}"
                 st.html(
-                    f'<div class="fw-item"><div class="row"><span class="name">{escape(item.name)}</span>{badge}</div>'
-                    f'<div class="meta">{escape(qty)} &middot; {escape(item.location)} &middot; '
-                    f'{escape(item.category.replace("_", " "))}</div>'
-                    f'<div class="meta">{escape(expires)}</div></div>'
+                    f'<div class="fw-row" style="padding:0"><div class="fw-tile {tone}">{ui.icon(ic)}</div>'
+                    f'<div class="main"><div class="name">{escape(item.name)}</div>'
+                    f'<div class="small">{escape(meta)}</div></div>{pill}</div>'
                 )
                 st.button(
                     "Remove",
@@ -130,8 +123,8 @@ with left:
                 )
 
 with right:
-    ui.section("Add food")
-    with st.container(border=True):
+    ui.heading("Add food")
+    with st.container(key="addform"):
         st.text_input("Name", key="add_name", placeholder="strawberries")
         c1, c2 = st.columns(2)
         c1.selectbox(
