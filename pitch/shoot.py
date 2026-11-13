@@ -217,6 +217,35 @@ def features_region(slugs: list[str]) -> str:
     return "\n".join(lines) + "\n"
 
 
+CAD_DIR = PITCH / "cad"
+CAD_IMAGES = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
+CAD_VIDEOS = {".mp4", ".webm"}
+
+
+def cad_region() -> str:
+    """Show whatever renders the CAD team dropped into pitch/cad/ (max 4)."""
+    files = sorted(
+        f for f in CAD_DIR.glob("*") if f.suffix.lower() in CAD_IMAGES | CAD_VIDEOS
+    ) if CAD_DIR.is_dir() else []
+    if not files:
+        return (
+            '        <div class="feature-card"><div class="todo">'
+            "CAD renders go here — drop images or a short .mp4 into pitch/cad/"
+            "</div></div>\n"
+        )
+    lines = ['        <div class="cad-grid">']
+    for f in files[:4]:
+        src = f"cad/{f.name}"
+        caption = html.escape(f.stem.replace("_", " ").replace("-", " "))
+        if f.suffix.lower() in CAD_VIDEOS:
+            media = f'<video src="{src}" autoplay loop muted playsinline></video>'
+        else:
+            media = f'<img src="{src}" alt="{caption}">'
+        lines.append(f"          <figure>{media}<figcaption>{caption}</figcaption></figure>")
+    lines.append("        </div>")
+    return "\n".join(lines) + "\n"
+
+
 def replace_region(text: str, name: str, body: str) -> str:
     pattern = re.compile(
         rf"(<!-- SHOTS:{name}:START -->\n).*?(<!-- SHOTS:{name}:END -->)", re.DOTALL
@@ -230,6 +259,7 @@ def update_deck(slugs: list[str]) -> None:
     text = DECK.read_text(encoding="utf-8")
     text = replace_region(text, "DEMO", demo_region(slugs))
     text = replace_region(text, "FEATURES", features_region(slugs))
+    text = replace_region(text, "CAD", cad_region())
     DECK.write_text(text, encoding="utf-8")
     print(f"  updated {DECK.relative_to(ROOT)}")
 
