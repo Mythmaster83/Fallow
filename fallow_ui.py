@@ -192,8 +192,21 @@ CSS = """
 .fw-steps li::before{content:counter(s); flex-shrink:0; width:24px; height:24px; border-radius:50%; background:var(--t-lime);
   color:var(--lime-ink); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center}
 /* weather + health cards */
-.fw-duo{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:12px}
-@media (max-width:900px){.fw-duo{grid-template-columns:1fr}}
+.fw-duo{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:12px; align-items:stretch}
+.fw-duo>.fw-card{display:flex; flex-direction:column}
+.fw-duo>.fw-card .fw-foot{margin-top:auto; padding-top:12px}
+@media (max-width:640px){
+  .fw-duo>.fw-card{padding:14px 12px}
+  .fw-duo>.fw-card .chead{flex-direction:column; align-items:flex-start; gap:6px}
+  .fw-duo>.fw-card .ctitle{font-size:15px}
+  .fw-duo>.fw-card .chead .fw-pill{font-size:10px; padding:3px 8px}
+  .fw-duo .fw-mini{grid-template-columns:1fr; gap:8px; margin-top:10px}
+  .fw-duo .fw-mini .m{padding:10px}
+  .fw-duo .fw-mini .v{font-size:16px; margin:4px 0}
+  .fw-duo .fw-mini .fw-pill{font-size:10px; padding:3px 8px; white-space:normal}
+  .fw-duo>.fw-card.fw-wx .now{flex-direction:column; align-items:flex-start; gap:4px; margin:10px 0 0}
+  .fw-duo>.fw-card.fw-wx .deg{font-size:38px}
+}
 .fw-card .chead{display:flex; justify-content:space-between; align-items:center; gap:8px}
 .fw-card .ctitle{font-size:18px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:8px}
 .fw-wx .now{display:flex; align-items:center; gap:14px; margin:14px 0 4px}
