@@ -13,8 +13,8 @@ offline backup: a shelf-life table plus the expiry date already on the item.
 A **protocol** here is the small contract every sensor must follow — one
 `read()` method that returns the same snapshot type.
 
-The live sensor is not built yet. The mock sensor replays a saved reading so
-the garden page works today.
+The live sensor reads weather, frost, and soil moisture from Open-Meteo. The
+mock sensor replays a saved reading so the garden page works offline.
 
 ## Setup
 
@@ -129,8 +129,7 @@ Each package under `larder/` also has an `__init__.py` so Python can import it.
 The basic path works offline: sample pantry, shelf-life spoilage, a three-day
 cook list, and a mock garden plan. Rough edges are written down in
 [docs/known-issues.md](docs/known-issues.md) instead of being patched in this
-baseline. The live sensor is one of those: it fails clearly until a real feed
-exists.
+baseline.
 
 ## License
 
