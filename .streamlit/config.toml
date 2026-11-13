@@ -1,0 +1,22 @@
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
+
+[theme]
+base = "dark"
+primaryColor = "#A6E35F"
+backgroundColor = "#0F1410"
+secondaryBackgroundColor = "#1C251E"
+textColor = "#E7EDE3"
+borderColor = "#2A352C"
+linkColor = "#A6E35F"
+baseRadius = "0.75rem"
+showWidgetBorder = true
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+headingFont = "Space Grotesk:https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap"
+codeFont = "JetBrains Mono:https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap"

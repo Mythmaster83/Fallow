@@ -42,8 +42,12 @@ streamlit run app.py
 ```
 
 Streamlit prints a local address, usually `http://localhost:8501`. Open that
-in a browser. The home page is the dashboard. **Inventory** and **Grow** are
-in the sidebar.
+in a browser. The home page is the dashboard. **Pantry** and **Grow** are in
+the top bar.
+
+The look (dark theme, fonts, cards) lives in `.streamlit/config.toml` and
+`fallow_ui.py`. After editing `fallow_ui.py`, stop the server with Ctrl+C and
+start it again so Streamlit picks up the new styles.
 
 Leave this command running while you use the site. Stop it with Ctrl+C in
 that terminal. Nothing here is deployed to the public internet; it runs on
@@ -69,10 +73,13 @@ every meal uses food already in the inventory.
 ├── README.md
 ├── pyproject.toml
 ├── .env.example                 # LLM_API_KEY, SENSOR_MODE=mock|live
-├── app.py                       # Streamlit entry (dashboard)
-├── pages/
-│   ├── 1_Inventory.py
-│   └── 2_Grow.py
+├── app.py                       # Streamlit entry: theme + top navigation
+├── fallow_ui.py                 # Shared styles and card components
+├── .streamlit/config.toml       # Dark theme, fonts, colors
+├── views/
+│   ├── dashboard.py
+│   ├── pantry.py                # Was pages/1_Inventory.py
+│   └── grow.py
 ├── larder/
 │   ├── models.py                # Pydantic: InventoryItem, SpoilageRisk, MealPlan, GrowPlan
 │   ├── spoilage/

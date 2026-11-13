@@ -37,14 +37,10 @@ pantry, shelf-life spoilage, a short cook list, and the mock garden plan.
 - The sample dates are fixed in November 2026. On that day spinach is critical.
   On a later day the same rows are overdue by a growing number of days. Later:
   seed the sample relative to today.
-- `acquired_on` is not checked against `expires_on`. An acquired date after
-  the expiry is stored as-is.
 - Shelf life ignores where the food sits. Freezer and counter use the same
   table unless you pick the `frozen` category yourself.
 - Two rows can share a display name. Meals key off ids, so the plan is still
   honest, but the table looks like one food twice.
-- The "Added …" confirmation is cleared at once because the page reruns
-  immediately after the write.
 
 ## Garden and sensors
 
@@ -64,5 +60,3 @@ pantry, shelf-life spoilage, a short cook list, and the mock garden plan.
   the pages. They catch file and mode errors, not a Pydantic validation
   error, so a broken fixture becomes a traceback instead of the warning used
   for the live sensor.
-- The home entry in the sidebar is labeled `app`, because that is the script
-  name. Inventory and Grow pick up their names from the page files.
