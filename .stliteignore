@@ -1,0 +1,6 @@
+pitch/
+tests/
+docs/
+.github/
+*.md
+data/

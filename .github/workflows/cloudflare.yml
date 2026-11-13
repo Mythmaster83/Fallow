@@ -1,0 +1,39 @@
+# Packages the Streamlit app and publishes it on every push to main.
+# Cloudflare Workers Paid is required. Streamlit cannot boot inside the
+# free plan's CPU limit, and the generated Worker config asks for that limit.
+name: Deploy to Cloudflare
+
+on:
+  push:
+    branches:
+      - main
+      - cursor/cloudflare-autodeploy-3346
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Package the Streamlit app
+        run: npx --yes @stlite/cloudflare@0.8.0 build "$GITHUB_WORKSPACE" -o /tmp/fallow-dist --entrypoint app.py --name fallow
+
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: /tmp/fallow-dist
+          command: deploy

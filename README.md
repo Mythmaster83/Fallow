@@ -46,12 +46,24 @@ in a browser. The top bar has Dashboard, Pantry, Soil & farm, Health,
 Food & recipes, and Cycle.
 
 Leave this command running while you use the site. Stop it with Ctrl+C in
-that terminal. Nothing here is deployed to the public internet; it runs on
-your machine.
+that terminal.
 
 The inventory is a SQLite file at `data/fallow.db`. The first launch copies
 in `fixtures/inventory.sample.json`. Delete that database file to load the
 sample again.
+
+## Deploy
+
+A push to `main` publishes the app to Cloudflare Workers. The workflow is
+`.github/workflows/cloudflare.yml`. It needs the Workers Paid plan, because
+Streamlit cannot start inside the free plan's CPU limit, and these GitHub
+Actions secrets:
+
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+
+The public site starts from the sample inventory. Pantry edits live on that
+Worker and reset after the instance goes idle.
 
 ## Tests
 
