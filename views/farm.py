@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-import os
 from datetime import date
+
+import os
 
 import streamlit as st
 from pydantic import ValidationError
 
 import fallow_ui as ui
+from larder.achievements import ProgressStore, record_plant
 from larder.grow.advisor import build_grow_plan
 from larder.lifecycle import plant
 from larder.llm.client import LLMClient
@@ -38,58 +40,38 @@ if plant_now:
 else:
     ui.feature("Hold off", "Nothing to plant yet", grow.balance_notes, "See conditions", "#conditions", "potted_plant")
 
-SOURCE_PILL = {"live": "Live · Open-Meteo", "fallback": "Recorded (offline)", "mock": "Mock reading"}
-ui.heading("Conditions", pill=SOURCE_PILL[snapshot.source], anchor="conditions")
-if snapshot.note:
-    st.caption(snapshot.note)
+ui.heading("Conditions", pill="Mock reading" if mode == "mock" else "Live", anchor="conditions")
 ui.conditions(snapshot)
-ui.environment_details(snapshot)
 
 ui.heading("Pantry balance", "Food health", "health")
 ui.balance(grow)
-if grow.soil_notes:
-    st.caption(grow.soil_notes)
 
-flash = st.session_state.pop("farm_flash", None)
-if flash:
-    st.success(flash, icon=":material/check_circle:")
-
-
-def _plant(crop: str) -> None:
-    """Put the crop in the ground, digging in finished compost if there is some."""
-    amendment = next((i for i in items if i.state == "soil_amendment" and i.quantity > 0), None)
-    store.save(plant(crop, date.today(), amendment=amendment))
-    fed = f", fed with {amendment.name}" if amendment else ""
-    st.session_state.farm_flash = f"Planted {crop}{fed}. It's growing on the Cycle page; harvest it there."
-
-
-growing = {i.name.lower() for i in items if i.state == "growing"}
 ui.heading("Plant")
 if grow.crops:
-    ui.crop_rows(grow)
-    sow = [c for c in grow.crops if c.action == "plant now"]
-    if sow:
-        cols = st.columns(len(sow))
-        for col, crop in zip(cols, sow):
-            in_ground = crop.crop.lower() in growing
-            col.button(
-                f"{crop.crop.capitalize()} is in" if in_ground else f"Plant {crop.crop}",
-                key=f"plant-{crop.crop}",
-                icon=":material/check:" if in_ground else ":material/potted_plant:",
-                type="secondary" if in_ground else "primary",
-                disabled=in_ground,
-                on_click=_plant,
-                args=(crop.crop,),
-                width="stretch",
-            )
+    planted = set(ProgressStore().load().planted)
+
+    def _plant(index: int) -> None:
+        crop = grow.crops[index]
+        amendment = next((i for i in items if i.state == "soil_amendment" and i.quantity > 0), None)
+        store.save(plant(crop.crop, date.today(), amendment=amendment))  # growing; harvest it on Cycle
+        st.session_state.fw_reward = record_plant(ProgressStore(), crop, grow.gaps)
+
+    cols = st.columns(min(len(grow.crops), 3), gap="small")
+    for index, crop in enumerate(grow.crops):
+        with cols[index % len(cols)]:
+            with st.container(key=f"card-crop-{index}"):
+                ui.crop_rows(grow.model_copy(update={"crops": [crop]}))
+                if crop.crop in planted:
+                    st.html('<span class="fw-pill lime">Planted</span>')
+                elif crop.action == "plant now":
+                    st.button("Mark planted", key=f"plant-{index}", type="primary", icon=":material/potted_plant:",
+                              on_click=_plant, args=(index,), width="stretch")
     ui.heading("Why these crops", anchor="why")
     ui.crop_reasons(grow)
 else:
     ui.empty("Nothing to plant for this reading.")
 
-if snapshot.source == "mock":
-    st.caption("Mock mode replays fixtures/sensor.sample.json. Set SENSOR_MODE=live for real weather and soil from Open-Meteo.")
-elif snapshot.source == "live":
-    st.caption(f"Live reading from Open-Meteo at {snapshot.captured_at:%H:%M}. Refreshes every 10 minutes.")
+if mode == "mock":
+    st.caption("Mock mode replays fixtures/sensor.sample.json. Live mode is reserved for a real location, weather, and soil feed.")
 with st.expander("Raw sensor reading"):
     st.json(snapshot.model_dump(mode="json"))

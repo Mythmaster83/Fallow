@@ -11,15 +11,15 @@ import streamlit as st
 
 import fallow_ui as ui
 from larder.llm.client import LLMClient
-from larder.models import FOOD_STATES, STORAGE_LOCATIONS, InventoryItem
+from larder.models import InventoryItem
 from larder.spoilage.predictor import predict_spoilage
 from larder.spoilage.shelf_life import CATEGORY_DAYS
 from larder.store import open_store
 
-LOCATIONS = [loc for loc in STORAGE_LOCATIONS if loc not in {"ground", "compost bin"}]
+LOCATIONS = ["fridge", "pantry", "freezer", "counter"]
 
 store = open_store()
-items = [item for item in store.list_items() if item.state in FOOD_STATES]
+items = store.list_items()
 risks = predict_spoilage(items, client=LLMClient.from_env())
 risk_by_id = {r.item_id: r for r in risks}
 
@@ -107,7 +107,7 @@ with left:
                 else:
                     pill = '<span class="fw-pill ghost">used up</span>'
                 expires = f"expires {item.expires_on:%b %d}" if item.expires_on else "no expiry date"
-                meta = f"{item.quantity:g} {item.unit} \u00b7 {item.location} \u00b7 {item.state.replace('_', ' ')} \u00b7 {expires}"
+                meta = f"{item.quantity:g} {item.unit} \u00b7 {item.location} \u00b7 {expires}"
                 st.html(
                     f'<div class="fw-row" style="padding:0"><div class="fw-tile {tone}">{ui.icon(ic)}</div>'
                     f'<div class="main"><div class="name">{escape(item.name)}</div>'

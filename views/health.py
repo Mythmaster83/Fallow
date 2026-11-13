@@ -7,12 +7,11 @@ from html import escape
 import streamlit as st
 
 import fallow_ui as ui
+from larder.achievements import ProgressStore, record_health_check
 from larder.health.nutrition import nutrition_report
+from larder.health.body import read_body_sample
 from larder.health.vitals import body_note, try_load_vitals
 from larder.llm.client import LLMClient
-from larder.sensors import current_sensor
-from larder.sensors.base import LiveSensorUnavailable
-from larder.sensors.warnings import condition_warnings
 from larder.spoilage.predictor import predict_spoilage
 from larder.store import open_store
 
@@ -21,20 +20,11 @@ items = store.list_items()
 risks = predict_spoilage(items, client=LLMClient.from_env())
 report = nutrition_report(items, risks=risks)
 
-ui.top("Health", f"{ui.today_label()} · body, supplies, and land", avatar_icon="monitor_heart")
+checkup = record_health_check(ProgressStore())
+if checkup is not None:
+    st.session_state.fw_reward = checkup
 
-# Body (wearable) and land (sensors): the two inputs beside the pantry.
-vitals = try_load_vitals()
-try:
-    snapshot = current_sensor().read()
-except (LiveSensorUnavailable, ValueError, FileNotFoundError, OSError):
-    snapshot = None
-ui.heading("Body and land")
-ui.condition_banner(snapshot, vitals, condition_warnings(snapshot) if snapshot else ["No weather reading"])
-if snapshot:
-    ui.environment_details(snapshot)
-st.html(f'<div class="fw-note">{ui.icon("tips_and_updates")}<span style="flex:1 1 200px">{escape(body_note(vitals))}</span></div>')
-ui.heading("Supplies")
+ui.top("Health", f"{ui.today_label()} · food groups in reserve", avatar_icon="monitor_heart")
 
 total = len(report.groups)
 if not items:
@@ -49,6 +39,14 @@ st.html(
     f'<div class="title">{title}</div><div class="desc">{desc}</div>{ui.meter3(report.covered, total)}'
     f'<div class="blob">{ui.icon("nutrition")}</div></div>'
 )
+
+ui.heading("Body", pill="Sample reading")
+st.html(f'<div class="fw-note">{ui.icon("tips_and_updates")}<span style="flex:1 1 200px">{escape(body_note(try_load_vitals()))}</span></div>')
+try:
+    body = read_body_sample()
+except (OSError, ValueError):
+    body = None
+st.html(ui.health_card(body))
 
 ui.heading("Food groups")
 ui.group_cards(report)

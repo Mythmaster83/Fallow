@@ -61,3 +61,20 @@ def test_cook_meal_runs_the_lifecycle_and_feeds_the_compost():
         assert staple.state == by_id[ingredient.item_id].state
         assert staple.quantity < by_id[ingredient.item_id].quantity
     assert [e.to_state for e in step.events][:3] == ["cooked", "scraps", "consumed"]
+
+def test_body_sample_and_labels():
+    from larder.health.body import co2_label, radiation_label, read_body_sample, spo2_label
+
+    body = read_body_sample()
+    assert body.spo2_pct is not None and 0 <= body.spo2_pct <= 100
+    assert spo2_label(98)[1] == "good"
+    assert spo2_label(88)[1] == "alert"
+    assert co2_label(420)[1] == "good" and co2_label(1500)[1] == "watch"
+    assert radiation_label(0.1)[1] == "good" and radiation_label(2.0)[1] == "alert"
+
+
+def test_sensor_fixture_has_station_readings():
+    from larder.sensors.mock import MockSensor
+
+    snap = MockSensor().read()
+    assert snap.humidity is not None and snap.co2_ppm is not None and snap.radiation_usv_h is not None

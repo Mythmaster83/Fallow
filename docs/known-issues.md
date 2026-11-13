@@ -30,6 +30,11 @@ pantry, shelf-life spoilage, a short cook list, and the mock garden plan.
 - Marking a meal cooked on Food & recipes uses up the urgent item and one
   portion of the staple. Removing a row by hand is still the other way to
   clear food.
+- The cook list is capped at `horizon_days` (3 on the dashboard). Extra urgent
+  items stay in `priority_item_ids` and on the spoilage table, but the summary
+  does not say they did not fit.
+- Recipe steps are fixed templates per food category, and a staple portion is
+  a rough per-unit guess (a quarter kilo of rice, one can of beans).
 - There is no edit form. You can add or remove a row, not change the expiry
   on an existing one. The add form does refuse an expiry date that is earlier
   than the day you got the food.
@@ -62,3 +67,7 @@ pantry, shelf-life spoilage, a short cook list, and the mock garden plan.
   as stored protein and calories, which can hide a real gap.
 - A bad sensor fixture is shown as a warning on Dashboard and Soil & farm.
   The warning is the validation message, not a made-up forecast.
+- A fixture that fails validation (missing field, bad type) is not caught by
+  the pages. They catch file and mode errors, not a Pydantic validation
+  error, so a broken fixture becomes a traceback instead of the warning used
+  for the live sensor.
