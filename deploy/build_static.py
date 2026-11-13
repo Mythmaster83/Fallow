@@ -17,6 +17,7 @@ Usage: python deploy/build_static.py [out_dir]   (default: dist)
 from __future__ import annotations
 
 import hashlib
+import ast
 import json
 import shutil
 import sys
@@ -66,6 +67,10 @@ APP_PAGE = """<!doctype html>
   </style>
 </head>
 <body>
+  <!-- The app's own stylesheet, so Python does not re-send it on every run.
+       It sits in the body so it comes after the styles Streamlit adds to the
+       head, and wins ties the same way it did when Python sent it. -->
+  {css}
   <div id="root"><div id="boot"><img src="{prefix}src/static/fallow-logo-app-192.png" alt="" />
     <b>Starting Fallow</b><span>The first visit downloads Python, so it takes a few seconds.</span></div></div>
   <script type="module">
@@ -81,7 +86,8 @@ APP_PAGE = """<!doctype html>
         requirements: ["pydantic", "sqlite3"],
         files,
         // Real weather, soil and air from Open-Meteo; falls back to the sample offline.
-        env: {{ SENSOR_MODE: "live" }},
+        // FALLOW_CSS_IN_PAGE: the stylesheet is already in this page's head.
+        env: {{ SENSOR_MODE: "live", FALLOW_CSS_IN_PAGE: "1" }},
         disableProgressToasts: true,
       }},
       document.getElementById("root"),
@@ -117,6 +123,20 @@ APP_PAGE = """<!doctype html>
 """
 
 
+def app_css() -> str:
+    """The CSS constant from fallow_ui.py, read without importing Streamlit."""
+    tree = ast.parse((ROOT / "fallow_ui.py").read_text(encoding="utf-8"))
+    for node in tree.body:
+        if (
+            isinstance(node, ast.Assign)
+            and any(isinstance(t, ast.Name) and t.id == "CSS" for t in node.targets)
+            and isinstance(node.value, ast.Constant)
+            and isinstance(node.value.value, str)
+        ):
+            return node.value.value
+    raise SystemExit("fallow_ui.py has no plain CSS string constant")
+
+
 def _copy_tree(src: Path, dest: Path) -> None:
     shutil.copytree(src, dest, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__"))
 
@@ -141,7 +161,7 @@ def build(out: Path) -> None:
         shutil.copy2(ROOT / rel, dest)
     _copy_tree(ROOT / "static", out / "app" / "app" / "static")
     hashes = {rel: hashlib.sha1((ROOT / rel).read_bytes()).hexdigest()[:10] for rel in files}
-    page = APP_PAGE.format(version=STLITE_VERSION, files=json.dumps(hashes), prefix=APP_PREFIX)
+    page = APP_PAGE.format(version=STLITE_VERSION, files=json.dumps(hashes), prefix=APP_PREFIX, css=app_css().strip())
     (out / "app" / "index.html").write_text(page, encoding="utf-8")
 
     print(f"Built the site into {out}: landing, web/, and {len(files)} app files under app/")
