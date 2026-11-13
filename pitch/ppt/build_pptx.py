@@ -4,7 +4,7 @@ Each slide is the deck itself, captured at 3840x2160 by headless Chrome and
 placed full-bleed. Every moving part is a real, embedded video sitting exactly
 over its spot on the slide, set to start the moment the slide opens and loop:
 
-- slide 2 pantry clock, 3 the loop, 4 the live demo, 5 the watch exploding
+- slide 2 the loop, 3 pantry clock, 4 the live demo, 5 the watch exploding
   with labels, 7 the probe exploding, 8 the assembly video, 9 the plant picker
   (clips from record_videos.py, plus the deck's own assembly video).
 
@@ -53,16 +53,15 @@ ASSEMBLY = {"slide": 8, "file": MEDIA / "fallow-assembly-clean.mp4", "poster": M
             "box": (850.2, 25.7, 847.1, 847.1), "title_strip": (850.2, 104.0, 60.0, 80.0)}
 
 # Clickable deck: what each interactive area opens (stage-px region, URL).
-QR_S1, QR_S11 = (1352, 638.8, 178, 205.2), (990, 545.5, 520, 178)
+QR_S1 = (1055, 278.9, 290, 342.2)  # the QR card centred in the title slide's orbit
 LINKS = {
     1: [(QR_S1, SITE + "/")],
-    2: [((706, 70, 804, 760), SITE + "/web/pitch/#2")],
-    3: [((90, 70, 1420, 760), SITE + "/web/pitch/#3")],
+    2: [((90, 70, 1420, 760), SITE + "/web/pitch/#2")],
+    3: [((706, 70, 804, 760), SITE + "/web/pitch/#3")],
     4: [((554, 70, 956, 760), SITE + "/web/demo/")],
     5: [((554, 70, 956, 778.2), SITE + "/web/watch3d/")],
     7: [((554, 70, 956, 760), SITE + "/web/probe3d/")],
     9: [((90, 70, 1420, 760), SITE + "/web/pitch/#9")],
-    11: [(QR_S11, SITE + "/")],
 }
 
 CAPTURE_CSS = """<style id="capture">
@@ -203,7 +202,7 @@ def build(shots: Path, videos: Path, out: Path, clickable: bool) -> None:
             over.name = "Title (over video)"
         if clickable:
             for box, url in LINKS.get(n, []):
-                add_link(slide, px, box, url, "QR" if box in (QR_S1, QR_S11) else f"slide {n}")
+                add_link(slide, px, box, url, "QR" if box == QR_S1 else f"slide {n}")
         slide.notes_slide.notes_text_frame.text = notes
 
     cp = prs.core_properties
