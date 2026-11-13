@@ -330,7 +330,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
     <div class="o" style="left:-48px;top:232px"><span class="ms" style="color:#F27A8A">favorite</span></div>
   </div>
   <div class="qr hero rv" style="--d:3"><span class="scan"><span class="ms">qr_code_scanner</span>Scan me</span><img src="media/qr-site.svg" alt="QR code: fallow.aliahmedaziz08.workers.dev"><b>Follow the presentation and interact with the product</b></div>
-  <div class="hint"><kbd>→</kbd> next <kbd>T</kbd> 90 sec timer <kbd>N</kbd> notes <kbd>F</kbd> full screen</div>
+  <div class="hint"><kbd>→</kbd> next <kbd>T</kbd> 90 sec timer <kbd>R</kbd> reset timer <kbd>N</kbd> notes <kbd>F</kbd> full screen</div>
 </section>
 
 <!-- 2. Problem -->
@@ -564,6 +564,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   <span id="count">1 / 10</span>
   <button id="next" aria-label="Next slide"><span class="ms">chevron_right</span></button>
   <button id="timer" title="90 second pitch timer (T)"><span class="ms">timer</span><span id="tLeft">1:30</span></button>
+  <button id="tReset" title="Reset the timer to 1:30 (R)" aria-label="Reset the timer to 1:30"><span class="ms">restart_alt</span></button>
   <button id="notesBtn" title="Speaker notes (N)"><span class="ms">sticky_note_2</span></button>
   <button id="fsBtn" title="Full screen (F)"><span class="ms">fullscreen</span></button>
 </div>
@@ -657,6 +658,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   function resetTimer() { clearInterval(tick); tick = null; left = 90; tBtn.classList.remove("run"); paint(); }
   tBtn.onclick = toggleTimer;
   tBtn.ondblclick = resetTimer;
+  $("#tReset").onclick = e => { resetTimer(); e.currentTarget.blur(); };
   function toggleNotes() { $("#notes").classList.toggle("show"); }
   $("#notesBtn").onclick = toggleNotes;
   function toggleFs() {
