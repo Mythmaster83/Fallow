@@ -36,7 +36,10 @@ if plant_now:
 else:
     ui.feature("Hold off", "Nothing to plant yet", grow.balance_notes, "See conditions", "#conditions", "potted_plant")
 
-ui.heading("Conditions", pill="Mock reading" if mode == "mock" else "Live", anchor="conditions")
+SOURCE_PILL = {"live": "Live · Open-Meteo", "fallback": "Recorded (offline)", "mock": "Mock reading"}
+ui.heading("Conditions", pill=SOURCE_PILL[snapshot.source], anchor="conditions")
+if snapshot.note:
+    st.caption(snapshot.note)
 ui.conditions(snapshot)
 
 ui.heading("Pantry balance", "Food health", "health")
@@ -52,7 +55,9 @@ if grow.crops:
 else:
     ui.empty("Nothing to plant for this reading.")
 
-if mode == "mock":
-    st.caption("Mock mode replays fixtures/sensor.sample.json. Live mode is reserved for a real location, weather, and soil feed.")
+if snapshot.source == "mock":
+    st.caption("Mock mode replays fixtures/sensor.sample.json. Set SENSOR_MODE=live for real weather and soil from Open-Meteo.")
+elif snapshot.source == "live":
+    st.caption(f"Live reading from Open-Meteo at {snapshot.captured_at:%H:%M}. Refreshes every 10 minutes.")
 with st.expander("Raw sensor reading"):
     st.json(snapshot.model_dump(mode="json"))
