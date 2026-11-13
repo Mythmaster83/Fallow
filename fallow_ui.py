@@ -15,6 +15,8 @@ from html import escape
 
 import streamlit as st
 
+from larder.health.nutrition import NutritionReport
+from larder.meals.recipes import Recipe
 from larder.models import GrowPlan, InventoryItem, MealPlan, SpoilageRisk
 from larder.sensors.base import SensorSnapshot
 
@@ -39,6 +41,13 @@ RISK_TONE = {"critical": "red", "high": "peach", "medium": "cream", "low": "lime
 RISK_COLOR = {"critical": "#F0604D", "high": "#F29B4B", "medium": "#E2B93B", "low": "#8DC63F"}
 FILL_TONE = {"fresh food": "lime", "calorie staples": "cream", "protein": "lav"}
 TILE_TONES = ["peach", "lime", "lav", "cream"]
+GROUP_ICON = {"fresh food": ("eco", "lime"), "calorie staples": ("rice_bowl", "cream"), "protein": ("egg", "lav")}
+STATUS_PILL = {"covered": ("lime", "Stocked"), "short": ("peach", "Running short"), "missing": ("red", "Missing")}
+GROUP_IDEAS = {
+    "fresh food": "Plant greens, or keep long-lasting produce like carrots, cabbage, apples and onions.",
+    "calorie staples": "Keep dry rice, oats, pasta, flour or potatoes; they hold for months.",
+    "protein": "Keep dried or canned beans, lentils, canned fish or peanut butter.",
+}
 
 CSS = """
 <style>
@@ -154,6 +163,29 @@ CSS = """
 .stButton button[kind="tertiary"]{color:var(--muted)}
 [data-testid="stTextInputRootElement"], [data-baseweb="select"] > div, [data-testid="stNumberInputContainer"],
 [data-testid="stDateInputField"]{background:var(--panel) !important; border-radius:14px !important}
+/* health + recipes */
+.fw-groups{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px}
+@media (max-width:900px){.fw-groups{grid-template-columns:1fr}}
+.fw-group-card{background:var(--card); border-radius:22px; padding:16px; display:flex; flex-direction:column; gap:10px}
+.fw-group-card .top{display:flex; align-items:center; gap:10px}
+.fw-group-card .name{font-size:15px; font-weight:700; color:var(--ink); flex:1}
+.fw-group-card .lbl{font-size:12px; color:var(--muted)}
+.fw-chips{display:flex; flex-wrap:wrap; gap:6px}
+.fw-chip2{font-size:12px; padding:4px 10px; border-radius:999px; background:var(--panel); color:var(--ink)}
+.fw-chip2.dim{color:var(--muted); text-decoration:line-through}
+.fw-group-card .idea{font-size:13px; color:var(--muted); line-height:1.45; border-top:1px solid var(--line); padding-top:10px}
+.fw-meter3{display:flex; gap:6px; margin-top:14px; max-width:58%; position:relative; z-index:1}
+.fw-meter3 span{flex:1; height:8px; border-radius:4px; background:#3A3A4C}
+.fw-meter3 span.on{background:var(--lime)}
+.fw-recipe .head{display:flex; gap:12px; align-items:flex-start}
+.fw-recipe .title{font-size:17px; font-weight:700; color:var(--ink); line-height:1.25}
+.fw-recipe .meta{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px}
+.fw-recipe .why{font-size:13px; color:var(--muted); margin:10px 0}
+.fw-recipe h4{font-size:13px; font-weight:700; color:var(--ink); margin:12px 0 8px; padding:0}
+.fw-steps{margin:0 !important; padding:0 !important; list-style:none; counter-reset:s; display:flex; flex-direction:column; gap:8px}
+.fw-steps li{margin:0 !important; padding:0 !important; counter-increment:s; display:flex; gap:10px; font-size:14px; line-height:1.45; color:var(--ink)}
+.fw-steps li::before{content:counter(s); flex-shrink:0; width:24px; height:24px; border-radius:50%; background:var(--t-lime);
+  color:var(--lime-ink); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center}
 </style>
 """
 
@@ -354,3 +386,57 @@ def source_note(risks: list[SpoilageRisk]) -> str:
     if sources == {"llm"}:
         return "AI model"
     return "AI model + table"
+
+
+def group_strip(report: NutritionReport) -> None:
+    """Compact row of the three food groups with their status."""
+    cells = []
+    for g in report.groups:
+        ic, tone = GROUP_ICON.get(g.group, ("restaurant", "cream"))
+        ptone, plabel = STATUS_PILL[g.status]
+        cells.append(
+            f'<div class="fw-row"><div class="fw-tile {tone}">{icon(ic)}</div>'
+            f'<div class="main"><div class="name">{escape(g.group)}</div>'
+            f'<div class="small">{len(g.reserve)} in reserve &middot; {len(g.short)} short</div></div>'
+            f'<span class="fw-pill {ptone}">{plabel}</span></div>'
+        )
+    st.html(f'<div class="fw-groups">{"".join(cells)}</div>')
+
+
+def meter3(covered: int, total: int = 3) -> str:
+    return '<div class="fw-meter3">' + "".join(
+        f'<span class="{"on" if i < covered else ""}"></span>' for i in range(total)
+    ) + "</div>"
+
+
+def group_cards(report: NutritionReport) -> None:
+    cards = []
+    for g in report.groups:
+        ic, tone = GROUP_ICON.get(g.group, ("restaurant", "cream"))
+        ptone, plabel = STATUS_PILL[g.status]
+        reserve = "".join(f'<span class="fw-chip2">{escape(n.capitalize())}</span>' for n in g.reserve) or '<span class="lbl">None</span>'
+        short = "".join(f'<span class="fw-chip2 dim">{escape(n.capitalize())}</span>' for n in g.short) or '<span class="lbl">None</span>'
+        idea = f'<div class="idea">{escape(GROUP_IDEAS.get(g.group, ""))}</div>' if g.status != "covered" else ""
+        cards.append(
+            f'<div class="fw-group-card"><div class="top"><div class="fw-tile {tone}">{icon(ic)}</div>'
+            f'<div class="name">{escape(g.group.capitalize())}</div><span class="fw-pill {ptone}">{plabel}</span></div>'
+            f'<div class="lbl">Lasts past 3 days</div><div class="fw-chips">{reserve}</div>'
+            f'<div class="lbl">Spoils within 3 days</div><div class="fw-chips">{short}</div>{idea}</div>'
+        )
+    st.html(f'<div class="fw-groups">{"".join(cards)}</div>')
+
+
+def recipe_card(recipe: Recipe, tone: str = "lime") -> None:
+    ingredients = "".join(
+        f'<span class="fw-chip2">{escape(i.name.capitalize())} &middot; {i.amount:g} {escape(i.unit)}</span>' for i in recipe.ingredients
+    )
+    steps = "".join(f"<li>{escape(step)}</li>" for step in recipe.steps)
+    st.html(
+        f'<div class="fw-recipe"><div class="head"><div class="fw-tile {tone}">{icon("skillet")}</div>'
+        f'<div><div class="title">{escape(recipe.name)}</div><div class="meta">'
+        f'<span class="fw-pill ghost">Day {recipe.day}</span>'
+        f'<span class="fw-pill lav">{icon("schedule", 14)} about {recipe.minutes} min</span></div></div></div>'
+        f'<div class="why">{escape(recipe.why[:1].upper() + recipe.why[1:])}</div>'
+        f'<h4>From your pantry</h4><div class="fw-chips">{ingredients}</div>'
+        f'<h4>Steps</h4><ol class="fw-steps">{steps}</ol></div>'
+    )

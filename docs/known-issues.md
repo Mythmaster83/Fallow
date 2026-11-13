@@ -27,8 +27,8 @@ pantry, shelf-life spoilage, a short cook list, and the mock garden plan.
 - The cook list is capped at `horizon_days` (3 on the dashboard). Extra urgent
   items stay in `priority_item_ids` and on the spoilage table, but the summary
   does not say they did not fit.
-- Cooking does not reduce quantity. The same spinach stays at the top until
-  someone removes it by hand.
+- Recipe steps are fixed templates per food category, and a staple portion is
+  a rough per-unit guess (a quarter kilo of rice, one can of beans).
 - There is no edit form. You can add or remove a row, not change the expiry
   on an existing one.
 

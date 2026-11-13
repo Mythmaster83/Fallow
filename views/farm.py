@@ -1,4 +1,4 @@
-"""Grow: the sensor reading, the planting list, and pantry balance."""
+"""Soil and farm: the sensor reading, soil, and what to plant."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ store = open_store()
 items = store.list_items()
 risks = predict_spoilage(items, client=LLMClient.from_env())
 
-ui.top("Grow", f"{ui.today_label()} · sensor {mode}", avatar_icon="potted_plant")
+ui.top("Soil & farm", f"{ui.today_label()} · sensor {mode}", avatar_icon="agriculture")
 
 try:
     snapshot = current_sensor().read()
@@ -39,7 +39,7 @@ else:
 ui.heading("Conditions", pill="Mock reading" if mode == "mock" else "Live", anchor="conditions")
 ui.conditions(snapshot)
 
-ui.heading("Pantry balance")
+ui.heading("Pantry balance", "Food health", "health")
 ui.balance(grow)
 
 ui.heading("Plant")

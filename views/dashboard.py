@@ -9,6 +9,7 @@ from pydantic import ValidationError
 
 import fallow_ui as ui
 from larder.grow.advisor import build_grow_plan
+from larder.health.nutrition import nutrition_report
 from larder.llm.client import LLMClient
 from larder.meals.planner import plan_meals
 from larder.sensors import current_sensor
@@ -39,7 +40,7 @@ if plan.meals and risks:
     lead = risks[0]
     when = ui.days_short(lead.days_remaining).lower()
     title = f"{lead.item_name.capitalize()} {'expires today' if when == 'today' else 'has ' + when + ' left'}"
-    ui.feature("Cook first", title, f"Day {first.day}: {first.name}.", "See the plan", "#cook-this", "skillet")
+    ui.feature("Cook first", title, f"Day {first.day}: {first.name}.", "Open the recipe", "recipes", "skillet")
 elif not items:
     ui.feature("Get started", "Your pantry is empty", "Add what you have and Fallow plans what to cook first.", "Add food", "pantry", "kitchen")
 else:
@@ -57,6 +58,10 @@ ui.stats(
     ]
 )
 
+report = nutrition_report(items, risks=risks)
+ui.heading("Food health", "Details", "health")
+ui.group_strip(report)
+
 left, right = st.columns(2, gap="medium")
 with left:
     ui.heading("Spoilage")
@@ -65,7 +70,7 @@ with left:
     else:
         ui.empty("Add food to see what spoils first.")
 with right:
-    ui.heading("Cook this", pill=f"Next {plan.horizon_days} days", anchor="cook-this")
+    ui.heading("Cook this", "Recipes", "recipes", anchor="cook-this")
     if plan.meals:
         ui.meal_rows(plan)
     else:
@@ -77,7 +82,7 @@ if risks:
 else:
     ui.empty("The pantry is empty. Add food on the Pantry page.")
 
-ui.heading("Plant against the next gap", "Details", "grow")
+ui.heading("Plant against the next gap", "Soil & farm", "farm")
 if grow and snapshot:
     ui.conditions(snapshot)
     st.write("")

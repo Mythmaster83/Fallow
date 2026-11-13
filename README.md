@@ -42,8 +42,16 @@ streamlit run app.py
 ```
 
 Streamlit prints a local address, usually `http://localhost:8501`. Open that
-in a browser. The home page is the dashboard. **Pantry** and **Grow** are in
-the top bar.
+in a browser. There are five pages in the top bar (on a phone, behind the
+menu button):
+
+- **Dashboard**: what to cook first, food health, spoilage, and planting.
+- **Pantry**: everything on hand; add and remove food.
+- **Soil & farm**: the sensor reading and what to plant.
+- **Health**: which food groups (fresh food, calorie staples, protein) the
+  pantry holds past the next three days.
+- **Food & recipes**: step-by-step meals from food on hand. **Mark as cooked**
+  uses up the main food and one portion of the staple.
 
 The look (lavender backdrop, white cards, lime accents) lives in
 `.streamlit/config.toml` and `fallow_ui.py`. The Plus Jakarta Sans font is
@@ -81,13 +89,18 @@ every meal uses food already in the inventory.
 ├── views/
 │   ├── dashboard.py
 │   ├── pantry.py                # Was pages/1_Inventory.py
-│   └── grow.py
+│   ├── farm.py                  # Was pages/2_Grow.py
+│   ├── health.py
+│   └── recipes.py
 ├── larder/
 │   ├── models.py                # Pydantic: InventoryItem, SpoilageRisk, MealPlan, GrowPlan
 │   ├── spoilage/
 │   │   ├── predictor.py         # LLM call + heuristic fallback
 │   │   └── shelf_life.py        # Static baseline table
-│   ├── meals/planner.py
+│   ├── meals/
+│   │   ├── planner.py
+│   │   └── recipes.py           # Steps per meal; cooking reduces quantity
+│   ├── health/nutrition.py      # Food-group reserve report
 │   ├── grow/
 │   │   ├── advisor.py
 │   │   └── balance.py

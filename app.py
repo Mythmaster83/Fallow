@@ -20,7 +20,9 @@ nav = st.navigation(
     [
         st.Page("views/dashboard.py", title="Dashboard", icon=":material/dashboard:", default=True),
         st.Page("views/pantry.py", title="Pantry", icon=":material/kitchen:", url_path="pantry"),
-        st.Page("views/grow.py", title="Grow", icon=":material/potted_plant:", url_path="grow"),
+        st.Page("views/farm.py", title="Soil & farm", icon=":material/agriculture:", url_path="farm"),
+        st.Page("views/health.py", title="Health", icon=":material/monitor_heart:", url_path="health"),
+        st.Page("views/recipes.py", title="Food & recipes", icon=":material/restaurant_menu:", url_path="recipes"),
     ],
     position="top",
 )
