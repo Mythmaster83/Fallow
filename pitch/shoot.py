@@ -54,10 +54,10 @@ CAPTIONS: dict[str, str] = {
 
 # Feature cards on slide 5: (title, colour, blurb, screenshot slug).
 FEATURES: list[tuple[str, str, str, str]] = [
-    ("🔴 Spoilage tracking", "#e74c3c", "Knows what dies first, works offline.", "pantry"),
-    ("🟡 Meal planning", "#f39c12", "Meals from what's expiring. Never invents food.", "recipes"),
-    ("🟢 Grow advisor", "#4ecdc4", "Sensors + pantry gaps → what to plant now.", "farm"),
-    ("🟣 Compost loop", "#9b59b6", "Scraps feed soil, soil feeds seeds, seeds feed you.", "cycle"),
+    ("Spoilage tracking", "#B4361F", "Knows what dies first, works offline.", "pantry"),
+    ("Meal planning", "#9A6200", "Recipes from what's expiring. Never invents food.", "recipes"),
+    ("Grow advisor", "#3F5A00", "Sensors + pantry gaps → what to plant now.", "farm"),
+    ("Compost loop", "#6B4FC8", "Scraps feed soil, soil feeds seeds, seeds feed you.", "cycle"),
 ]
 
 # The top navigation lives in the header, so keep it; hide only dev chrome.
@@ -200,7 +200,7 @@ def demo_region(slugs: list[str]) -> str:
         frag = "" if index == 0 else ' class="fragment"'
         caption = html.escape(CAPTIONS.get(slug, slug.title()))
         lines.append(
-            f'          <div{frag} style="background:#0a0a0a">'
+            f'          <div{frag} style="background:var(--panel)">'
             f'<img src="screenshots/{slug}.png" alt="{slug}">'
             f'<div class="shot-caption">{caption}</div></div>'
         )
@@ -216,8 +216,8 @@ def features_region(slugs: list[str]) -> str:
         else:
             visual = '<div class="todo">coming soon</div>'
         lines.append(
-            f'          <div class="feature-card"><span style="color:{colour}"><b>{html.escape(title)}</b></span>'
-            f" — {html.escape(blurb)}{visual}</div>"
+            f'          <div class="feature-card"><span style="color:{colour}">●</span> <b>{html.escape(title)}</b>'
+            f'<div class="blurb">{html.escape(blurb)}</div>{visual}</div>'
         )
     lines.append("        </div>")
     return "\n".join(lines) + "\n"
@@ -235,7 +235,7 @@ def cad_region() -> str:
     ) if CAD_DIR.is_dir() else []
     if not files:
         return (
-            '        <div class="feature-card"><div class="todo">'
+            '        <div class="feature-card cad-empty"><div class="todo">'
             "CAD renders go here — drop images or a short .mp4 into pitch/cad/"
             "</div></div>\n"
         )

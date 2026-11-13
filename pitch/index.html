@@ -4,139 +4,99 @@
   <meta charset="utf-8">
   <title>Fallow — Dirt to Plate and Back</title>
   <link rel="stylesheet" href="vendor/reveal/reveal.min.css">
-  <link rel="stylesheet" href="vendor/reveal/theme/black.min.css">
+  <link rel="stylesheet" href="vendor/reveal/theme/white.min.css">
   <style>
-    :root {
-      --r-background-color: #0a0a0a;
-      --r-main-color: #e8e8e8;
-      --r-heading-color: #ff6b35;
-      --r-link-color: #4ecdc4;
-    }
-    .reveal { font-family: 'Segoe UI', system-ui, sans-serif; }
-    .reveal h1, .reveal h2, .reveal h3 { text-transform: none; font-weight: 700; }
-    .reveal h1 { font-size: 2.4em; }
-    .reveal h2 { font-size: 1.6em; color: var(--r-heading-color); }
+    /* Same look as the app (fallow_ui.py): lavender, off-white panel,
+       dark feature cards, lime accents, Plus Jakarta Sans. */
+    @font-face { font-family: "Jakarta"; src: url("vendor/fonts/plus-jakarta-sans-latin-400-normal.woff2") format("woff2"); font-weight: 400; }
+    @font-face { font-family: "Jakarta"; src: url("vendor/fonts/plus-jakarta-sans-latin-600-normal.woff2") format("woff2"); font-weight: 600; }
+    @font-face { font-family: "Jakarta"; src: url("vendor/fonts/plus-jakarta-sans-latin-700-normal.woff2") format("woff2"); font-weight: 700; }
+    @font-face { font-family: "Jakarta"; src: url("vendor/fonts/plus-jakarta-sans-latin-800-normal.woff2") format("woff2"); font-weight: 800; }
 
-    /* State machine diagram styling */
-    .state-machine {
-      font-family: monospace;
-      font-size: 0.55em;
-      line-height: 1.8;
-      text-align: center;
-      color: #4ecdc4;
+    :root {
+      --lav: #BBA6F0;
+      --lav-soft: #E4DBFA;
+      --panel: #F6F5F2;
+      --card: #FFFFFF;
+      --ink: #1C1C28;
+      --muted: #7D7C8C;
+      --line: #E6E4EC;
+      --dark: #1E1E2A;
+      --lime: #D7F26E;
+      --lime-ink: #3F5A00;
+      --peach: #FBE3D6;
+      --r-background-color: var(--panel);
+      --r-main-font: "Jakarta", system-ui, sans-serif;
+      --r-heading-font: "Jakarta", system-ui, sans-serif;
+      --r-main-color: var(--ink);
+      --r-heading-color: var(--ink);
+      --r-link-color: var(--lime-ink);
+      --r-progress-color: var(--lav);
     }
-    .state-machine .highlight { color: #ff6b35; font-weight: bold; }
-    .state-machine .dim { color: #666; }
+    .reveal { font-family: var(--r-main-font); color: var(--ink); }
+    .reveal h1, .reveal h2, .reveal h3 { text-transform: none; font-weight: 800; letter-spacing: -0.02em; }
+    .reveal h1 { font-size: 2.6em; }
+    .reveal h2 { font-size: 1.5em; margin-bottom: 0.5em; }
+    .reveal .eyebrow {
+      display: inline-block; font-size: 0.42em; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.4em;
+    }
+    .reveal .muted { color: var(--muted); }
+    .lime-chip {
+      display: inline-block; background: var(--lime); color: var(--dark);
+      border-radius: 999px; padding: 0.15em 0.7em; font-weight: 700;
+    }
+
+    /* Dark slides mirror the app's dark feature card. */
+    .reveal section.dark, .reveal section.dark h1, .reveal section.dark h2 { color: #F6F5F2; }
+    .reveal section.dark .lime { color: var(--lime); }
 
     /* Problem slide */
-    .problem-list {
-      list-style: none;
-      padding: 0;
-      font-size: 0.85em;
-      text-align: left;
-    }
-    .problem-list li {
-      margin: 0.6em 0;
-      padding-left: 1.2em;
-      position: relative;
-    }
-    .problem-list li::before {
-      content: '✗';
-      position: absolute;
-      left: 0;
-      color: #e74c3c;
-      font-weight: bold;
-    }
+    .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6em; text-align: left; font-size: 0.62em; }
+    .problem-card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 0.7em 0.9em; }
+    .problem-card b { display: block; font-size: 1.05em; margin-bottom: 0.2em; }
+    .problem-card span { color: var(--muted); }
+    .source { font-size: 0.35em; color: var(--muted); margin-top: 0.8em; }
 
-    /* Video slide */
-    .demo-video {
-      max-width: 85%;
-      margin: 0 auto;
-      border: 2px solid #333;
-      border-radius: 8px;
-    }
-
-    /* Impact numbers */
-    .impact-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 1.5em;
-      margin-top: 1em;
-    }
-    .impact-num {
-      font-size: 2em;
-      font-weight: 900;
-      color: #ff6b35;
-    }
-    .impact-label {
-      font-size: 0.6em;
-      color: #999;
-      margin-top: 0.3em;
-    }
+    /* Flowchart slide */
+    .flow svg { width: 100%; height: auto; max-height: 560px; }
+    .flow text { font-family: "Jakarta", system-ui, sans-serif; }
 
     /* Screenshot stack (slide 4) */
     .shot-stack img {
-      max-height: 520px;
-      max-width: 92%;
-      border: 2px solid #333;
-      border-radius: 8px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      max-height: 560px; max-width: 94%;
+      border-radius: 18px; box-shadow: 0 12px 40px rgba(30, 30, 42, 0.18);
     }
-    .shot-caption {
-      font-size: 0.5em;
-      color: #4ecdc4;
-      margin-top: 0.4em;
-    }
+    .shot-caption { font-size: 0.5em; font-weight: 600; color: var(--ink); margin-top: 0.5em; }
+    .demo-video { max-width: 88%; border-radius: 18px; box-shadow: 0 12px 40px rgba(30, 30, 42, 0.18); }
 
     /* Feature grid (slide 5) */
-    .feature-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.7em 1.2em;
-      text-align: left;
-      font-size: 0.5em;
-    }
+    .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7em 1em; text-align: left; font-size: 0.5em; }
+    .feature-card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 0.6em 0.8em 0.8em; }
+    .feature-card .blurb { color: var(--muted); font-size: 0.9em; margin-top: 0.15em; }
     .feature-card img {
-      width: 100%;
-      height: 190px;
-      object-fit: cover;
-      object-position: top left;
-      border: 1px solid #333;
-      border-radius: 6px;
-      margin: 0.3em 0 0 0;
+      width: 100%; height: 170px; object-fit: cover; object-position: center 35%;
+      border-radius: 12px; margin: 0.5em 0 0 0; border: 1px solid var(--line);
     }
     .feature-card .todo {
-      height: 190px;
-      border: 1px dashed #444;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #555;
-      margin-top: 0.3em;
+      height: 170px; border: 1px dashed #CFCBDB; border-radius: 12px; margin-top: 0.5em;
+      display: flex; align-items: center; justify-content: center; color: var(--muted); text-align: center; padding: 0 1em;
     }
 
     /* CAD slide */
-    .cad-grid {
-      display: flex;
-      gap: 1em;
-      justify-content: center;
-      align-items: flex-start;
-    }
+    .cad-grid { display: flex; gap: 1em; justify-content: center; align-items: flex-start; }
     .cad-grid figure { margin: 0; flex: 1; max-width: 48%; }
-    .cad-grid img, .cad-grid video {
-      max-width: 100%;
-      max-height: 480px;
-      border: 1px solid #333;
-      border-radius: 6px;
-    }
-    .cad-grid figcaption { font-size: 0.45em; color: #999; margin-top: 0.3em; }
+    .cad-grid img, .cad-grid video { max-width: 100%; max-height: 460px; border-radius: 18px; border: 1px solid var(--line); }
+    .cad-empty { font-size: 0.5em; }
+    .cad-empty .todo { height: 260px; }
+    .cad-grid figcaption { font-size: 0.45em; color: var(--muted); margin-top: 0.3em; }
 
-    .team-name {
-      font-size: 0.5em;
-      color: #666;
-      margin-top: 2em;
-    }
+    /* Closing slide */
+    .claims { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6em; margin-top: 1.2em; font-size: 0.55em; }
+    .claim { background: #2A2A38; border-radius: 18px; padding: 0.8em 0.6em; }
+    .claim b { display: block; color: var(--lime); font-size: 1.3em; margin-bottom: 0.2em; }
+    .claim span { color: #C9C8D6; }
+    .team-name { font-size: 0.45em; color: #9B9AAB; margin-top: 2em; }
   </style>
 </head>
 <body>
@@ -144,95 +104,171 @@
     <div class="slides">
 
       <!-- SLIDE 1: Title (5 sec) -->
-      <section>
+      <section class="dark" data-background-color="#1E1E2A">
         <h1>🌱 Fallow</h1>
-        <p style="font-size: 1.1em; color: #4ecdc4;">Dirt to plate and back.</p>
-        <p style="font-size: 0.7em; color: #888; margin-top: 1.5em;">
-          A survival-grade food logistics system
+        <p style="font-size: 1.05em;" class="lime">Dirt to plate and back.</p>
+        <p style="font-size: 0.6em; color: #C9C8D6; margin-top: 1.2em;">
+          A survival-grade kitchen and garden planner
         </p>
         <p class="team-name">HackPerimeter 2026</p>
+        <aside class="notes">Fallow plans food the way a survivor has to: from dirt to plate and back.</aside>
       </section>
 
-      <!-- SLIDE 2: Problem (15 sec) -->
+      <!-- SLIDE 2: Problem (12 sec) -->
       <section>
-        <h2>The Problem</h2>
-        <ul class="problem-list">
-          <li>40% of food in the US is wasted</li>
-          <li>You forget what's in the fridge until it's too late</li>
-          <li>You don't know what to grow based on what you actually eat</li>
-          <li>No app connects eating, growing, and composting into one loop</li>
-        </ul>
-      </section>
-
-      <!-- SLIDE 3: The Model (20 sec) -->
-      <section>
-        <h2>The Full Cycle</h2>
-        <div class="state-machine">
-          <span class="highlight">seed</span> → growing → <span class="highlight">harvest</span> → raw → opened → <span class="highlight">cooked</span> → consumed
-          <br>
-          <span class="dim">↑ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ↓</span>
-          <br>
-          <span class="highlight">soil</span> ← <span class="highlight">compost</span> ← scraps ←────────────────────────── trashed
+        <div class="eyebrow">The problem</div>
+        <h2 style="font-size: 1.25em;">When supply breaks,<br>the pantry is all you have</h2>
+        <div class="problem-grid">
+          <div class="problem-card"><b>Food rots unseen</b><span>You don't know what spoils first until it already has.</span></div>
+          <div class="problem-card"><b>Meals ignore the shelf</b><span>Recipes start from a shopping list, not from what's expiring.</span></div>
+          <div class="problem-card"><b>Gardens guess</b><span>What you plant isn't tied to the gaps in what you store.</span></div>
+          <div class="problem-card"><b>Scraps are lost</b><span>Waste leaves the system instead of feeding the next harvest.</span></div>
         </div>
-        <p style="font-size: 0.65em; color: #999; margin-top: 1em;">
-          Every transition recalculates expiry. Sensors ground it in YOUR environment.
-        </p>
+        <p class="source">30–40% of the US food supply is wasted (USDA).</p>
+        <aside class="notes">Up to 40% of food is wasted. In a crisis that's not a statistic, it's hunger. Nothing ties what you store, cook, grow and compost together.</aside>
+      </section>
+
+      <!-- SLIDE 3: How you use it (18 sec) -->
+      <section>
+        <div class="eyebrow">How you use it</div>
+        <h2 style="margin-bottom: 0.2em;">One loop, six steps</h2>
+        <div class="flow">
+          <svg viewBox="0 0 1200 560" role="img" aria-label="Fallow user flow: stock the pantry, see what spoils first, cook it, scraps to compost, compost to soil, plant the gap, harvest back into the pantry.">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#1C1C28"/>
+              </marker>
+              <marker id="arrow-lav" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#8E77D9"/>
+              </marker>
+            </defs>
+
+            <!-- Arrows between steps -->
+            <g stroke="#1C1C28" stroke-width="2.5" fill="none" marker-end="url(#arrow)">
+              <path d="M378,105 L430,105"/>
+              <path d="M768,105 L820,105"/>
+              <path d="M990,172 L990,318"/>
+              <path d="M822,395 L770,395"/>
+              <path d="M432,395 L380,395"/>
+              <path d="M210,318 L210,172"/>
+            </g>
+            <text x="222" y="250" font-size="17" font-weight="700" fill="#3F5A00">harvest</text>
+            <text x="1002" y="250" font-size="17" font-weight="700" fill="#1C1C28">leftovers</text>
+
+            <!-- Center message -->
+            <text x="600" y="240" text-anchor="middle" font-size="22" font-weight="800" fill="#1C1C28">Nothing rots.</text>
+            <text x="600" y="270" text-anchor="middle" font-size="22" font-weight="800" fill="#1C1C28">Nothing is wasted.</text>
+
+            <!-- Step nodes: x, y, number, title, detail, screen, state -->
+            <g font-size="16">
+              <!-- 1 -->
+              <rect x="45" y="40" width="333" height="132" rx="20" fill="#FFFFFF" stroke="#E6E4EC" stroke-width="2"/>
+              <circle cx="80" cy="76" r="17" fill="#D7F26E"/><text x="80" y="82" text-anchor="middle" font-weight="800" fill="#1E1E2A">1</text>
+              <text x="108" y="83" font-size="23" font-weight="800" fill="#1C1C28">Stock the pantry</text>
+              <text x="70" y="115" fill="#7D7C8C">Add food, or harvest from a bed</text>
+              <rect x="70" y="130" width="78" height="28" rx="14" fill="#1E1E2A"/><text x="109" y="149" text-anchor="middle" font-size="14" font-weight="700" fill="#D7F26E">Pantry</text>
+              <text x="160" y="149" font-size="14" fill="#7D7C8C">state: raw</text>
+
+              <!-- 2 -->
+              <rect x="435" y="40" width="333" height="132" rx="20" fill="#FFFFFF" stroke="#E6E4EC" stroke-width="2"/>
+              <circle cx="470" cy="76" r="17" fill="#D7F26E"/><text x="470" y="82" text-anchor="middle" font-weight="800" fill="#1E1E2A">2</text>
+              <text x="498" y="83" font-size="23" font-weight="800" fill="#1C1C28">See what spoils first</text>
+              <text x="460" y="115" fill="#7D7C8C">Ranked by days left, works offline</text>
+              <rect x="460" y="130" width="108" height="28" rx="14" fill="#1E1E2A"/><text x="514" y="149" text-anchor="middle" font-size="14" font-weight="700" fill="#D7F26E">Dashboard</text>
+              <text x="580" y="149" font-size="14" fill="#7D7C8C">critical → low</text>
+
+              <!-- 3 -->
+              <rect x="825" y="40" width="333" height="132" rx="20" fill="#FFFFFF" stroke="#E6E4EC" stroke-width="2"/>
+              <circle cx="860" cy="76" r="17" fill="#D7F26E"/><text x="860" y="82" text-anchor="middle" font-weight="800" fill="#1E1E2A">3</text>
+              <text x="888" y="83" font-size="23" font-weight="800" fill="#1C1C28">Cook it</text>
+              <text x="850" y="115" fill="#7D7C8C">Recipes from what's expiring</text>
+              <rect x="850" y="130" width="140" height="28" rx="14" fill="#1E1E2A"/><text x="920" y="149" text-anchor="middle" font-size="14" font-weight="700" fill="#D7F26E">Food &amp; recipes</text>
+              <text x="1002" y="149" font-size="14" fill="#7D7C8C">cooked → eaten</text>
+
+              <!-- 4 (automatic) -->
+              <rect x="825" y="330" width="333" height="132" rx="20" fill="#E4DBFA" stroke="#BBA6F0" stroke-width="2"/>
+              <circle cx="860" cy="366" r="17" fill="#FFFFFF"/><text x="860" y="372" text-anchor="middle" font-weight="800" fill="#1E1E2A">4</text>
+              <text x="888" y="373" font-size="23" font-weight="800" fill="#1C1C28">Scraps to compost</text>
+              <text x="850" y="405" fill="#4A4960">Trimmings logged automatically</text>
+              <rect x="850" y="420" width="104" height="28" rx="14" fill="#FFFFFF"/><text x="902" y="439" text-anchor="middle" font-size="14" font-weight="700" fill="#1E1E2A">automatic</text>
+              <text x="966" y="439" font-size="14" fill="#4A4960">scraps → compost</text>
+
+              <!-- 5 -->
+              <rect x="435" y="330" width="333" height="132" rx="20" fill="#FFFFFF" stroke="#E6E4EC" stroke-width="2"/>
+              <circle cx="470" cy="366" r="17" fill="#D7F26E"/><text x="470" y="372" text-anchor="middle" font-weight="800" fill="#1E1E2A">5</text>
+              <text x="498" y="373" font-size="23" font-weight="800" fill="#1C1C28">Compost to soil</text>
+              <text x="460" y="405" fill="#7D7C8C">A finished pile feeds the next bed</text>
+              <rect x="460" y="420" width="70" height="28" rx="14" fill="#1E1E2A"/><text x="495" y="439" text-anchor="middle" font-size="14" font-weight="700" fill="#D7F26E">Cycle</text>
+              <text x="542" y="439" font-size="14" fill="#7D7C8C">soil amendment</text>
+
+              <!-- 6 -->
+              <rect x="45" y="330" width="333" height="132" rx="20" fill="#FFFFFF" stroke="#E6E4EC" stroke-width="2"/>
+              <circle cx="80" cy="366" r="17" fill="#D7F26E"/><text x="80" y="372" text-anchor="middle" font-weight="800" fill="#1E1E2A">6</text>
+              <text x="108" y="373" font-size="23" font-weight="800" fill="#1C1C28">Plant the gap</text>
+              <text x="70" y="405" fill="#7D7C8C">Crops that fill what the pantry lacks</text>
+              <rect x="70" y="420" width="112" height="28" rx="14" fill="#1E1E2A"/><text x="126" y="439" text-anchor="middle" font-size="14" font-weight="700" fill="#D7F26E">Soil &amp; farm</text>
+              <text x="194" y="439" font-size="14" fill="#7D7C8C">state: growing</text>
+            </g>
+
+            <!-- Sensor input -->
+            <path d="M610,520 L210,520 L210,474" stroke="#8E77D9" stroke-width="2.5" fill="none" stroke-dasharray="7 6" marker-end="url(#arrow-lav)"/>
+            <rect x="610" y="500" width="548" height="42" rx="21" fill="#FFFFFF" stroke="#BBA6F0" stroke-width="2"/>
+            <text x="884" y="527" text-anchor="middle" font-size="17" font-weight="700" fill="#1C1C28">Sensors: weather · soil moisture · frost · location</text>
+          </svg>
+        </div>
+        <aside class="notes">You stock the pantry. Fallow ranks what spoils first and gives you recipes for it. Cooking sends scraps to compost, compost becomes soil, and sensors plus your pantry gaps say what to plant. The harvest goes back on the shelf.</aside>
       </section>
 
       <!-- SLIDE 4: Demo (30 sec) — generated by pitch/shoot.py -->
       <section>
-        <h2>In Action</h2>
+        <div class="eyebrow">In action</div>
 <!-- SHOTS:DEMO:START -->
         <div class="r-stack shot-stack">
-          <div style="background:#0a0a0a"><img src="screenshots/dashboard.png" alt="dashboard"><div class="shot-caption">1 · What spoils first, and what to cook tonight</div></div>
-          <div class="fragment" style="background:#0a0a0a"><img src="screenshots/pantry.png" alt="pantry"><div class="shot-caption">2 · Every item, every location, ranked by urgency</div></div>
-          <div class="fragment" style="background:#0a0a0a"><img src="screenshots/recipes.png" alt="recipes"><div class="shot-caption">3 · Cook from what&#x27;s expiring — never from a shopping list</div></div>
-          <div class="fragment" style="background:#0a0a0a"><img src="screenshots/farm.png" alt="farm"><div class="shot-caption">4 · Soil + weather + pantry gaps → what to plant</div></div>
-          <div class="fragment" style="background:#0a0a0a"><img src="screenshots/cycle.png" alt="cycle"><div class="shot-caption">5 · Harvest → cook → compost → soil → seed</div></div>
-          <div class="fragment" style="background:#0a0a0a"><img src="screenshots/health.png" alt="health"><div class="shot-caption">6 · Fresh food, staples, and protein still in reserve</div></div>
+          <div style="background:var(--panel)"><img src="screenshots/dashboard.png" alt="dashboard"><div class="shot-caption">1 · What spoils first, and what to cook tonight</div></div>
+          <div class="fragment" style="background:var(--panel)"><img src="screenshots/pantry.png" alt="pantry"><div class="shot-caption">2 · Every item, every location, ranked by urgency</div></div>
+          <div class="fragment" style="background:var(--panel)"><img src="screenshots/recipes.png" alt="recipes"><div class="shot-caption">3 · Cook from what&#x27;s expiring — never from a shopping list</div></div>
+          <div class="fragment" style="background:var(--panel)"><img src="screenshots/farm.png" alt="farm"><div class="shot-caption">4 · Soil + weather + pantry gaps → what to plant</div></div>
+          <div class="fragment" style="background:var(--panel)"><img src="screenshots/cycle.png" alt="cycle"><div class="shot-caption">5 · Harvest → cook → compost → soil → seed</div></div>
+          <div class="fragment" style="background:var(--panel)"><img src="screenshots/health.png" alt="health"><div class="shot-caption">6 · Fresh food, staples, and protein still in reserve</div></div>
         </div>
 <!-- SHOTS:DEMO:END -->
+        <aside class="notes">Walk the demo: dashboard, pantry, recipes, mark as cooked, the cycle, the farm.</aside>
       </section>
 
-      <!-- SLIDE 5: What it does (15 sec) — generated by pitch/shoot.py -->
+      <!-- SLIDE 5: What it does (10 sec) — generated by pitch/shoot.py -->
       <section>
-        <h2>What It Does</h2>
+        <div class="eyebrow">What it does</div>
 <!-- SHOTS:FEATURES:START -->
         <div class="feature-grid">
-          <div class="feature-card"><span style="color:#e74c3c"><b>🔴 Spoilage tracking</b></span> — Knows what dies first, works offline.<img src="screenshots/pantry.png" alt="pantry"></div>
-          <div class="feature-card"><span style="color:#f39c12"><b>🟡 Meal planning</b></span> — Meals from what&#x27;s expiring. Never invents food.<img src="screenshots/recipes.png" alt="recipes"></div>
-          <div class="feature-card"><span style="color:#4ecdc4"><b>🟢 Grow advisor</b></span> — Sensors + pantry gaps → what to plant now.<img src="screenshots/farm.png" alt="farm"></div>
-          <div class="feature-card"><span style="color:#9b59b6"><b>🟣 Compost loop</b></span> — Scraps feed soil, soil feeds seeds, seeds feed you.<img src="screenshots/cycle.png" alt="cycle"></div>
+          <div class="feature-card"><span style="color:#B4361F">●</span> <b>Spoilage tracking</b><div class="blurb">Knows what dies first, works offline.</div><img src="screenshots/pantry.png" alt="pantry"></div>
+          <div class="feature-card"><span style="color:#9A6200">●</span> <b>Meal planning</b><div class="blurb">Recipes from what&#x27;s expiring. Never invents food.</div><img src="screenshots/recipes.png" alt="recipes"></div>
+          <div class="feature-card"><span style="color:#3F5A00">●</span> <b>Grow advisor</b><div class="blurb">Sensors + pantry gaps → what to plant now.</div><img src="screenshots/farm.png" alt="farm"></div>
+          <div class="feature-card"><span style="color:#6B4FC8">●</span> <b>Compost loop</b><div class="blurb">Scraps feed soil, soil feeds seeds, seeds feed you.</div><img src="screenshots/cycle.png" alt="cycle"></div>
         </div>
 <!-- SHOTS:FEATURES:END -->
+        <aside class="notes">Four engines, one loop. All of it runs with the network unplugged.</aside>
       </section>
 
-      <!-- SLIDE 6: Hardware / CAD — generated by pitch/shoot.py from pitch/cad/ -->
+      <!-- SLIDE 6: Hardware / CAD (10 sec) — generated by pitch/shoot.py from pitch/cad/ -->
       <section>
-        <h2>The Hardware</h2>
+        <div class="eyebrow">The hardware</div>
+        <h2>Plugs into real sensors</h2>
 <!-- SHOTS:CAD:START -->
-        <div class="feature-card"><div class="todo">CAD renders go here — drop images or a short .mp4 into pitch/cad/</div></div>
+        <div class="feature-card cad-empty"><div class="todo">CAD renders go here — drop images or a short .mp4 into pitch/cad/</div></div>
 <!-- SHOTS:CAD:END -->
+        <aside class="notes">The app reads any sensor through one interface. Today it runs on recorded data; the probe plugs into the same slot.</aside>
       </section>
 
       <!-- SLIDE 7: Closing (5 sec) -->
-      <section>
+      <section class="dark" data-background-color="#1E1E2A">
         <h1>🌱 Fallow</h1>
-        <p style="color: #4ecdc4; font-size: 1.1em;">Nothing rots. Nothing is wasted.<br>Everything is planned.</p>
-        <div class="impact-grid">
-          <div>
-            <div class="impact-num">0</div>
-            <div class="impact-label">food wasted</div>
-          </div>
-          <div>
-            <div class="impact-num">∞</div>
-            <div class="impact-label">cycles closed</div>
-          </div>
-          <div>
-            <div class="impact-num">1</div>
-            <div class="impact-label">system to run it</div>
-          </div>
+        <p style="font-size: 0.95em;">Nothing rots. Nothing is wasted.<br><span class="lime">Everything is planned.</span></p>
+        <div class="claims">
+          <div class="claim"><b>Offline</b><span>works with the network unplugged</span></div>
+          <div class="claim"><b>Honest</b><span>never invents food you don't have</span></div>
+          <div class="claim"><b>Closed loop</b><span>every scrap returns to the soil</span></div>
         </div>
+        <aside class="notes">Fallow. Nothing rots, nothing is wasted, everything is planned.</aside>
       </section>
 
     </div>
@@ -241,6 +277,9 @@
   <script>
     Reveal.initialize({
       hash: true,
+      width: 1280,
+      height: 720,
+      margin: 0.06,
       transition: 'fade',
       transitionSpeed: 'fast',
       controls: false,
