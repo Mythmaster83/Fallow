@@ -9,6 +9,7 @@ import streamlit as st
 
 import fallow_ui as ui
 from larder.llm.client import LLMClient
+from larder.health.vitals import survival_needs, try_load_vitals
 from larder.meals.planner import plan_meals
 from larder.meals.recipes import cook_meal, recipe_for
 from larder.spoilage.predictor import predict_spoilage
@@ -17,7 +18,8 @@ from larder.store import open_store
 store = open_store()
 items = store.list_items()
 risks = predict_spoilage(items, client=LLMClient.from_env())
-plan = plan_meals(items, risks=risks)
+vitals = try_load_vitals()
+plan = plan_meals(items, risks=risks, needs=survival_needs(items, risks, vitals))
 recipes = [recipe_for(meal, items) for meal in plan.meals]
 
 ui.top("Food & recipes", f"{ui.today_label()} · cook what spoils first", avatar_icon="restaurant_menu")

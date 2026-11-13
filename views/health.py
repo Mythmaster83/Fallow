@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
+from html import escape
+
 import streamlit as st
 
 import fallow_ui as ui
 from larder.health.nutrition import nutrition_report
+from larder.health.vitals import body_note, try_load_vitals
 from larder.llm.client import LLMClient
+from larder.sensors import current_sensor
+from larder.sensors.base import LiveSensorUnavailable
+from larder.sensors.warnings import condition_warnings
 from larder.spoilage.predictor import predict_spoilage
 from larder.store import open_store
 
@@ -15,7 +21,18 @@ items = store.list_items()
 risks = predict_spoilage(items, client=LLMClient.from_env())
 report = nutrition_report(items, risks=risks)
 
-ui.top("Health", f"{ui.today_label()} · food groups in reserve", avatar_icon="monitor_heart")
+ui.top("Health", f"{ui.today_label()} · body, supplies, and land", avatar_icon="monitor_heart")
+
+# Body (wearable) and land (sensors): the two inputs beside the pantry.
+vitals = try_load_vitals()
+try:
+    snapshot = current_sensor().read()
+except (LiveSensorUnavailable, ValueError, FileNotFoundError, OSError):
+    snapshot = None
+ui.heading("Body and land")
+ui.condition_banner(snapshot, vitals, condition_warnings(snapshot) if snapshot else ["No weather reading"])
+st.html(f'<div class="fw-note">{ui.icon("tips_and_updates")}<span style="flex:1 1 200px">{escape(body_note(vitals))}</span></div>')
+ui.heading("Supplies")
 
 total = len(report.groups)
 if not items:

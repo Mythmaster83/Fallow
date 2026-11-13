@@ -7,7 +7,7 @@ from pydantic import ValidationError
 
 import fallow_ui as ui
 from larder.grow.advisor import build_grow_plan
-from larder.health.vitals import load_vitals
+from larder.health.vitals import survival_needs, try_load_vitals
 from larder.llm.client import LLMClient
 from larder.meals.planner import plan_meals
 from larder.sensors import current_sensor
@@ -19,7 +19,8 @@ from larder.store import open_store
 store = open_store()
 items = store.list_items()
 risks = predict_spoilage(items, client=LLMClient.from_env())
-plan = plan_meals(items, risks=risks)
+vitals = try_load_vitals()
+plan = plan_meals(items, risks=risks, needs=survival_needs(items, risks, vitals))
 
 snapshot = None
 sensor_error = None
@@ -43,12 +44,6 @@ elif not any(i.is_food for i in items):
     ui.feature("Get started", "Your pantry is empty", "Add what you have and Fallow plans what to cook first.", "Add food", "pantry", "kitchen")
 else:
     ui.feature("All clear", "Nothing is close to spoiling", plan.summary, "Open pantry", "pantry", "verified")
-
-try:
-    vitals = load_vitals()
-except (OSError, ValueError) as exc:
-    vitals = None
-    sensor_error = sensor_error or str(exc)
 
 ui.heading("Conditions")
 ui.condition_banner(snapshot, vitals, condition_warnings(snapshot) if snapshot else ["No weather reading"])
