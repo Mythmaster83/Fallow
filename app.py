@@ -6,14 +6,19 @@ screen lives in ``views/``.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import streamlit as st
 
-from fallow_ui import inject_css
+from fallow_ui import achievement_popup, inject_css
 from larder.llm.client import load_project_env
 
 load_project_env()
 
-st.set_page_config(page_title="Fallow", page_icon=":material/eco:", layout="wide")
+# Resolve from this file so the app runs from any working directory.
+LOGO = str(Path(__file__).parent / "static" / "fallow-logo-app-192.png")
+st.set_page_config(page_title="Fallow", page_icon=LOGO, layout="wide")
+st.logo(LOGO, size="large")
 inject_css()
 
 nav = st.navigation(
@@ -28,3 +33,8 @@ nav = st.navigation(
     position="top",
 )
 nav.run()
+
+# A reward earned by a button on the page shows once, after the page renders.
+reward = st.session_state.pop("fw_reward", None)
+if reward is not None:
+    achievement_popup(reward)

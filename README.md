@@ -44,6 +44,33 @@ streamlit run app.py
 Streamlit prints a local address, usually `http://localhost:8501`. Open that
 in a browser. The top bar has Dashboard, Pantry, Soil & farm, Health,
 Food & recipes, and Cycle.
+in a browser. There are six pages in the top bar (on a phone, behind the
+menu button):
+
+- **Dashboard**: what to cook first, food health, spoilage, and planting.
+- **Pantry**: everything on hand; add and remove food.
+- **Soil & farm**: the sensor reading and what to plant.
+- **Health**: which food groups (fresh food, calorie staples, protein) the
+  pantry holds past the next three days.
+- **Food & recipes**: step-by-step meals from food on hand. **Mark as cooked**
+  uses up the main food and one portion of the staple.
+- **Cycle**: dirt to plate and back; planting, harvest, cooking and compost
+  move real pantry rows through their lifecycle.
+
+The dashboard also shows **Weather** (from the sensor, including air CO2 and
+radiation when the station reports them) and **Health** (blood oxygen and
+heart rate from `fixtures/body.sample.json` until a watch or oximeter is
+connected; wellness info, not medical advice).
+
+**Your cycle** turns the loop into a game: cooking, checking health and
+planting earn XP and unlock achievements, each with an animated popup.
+**Reset demo data** at the bottom of the dashboard restores the sample pantry
+and clears progress, for rehearsing the pitch.
+
+The look (lavender backdrop, white cards, lime accents) lives in
+`.streamlit/config.toml` and `fallow_ui.py`. The Plus Jakarta Sans font is
+served from `static/fonts/`, so the app looks the same with no internet. After editing `fallow_ui.py`, stop the server with Ctrl+C and
+start it again so Streamlit picks up the new styles.
 
 Leave this command running while you use the site. Stop it with Ctrl+C in
 that terminal.
@@ -64,6 +91,20 @@ Actions secrets:
 
 The public site starts from the sample inventory. Pantry edits live on that
 Worker and reset after the instance goes idle.
+## Web demo, 3D watch and hardware
+
+These run without Python. Open them in a browser (they need internet for
+fonts, and the 3D page also loads Three.js from a CDN).
+
+- `web/demo/index.html`: clickable demo of the whole app. Phone, Watch and
+  Website views, a sensor simulator, cooking, planting and achievements.
+- `web/watch3d/index.html`: 3D exploded view of the survival watch built from
+  the CAD files. Explode slider, turn and flip controls, labels, and a live
+  health screen on the watch face.
+- `hardware/cad/`: the Onshape STEP files (Assembly 1).
+- `hardware/fallow-watch.glb`: the same assembly as one GLB, one named node
+  per part, for Blender or Three.js.
+- `assets/logo/`: the Fallow logo as SVG (dark, lime, app tiles) and a 512 px PNG.
 
 ## Tests
 
@@ -80,17 +121,23 @@ checks the recipe steps and the food-group grades the new screens show.
 
 ```
 ├── README.md
+├── web/demo/index.html          # Clickable demo (no Python needed)
+├── web/watch3d/index.html       # 3D exploded watch view
+├── hardware/                    # STEP files, GLB, renders
+├── assets/logo/                 # Logo SVG + PNG
 ├── pyproject.toml
 ├── .env.example                 # LLM_API_KEY, SENSOR_MODE=mock|live
-├── app.py                       # Streamlit entry and top navigation
-├── fallow_ui.py                 # Shared look for every screen
+├── app.py                       # Streamlit entry: theme + top navigation
+├── fallow_ui.py                 # Shared styles and card components
+├── .streamlit/config.toml       # Theme, colors, font files
+├── static/fonts/                # Plus Jakarta Sans (SIL Open Font License)
 ├── views/
 │   ├── dashboard.py
-│   ├── pantry.py
-│   ├── farm.py
+│   ├── pantry.py                # Was pages/1_Inventory.py
+│   ├── farm.py                  # Was pages/2_Grow.py
 │   ├── health.py
-│   └── recipes.py
-├── static/fonts/                # Plus Jakarta Sans, served with the app
+│   ├── recipes.py
+│   └── cycle.py                 # Dirt to plate and back
 ├── larder/
 │   ├── models.py                # Pydantic: InventoryItem, SpoilageRisk, MealPlan, GrowPlan
 │   ├── spoilage/
@@ -99,6 +146,10 @@ checks the recipe steps and the food-group grades the new screens show.
 │   ├── meals/
 │   │   ├── planner.py
 │   │   └── recipes.py           # Steps and "mark cooked" amounts
+│   ├── health/nutrition.py      # Food-group reserve report
+│   ├── health/vitals.py         # Wearable vitals: exertion shapes the meal plan
+│   ├── health/body.py           # Body readings (SpO2, CO2, radiation) + labels
+│   ├── achievements.py          # XP, levels, achievements (SQLite)
 │   ├── grow/
 │   │   ├── advisor.py
 │   │   └── balance.py
@@ -109,7 +160,6 @@ checks the recipe steps and the food-group grades the new screens show.
 │   ├── llm/
 │   │   ├── client.py            # Retries, timeout, JSON validation
 │   │   └── prompts.py
-│   ├── health/nutrition.py      # Fresh, staple, and protein reserves
 │   └── store.py                 # SQLite
 ├── fixtures/
 │   ├── inventory.sample.json

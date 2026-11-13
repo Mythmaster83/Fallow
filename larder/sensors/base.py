@@ -59,6 +59,10 @@ class SensorSnapshot(BaseModel):
     wind_kph: float | None = Field(default=None, ge=0)
     rain_today_mm: float | None = Field(default=None, ge=0)
     air: AirQuality | None = None
+    # Site-station readings used by the dashboard's Weather card.
+    humidity: float | None = Field(default=None, ge=0, le=1)
+    co2_ppm: float | None = Field(default=None, ge=0)
+    radiation_usv_h: float | None = Field(default=None, ge=0)
     # Where this reading came from. "fallback" means the live feed failed
     # and a recorded reading stands in; ``note`` says why.
     source: Literal["mock", "live", "fallback"] = "mock"
