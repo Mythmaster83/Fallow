@@ -76,6 +76,21 @@ The inventory is a SQLite file at `data/fallow.db`. The first launch copies
 in `fixtures/inventory.sample.json`. Delete that database file to load the
 sample again.
 
+## Web demo, 3D watch and hardware
+
+These run without Python. Open them in a browser (they need internet for
+fonts, and the 3D page also loads Three.js from a CDN).
+
+- `web/demo/index.html`: clickable demo of the whole app. Phone, Watch and
+  Website views, a sensor simulator, cooking, planting and achievements.
+- `web/watch3d/index.html`: 3D exploded view of the survival watch built from
+  the CAD files. Explode slider, turn and flip controls, labels, and a live
+  health screen on the watch face.
+- `hardware/cad/`: the Onshape STEP files (Assembly 1).
+- `hardware/fallow-watch.glb`: the same assembly as one GLB, one named node
+  per part, for Blender or Three.js.
+- `assets/logo/`: the Fallow logo as SVG (dark, lime, app tiles) and a 512 px PNG.
+
 ## Tests
 
 ```bash
@@ -90,6 +105,10 @@ every meal uses food already in the inventory.
 
 ```
 ├── README.md
+├── web/demo/index.html          # Clickable demo (no Python needed)
+├── web/watch3d/index.html       # 3D exploded watch view
+├── hardware/                    # STEP files, GLB, renders
+├── assets/logo/                 # Logo SVG + PNG
 ├── pyproject.toml
 ├── .env.example                 # LLM_API_KEY, SENSOR_MODE=mock|live
 ├── app.py                       # Streamlit entry: theme + top navigation
