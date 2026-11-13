@@ -11,6 +11,7 @@ goes into HTML, so a food named ``<b>`` shows up as text.
 from __future__ import annotations
 
 from datetime import date, datetime
+import os
 from html import escape
 
 import streamlit as st
@@ -570,6 +571,10 @@ CSS = """
 
 
 def inject_css() -> None:
+    # The static website ships this stylesheet inside its page (deploy/build_static.py),
+    # which saves re-sending it from Python on every load and every page switch.
+    if os.environ.get("FALLOW_CSS_IN_PAGE") == "1":
+        return
     st.html(CSS)
 
 

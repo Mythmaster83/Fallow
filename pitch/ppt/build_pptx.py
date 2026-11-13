@@ -223,5 +223,5 @@ if __name__ == "__main__":
         shots_dir.mkdir(parents=True, exist_ok=True)
         for i in range(1, len(slides_meta()) + 1):
             capture(i, shots_dir / f"slide-{i:02d}.png")
-    build(shots_dir, videos_dir, ROOT / "pitch" / "ACTIVE-Fallow-pitch.pptx", clickable=False)
-    build(shots_dir, videos_dir, ROOT / "pitch" / "ACTIVE-Fallow-pitch-clickable.pptx", clickable=True)
+    build(shots_dir, videos_dir, ROOT / "pitch" / "Fallow-Pitch-Final.pptx", clickable=False)
+    build(shots_dir, videos_dir, ROOT / "pitch" / "Fallow-Pitch-Final-clickable.pptx", clickable=True)
