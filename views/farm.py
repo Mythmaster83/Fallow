@@ -43,6 +43,7 @@ ui.heading("Conditions", pill=SOURCE_PILL[snapshot.source], anchor="conditions")
 if snapshot.note:
     st.caption(snapshot.note)
 ui.conditions(snapshot)
+ui.environment_details(snapshot)
 
 ui.heading("Pantry balance", "Food health", "health")
 ui.balance(grow)

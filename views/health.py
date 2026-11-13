@@ -31,6 +31,8 @@ except (LiveSensorUnavailable, ValueError, FileNotFoundError, OSError):
     snapshot = None
 ui.heading("Body and land")
 ui.condition_banner(snapshot, vitals, condition_warnings(snapshot) if snapshot else ["No weather reading"])
+if snapshot:
+    ui.environment_details(snapshot)
 st.html(f'<div class="fw-note">{ui.icon("tips_and_updates")}<span style="flex:1 1 200px">{escape(body_note(vitals))}</span></div>')
 ui.heading("Supplies")
 

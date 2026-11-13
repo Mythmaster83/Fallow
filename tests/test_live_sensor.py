@@ -76,3 +76,51 @@ def test_offline_falls_back_to_the_recorded_reading() -> None:
     assert snap.source == "fallback"
     assert "no network" in snap.note
     assert snap.location == MockSensor().read().location
+
+
+def _air(aqi: int = 26, pm25: float = 4.3) -> dict[str, Any]:
+    return {"current": {"us_aqi": aqi, "pm2_5": pm25, "pm10": 4.5, "carbon_dioxide": 445,
+                        "carbon_monoxide": 143.0, "ozone": 61.0, "nitrogen_dioxide": 4.8}}
+
+
+def _two_feeds(weather: dict[str, Any], air: dict[str, Any] | Exception) -> LiveSensor:
+    def fetch(url: str, timeout: float) -> dict[str, Any]:
+        if "air-quality" in url:
+            if isinstance(air, Exception):
+                raise air
+            return air
+        return weather
+
+    return LiveSensor(41.7, -73.93, "Hudson Valley, NY", fetch=fetch, cache_seconds=0)
+
+
+def test_air_quality_is_read_alongside_the_weather() -> None:
+    snap = _two_feeds(_reply(), _air()).read()
+    assert snap.air is not None
+    assert snap.air.us_aqi == 26
+    assert snap.air.co2_ppm == 445
+
+
+def test_weather_still_counts_when_the_air_feed_fails() -> None:
+    snap = _two_feeds(_reply(), LiveSensorUnavailable("air down")).read()
+    assert snap.source == "live"
+    assert snap.air is None
+
+
+def test_bad_air_and_smoke_raise_warnings() -> None:
+    from larder.sensors.warnings import condition_warnings
+
+    bad = _two_feeds(_reply(lows=[6.0, 7.0]), _air(aqi=160)).read()
+    assert "Air: unhealthy" in condition_warnings(bad)
+    smoky = _two_feeds(_reply(lows=[6.0, 7.0]), _air(aqi=90, pm25=48)).read()
+    assert "Smoke or dust in the air" in condition_warnings(smoky)
+    clean = _two_feeds(_reply(lows=[6.0, 7.0]), _air()).read()
+    assert not any("Air" in w or "Smoke" in w for w in condition_warnings(clean))
+
+
+def test_dry_root_zone_under_a_wet_surface_counts_as_dry() -> None:
+    reply = _reply(moisture=0.3, lows=[6.0, 7.0])
+    reply["current"]["soil_moisture_9_to_27cm"] = 0.08
+    snap = _two_feeds(reply, _air()).read()
+    assert snap.soil_moisture_root is not None and snap.soil_moisture_root < 0.3
+    assert "thyme" in [crop.crop for crop in advise(snap)]

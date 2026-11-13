@@ -155,5 +155,8 @@ def _snapshot_day(captured_at: datetime) -> date:
 def _soil_is_dry(snapshot: SensorSnapshot) -> bool:
     if snapshot.soil_moisture is not None and snapshot.soil_moisture < 0.3:
         return True
+    # A wet surface after a shower can hide a dry root zone.
+    if snapshot.soil_moisture_root is not None and snapshot.soil_moisture_root < 0.3:
+        return True
     text = snapshot.soil_condition.lower()
     return "dry" in text or "dust" in text

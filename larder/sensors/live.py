@@ -23,9 +23,10 @@ from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from larder.sensors.base import LiveSensorUnavailable, SensorSnapshot
+from larder.sensors.base import AirQuality, LiveSensorUnavailable, SensorSnapshot
 
 API_URL = "https://api.open-meteo.com/v1/forecast"
+AIR_URL = "https://air-quality-api.open-meteo.com/v1/air-quality"
 CACHE_SECONDS = 600
 
 # Volumetric water content (m³/m³) at which a loam is saturated. Dividing by
@@ -105,13 +106,27 @@ class LiveSensor:
             {
                 "latitude": f"{self.latitude:.4f}",
                 "longitude": f"{self.longitude:.4f}",
-                "current": "temperature_2m,weather_code,soil_moisture_0_to_1cm,soil_temperature_0cm",
-                "daily": "temperature_2m_min",
+                "current": (
+                    "temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m,"
+                    "soil_moisture_0_to_1cm,soil_moisture_9_to_27cm,soil_temperature_0cm,soil_temperature_6cm"
+                ),
+                "daily": "temperature_2m_min,precipitation_sum",
                 "forecast_days": 2,
                 "timezone": "auto",
             }
         )
         return f"{API_URL}?{query}"
+
+    def air_url(self) -> str:
+        query = urllib.parse.urlencode(
+            {
+                "latitude": f"{self.latitude:.4f}",
+                "longitude": f"{self.longitude:.4f}",
+                "current": "us_aqi,pm2_5,pm10,carbon_dioxide,carbon_monoxide,ozone,nitrogen_dioxide",
+                "timezone": "auto",
+            }
+        )
+        return f"{AIR_URL}?{query}"
 
     def read(self) -> SensorSnapshot:
         url = self.url()
@@ -119,8 +134,38 @@ class LiveSensor:
         if cached and time.monotonic() - cached[0] < self.cache_seconds:
             return cached[1]
         snapshot = self.parse(self._fetch(url, self.timeout))
+        try:
+            air = self.parse_air(self._fetch(self.air_url(), self.timeout))
+        except LiveSensorUnavailable:
+            air = None  # weather and soil still count without the air reading
+        snapshot = snapshot.model_copy(update={"air": air})
         _cache[url] = (time.monotonic(), snapshot)
         return snapshot
+
+    @staticmethod
+    def parse_air(payload: dict[str, Any]) -> AirQuality:
+        """Turn an Open-Meteo air-quality reply into readings, or refuse."""
+        try:
+            current = payload["current"]
+            aqi = current["us_aqi"]
+            if aqi is None:
+                raise KeyError("us_aqi")
+
+            def opt(key: str) -> float | None:
+                value = current.get(key)
+                return None if value is None else float(value)
+
+            return AirQuality(
+                us_aqi=int(aqi),
+                pm2_5=opt("pm2_5"),
+                pm10=opt("pm10"),
+                co2_ppm=opt("carbon_dioxide"),
+                carbon_monoxide=opt("carbon_monoxide"),
+                ozone=opt("ozone"),
+                nitrogen_dioxide=opt("nitrogen_dioxide"),
+            )
+        except (KeyError, TypeError, ValueError) as exc:
+            raise LiveSensorUnavailable(f"Air-quality reply is missing a field: {exc}") from exc
 
     def parse(self, payload: dict[str, Any]) -> SensorSnapshot:
         """Turn an Open-Meteo reply into a snapshot, or refuse."""
@@ -132,7 +177,12 @@ class LiveSensor:
             code = int(current["weather_code"])
             lows = [float(v) for v in payload["daily"]["temperature_2m_min"] if v is not None]
             raw_moisture = current.get("soil_moisture_0_to_1cm")
+            raw_root = current.get("soil_moisture_9_to_27cm")
             soil_temp = current.get("soil_temperature_0cm")
+            soil_temp_6 = current.get("soil_temperature_6cm")
+            humidity = current.get("relative_humidity_2m")
+            wind = current.get("wind_speed_10m")
+            rain = payload["daily"].get("precipitation_sum") or [None]
         except (KeyError, TypeError, ValueError) as exc:
             raise LiveSensorUnavailable(f"Open-Meteo reply is missing a field: {exc}") from exc
         if not lows:
@@ -158,5 +208,10 @@ class LiveSensor:
             soil_condition=condition,
             soil_moisture=moisture,
             frost_risk=low <= FROST_LOW_C,
+            soil_moisture_root=None if raw_root is None else max(0.0, min(1.0, float(raw_root) / SATURATED_VWC)),
+            soil_temp_c=None if soil_temp_6 is None else float(soil_temp_6),
+            humidity_pct=None if humidity is None else float(humidity),
+            wind_kph=None if wind is None else float(wind),
+            rain_today_mm=None if rain[0] is None else float(rain[0]),
             source="live",
         )
