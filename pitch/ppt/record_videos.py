@@ -35,8 +35,8 @@ CHROME_ARGS = ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist", "-
 # Stage-pixel regions (x, y, w, h), measured from the deck.
 FULL = (0, 0, 1600, 900)
 CLIPS = {
-    "s2-pantry-clock": {"slide": 2, "region": (706, 70, 804, 760)},
-    "s3-loop": {"slide": 3, "region": FULL},
+    "s3-loop": {"slide": 2, "region": FULL},
+    "s2-pantry-clock": {"slide": 3, "region": (706, 70, 804, 760)},
     "s4-live-demo": {"slide": 4, "region": (554, 70, 956, 760)},
     "s5-watch": {"slide": 5, "region": (554, 70, 956, 778.2)},
     "s7-probe": {"slide": 7, "region": (554, 70, 956, 760)},

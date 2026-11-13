@@ -273,16 +273,16 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 .vbar .ms{color:var(--lime)}
 .vbar .btn .ms{color:var(--dark)}
 
-/* QR: scan to try the live site */
-.qr{display:flex;align-items:center;gap:16px;background:#fff;color:var(--dark);border-radius:24px;padding:14px 18px 14px 14px;box-shadow:0 18px 40px rgba(0,0,0,.28)}
-.qr img{width:128px;height:128px;display:block;border-radius:6px}
-.qr b{display:block;font-size:20px;line-height:1.2}
-.qr span{display:block;font-size:14px;color:#6E6D7C;margin-top:6px}
-#s1 .qr{position:absolute;right:70px;bottom:56px;flex-direction:column;gap:8px;padding:14px;text-align:center}
-#s1 .qr img{width:150px;height:150px}
-#s1 .qr b{font-size:16px}
-#s8 .next > div.qr{background:#fff;color:var(--dark);margin-top:6px;padding:14px 18px 14px 14px;font-weight:400}
-#s8 .qr img{width:150px;height:150px}
+/* QR: centred in the title slide's orbit (orbit centre = 1200, 450) */
+#s1 .qr.hero{position:absolute;left:1200px;top:450px;transform:translate(-50%,-50%);width:290px;padding:18px 18px 20px;border-radius:30px;
+  background:#fff;color:var(--dark);display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;z-index:2;
+  box-shadow:0 0 0 10px rgba(215,242,110,.14),0 0 60px rgba(215,242,110,.22),0 30px 60px rgba(0,0,0,.45)}
+#s1 .qr.hero.rv{transform:translate(-50%,-50%)}
+#s1 .qr.hero img{width:206px;height:206px;display:block}
+#s1 .qr.hero b{font-size:17px;line-height:1.3;font-weight:700;max-width:240px}
+#s1 .qr.hero .scan{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  background:var(--dark);color:var(--lime);padding:6px 12px;border-radius:999px}
+#s1 .qr.hero .scan .ms{font-size:18px}
 /* hud */
 #hud{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:7px;border-radius:999px;background:rgba(20,20,28,.82);backdrop-filter:blur(10px);color:#fff;z-index:50;transition:opacity .4s}
 #hud.idle{opacity:.15}
@@ -322,11 +322,32 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
     <div class="o" style="left:232px;bottom:-48px"><span class="ms" style="color:#8DC63F">potted_plant</span></div>
     <div class="o" style="left:-48px;top:232px"><span class="ms" style="color:#F27A8A">favorite</span></div>
   </div>
-  <div class="qr rv" style="--d:3"><img src="media/qr-site.svg" alt="QR code: fallow.aliahmedaziz08.workers.dev"><b>Scan to try it</b></div>
+  <div class="qr hero rv" style="--d:3"><span class="scan"><span class="ms">qr_code_scanner</span>Scan me</span><img src="media/qr-site.svg" alt="QR code: fallow.aliahmedaziz08.workers.dev"><b>Follow the presentation and interact with the product</b></div>
   <div class="hint"><kbd>→</kbd> next <kbd>T</kbd> 90 sec timer <kbd>N</kbd> notes <kbd>F</kbd> full screen</div>
 </section>
 
 <!-- 2. Problem -->
+<section class="slide" id="s3" data-notes="(about 15 sec) Fallow is one loop. Pantry tracks what's spoiling. Meals use it first. Grow tells you what to plant to fill the gaps. Health checks your body is getting what it needs. Every full loop earns an achievement, so it feels like a game. Hit Play loop.">
+  <div class="grid">
+    <div>
+      <div class="eyebrow rv" style="--d:0"><span class="ms">all_inclusive</span>How it works</div>
+      <h2 class="rv" style="--d:1">One loop, four jobs.</h2>
+      <p class="lead rv" style="--d:2">Every step feeds the next. Tap a circle, or play the whole cycle.</p>
+      <div class="card detail rv" style="--d:3" id="detail"></div>
+      <div class="ctl rv" style="--d:4">
+        <button class="btn lime" id="loopPlay"><span class="ms">play_arrow</span>Play loop</button>
+        <button class="btn ghost" id="loopReset"><span class="ms">restart_alt</span>Reset</button>
+      </div>
+    </div>
+    <div class="ring rv" style="--d:2">
+      <svg viewBox="0 0 700 700"><circle cx="350" cy="350" r="250" fill="none" stroke="#E3E2EA" stroke-width="10" stroke-dasharray="4 18" stroke-linecap="round"/><circle id="arc" cx="350" cy="350" r="250" fill="none" stroke="#8DC63F" stroke-width="10" stroke-linecap="round" stroke-dasharray="1571" stroke-dashoffset="1571" transform="rotate(-90 350 350)" style="transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)"/></svg>
+      <div class="core"><div class="xp" id="xp">0 XP</div><div class="lv" id="lv">Level 1 · Seedling</div><div class="xpbar"><i id="xpbar"></i></div></div>
+    </div>
+  </div>
+  <div class="toast" id="toast"><div class="badge"><span class="ms">military_tech</span></div><div><b>Full cycle complete!</b><span>Pantry to plate to plot. +100 XP, badge unlocked</span></div></div>
+</section>
+
+<!-- 4. Live app -->
 <section class="slide" id="s2" data-notes="(about 15 sec) Food goes bad quietly. USDA estimates 30 to 40 percent of the US food supply is wasted. Drag the days: without Fallow, the spinach and chicken are gone by day 5. Flip Fallow on, and the same food turns into dinner before it spoils.">
   <div class="grid">
     <div>
@@ -361,27 +382,6 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 </section>
 
 <!-- 3. The loop -->
-<section class="slide" id="s3" data-notes="(about 15 sec) Fallow is one loop. Pantry tracks what's spoiling. Meals use it first. Grow tells you what to plant to fill the gaps. Health checks your body is getting what it needs. Every full loop earns an achievement, so it feels like a game. Hit Play loop.">
-  <div class="grid">
-    <div>
-      <div class="eyebrow rv" style="--d:0"><span class="ms">all_inclusive</span>How it works</div>
-      <h2 class="rv" style="--d:1">One loop, four jobs.</h2>
-      <p class="lead rv" style="--d:2">Every step feeds the next. Tap a circle, or play the whole cycle.</p>
-      <div class="card detail rv" style="--d:3" id="detail"></div>
-      <div class="ctl rv" style="--d:4">
-        <button class="btn lime" id="loopPlay"><span class="ms">play_arrow</span>Play loop</button>
-        <button class="btn ghost" id="loopReset"><span class="ms">restart_alt</span>Reset</button>
-      </div>
-    </div>
-    <div class="ring rv" style="--d:2">
-      <svg viewBox="0 0 700 700"><circle cx="350" cy="350" r="250" fill="none" stroke="#E3E2EA" stroke-width="10" stroke-dasharray="4 18" stroke-linecap="round"/><circle id="arc" cx="350" cy="350" r="250" fill="none" stroke="#8DC63F" stroke-width="10" stroke-linecap="round" stroke-dasharray="1571" stroke-dashoffset="1571" transform="rotate(-90 350 350)" style="transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)"/></svg>
-      <div class="core"><div class="xp" id="xp">0 XP</div><div class="lv" id="lv">Level 1 · Seedling</div><div class="xpbar"><i id="xpbar"></i></div></div>
-    </div>
-  </div>
-  <div class="toast" id="toast"><div class="badge"><span class="ms">military_tech</span></div><div><b>Full cycle complete!</b><span>Pantry to plate to plot. +100 XP, badge unlocked</span></div></div>
-</section>
-
-<!-- 4. Live app -->
 <section class="slide" id="s4" data-notes="(about 20 sec) This is the app, live. Five pages: Dashboard, Pantry, Soil and farm, Health, and Food and recipes. The search button jumps to the pantry, weather and health sit side by side, and marking a meal cooked pops an achievement. Switch to the watch view to show the same data on the wrist.">
   <div class="split">
     <div>
@@ -550,7 +550,6 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
       <div class="rv" style="--d:3"><span class="ms">precision_manufacturing</span>Build the probe and watch prototype from our CAD.</div>
       <div class="rv" style="--d:4"><span class="ms">cloud_off</span>Offline mode, so it works when the power or the internet is out.</div>
       <div class="rv" style="--d:5"><span class="ms">groups</span>Field test with a community garden and a food pantry.</div>
-      <div class="qr rv" style="--d:6"><img src="media/qr-site.svg" alt="QR code: fallow.aliahmedaziz08.workers.dev"><div><b>Try Fallow on your phone</b><span>fallow.aliahmedaziz08.workers.dev</span></div></div>
     </div>
   </div>
 </section>
