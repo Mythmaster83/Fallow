@@ -86,6 +86,11 @@ fonts, and the 3D page also loads Three.js from a CDN).
 - `web/watch3d/index.html`: 3D exploded view of the survival watch built from
   the CAD files. Explode slider, turn and flip controls, labels, and a live
   health screen on the watch face.
+- `web/pitch/index.html`: the HackPerimeter pitch deck. Eight slides with the
+  demo and the 3D watch running live inside, a pantry clock, a playable loop
+  and the grow advisor. Arrow keys move slides, T starts a 90 second timer,
+  N shows speaker notes, F goes full screen. Keep it inside `web/` so it can
+  find `../demo/` and `../watch3d/`.
 - `hardware/cad/`: the Onshape STEP files (Assembly 1).
 - `hardware/fallow-watch.glb`: the same assembly as one GLB, one named node
   per part, for Blender or Three.js.
