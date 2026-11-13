@@ -43,21 +43,30 @@ SHOTS = PITCH / "screenshots"
 DECK = PITCH / "index.html"
 
 # Slug (screenshot file stem) -> caption on the demo slide, in demo-flow order.
+# The story is needs-first: what you need, what the land offers, then the loop.
 CAPTIONS: dict[str, str] = {
-    "dashboard": "1 · What spoils first, and what to cook tonight",
-    "pantry": "2 · Every item, every location, ranked by urgency",
-    "recipes": "3 · Cook from what's expiring — never from a shopping list",
-    "farm": "4 · Soil + weather + pantry gaps → what to plant",
-    "cycle": "5 · Harvest → cook → compost → soil → seed",
-    "health": "6 · Fresh food, staples, and protein still in reserve",
+    "health": "1 · Know what you need: body, supplies, land",
+    "farm": "2 · Read the environment: what to plant now",
+    "harvest": "3 · Harvest a bed straight into the pantry",
+    "pantry": "4 · Everything on hand, soonest to spoil first",
+    "dashboard": "5 · What spoils first, and what to cook tonight",
+    "recipes": "6 · Cook for what you need, from what you have",
+    "cycle": "7 · Scraps to compost, compost back to soil",
 }
 
-# Feature cards on slide 5: (title, colour, blurb, screenshot slug).
+# Extra shots of one tab inside a page: slug -> (url path, tab label).
+TAB_SHOTS: dict[str, tuple[str, str]] = {
+    "harvest": ("cycle", "Harvest"),
+}
+
+# Feature cards on slide 5, same order: (title, colour, blurb, screenshot slug).
 FEATURES: list[tuple[str, str, str, str]] = [
-    ("Spoilage tracking", "#B4361F", "Knows what dies first, works offline.", "pantry"),
-    ("Meal planning", "#9A6200", "Recipes from what's expiring. Never invents food.", "recipes"),
-    ("Grow advisor", "#3F5A00", "Sensors + pantry gaps → what to plant now.", "farm"),
-    ("Compost loop", "#6B4FC8", "Scraps feed soil, soil feeds seeds, seeds feed you.", "cycle"),
+    ("Know your needs", "#6B4FC8", "Vitals, reserves and land in one view.", "health"),
+    ("Read the land", "#3F5A00", "Weather and soil pick what to plant.", "farm"),
+    ("Harvest & store", "#2F7D5B", "Beds go straight into the pantry.", "harvest"),
+    ("Spoilage first", "#B4361F", "Knows what dies first, offline.", "dashboard"),
+    ("Cook from the shelf", "#9A6200", "Recipes never invent food.", "recipes"),
+    ("Close the loop", "#6B4FC8", "Scraps feed soil, soil feeds seeds.", "cycle"),
 ]
 
 # The top navigation lives in the header, so keep it; hide only dev chrome.
@@ -178,6 +187,22 @@ def take_shots(base: str, targets: list[Target]) -> list[str]:
             out = SHOTS / f"{target.slug}.png"
             page.screenshot(path=str(out))
             taken.append(target.slug)
+            print(f"  saved {out.relative_to(ROOT)}")
+        for slug, (url_path, tab) in TAB_SHOTS.items():
+            page.goto(f"{base}/{url_path}", wait_until="networkidle")
+            page.add_style_tag(content=HIDE_CHROME_CSS)
+            settle(page)
+            tab_button = page.get_by_role("tab", name=tab)
+            if not tab_button.count():
+                print(f"  ! {slug}: no '{tab}' tab on /{url_path}", file=sys.stderr)
+                continue
+            tab_button.first.click()
+            # Bring the tab bar to the top of the screen so its panel is in view.
+            tab_button.first.evaluate("el => el.scrollIntoView({block: 'start'})")
+            page.wait_for_timeout(1200)
+            out = SHOTS / f"{slug}.png"
+            page.screenshot(path=str(out))
+            taken.append(slug)
             print(f"  saved {out.relative_to(ROOT)}")
         browser.close()
     return taken
