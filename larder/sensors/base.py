@@ -7,7 +7,7 @@ it is talking to.
 """
 
 from datetime import datetime
-from typing import Protocol
+from typing import Literal, Protocol
 
 from pydantic import BaseModel, Field
 
@@ -24,6 +24,10 @@ class SensorSnapshot(BaseModel):
     soil_condition: str = Field(min_length=1)
     soil_moisture: float | None = Field(default=None, ge=0, le=1)
     frost_risk: bool
+    # Where this reading came from. "fallback" means the live feed failed
+    # and a recorded reading stands in; ``note`` says why.
+    source: Literal["mock", "live", "fallback"] = "mock"
+    note: str = ""
 
 
 class Sensor(Protocol):
