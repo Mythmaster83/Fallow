@@ -1,0 +1,36 @@
+look at the plan below and create the appropriate file structure basline. language is python, and were using streamlit for front end. fallow/
+├── README.md
+├── pyproject.toml
+├── .env.example                 # LLM_API_KEY, SENSOR_MODE=mock|live
+├── app.py                       # Streamlit entry (dashboard)
+├── pages/
+│   ├── 1_Inventory.py
+│   └── 2_Grow.py
+├── larder/
+│   ├── models.py                # Pydantic: InventoryItem, SpoilageRisk, MealPlan, GrowPlan
+│   ├── spoilage/
+│   │   ├── predictor.py         # LLM call + heuristic fallback
+│   │   └── shelf_life.py        # Static baseline table
+│   ├── meals/planner.py
+│   ├── grow/
+│   │   ├── advisor.py
+│   │   └── balance.py
+│   ├── sensors/
+│   │   ├── base.py              # SensorSnapshot model + Sensor protocol (the contract)
+│   │   ├── mock.py
+│   │   └── live.py              # Built last
+│   ├── llm/
+│   │   ├── client.py            # Retries, timeout, JSON validation
+│   │   └── prompts.py
+│   └── store.py                 # SQLite or JSON file
+├── fixtures/
+│   ├── inventory.sample.json
+│   └── sensor.sample.json
+├── tests/
+│   ├── test_spoilage_fallback.py
+│   └── test_planner_inventory_only.py
+└── docs/
+    ├── architecture.md
+    └── demo-script.md . Description
+
+Fallow is a survival-grade kitchen and garden planner. It tracks what’s in your pantry, uses an LLM to predict what will spoil first, and builds a cooking plan so nothing goes to waste. A pluggable sensor feed (location, weather, soil condition) then drives a grow plan that tells you what you can plant and how to balance your food supply for resilience. Nothing rots, nothing is wasted, everything is planned.
