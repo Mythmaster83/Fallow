@@ -94,9 +94,10 @@ fonts, and the 3D page also loads Three.js from a CDN).
   demo and the 3D watch running live inside, a pantry clock, a playable loop
   and the grow advisor. Arrow keys move slides, T starts a 90 second timer,
   N shows speaker notes, F goes full screen. Keep it inside `web/` so it can
-  find `../demo/`, `../watch3d/` and `../probe3d/`. Slide 6 compares the three
-  probe tiers with the watch, slide 7 shows the probe live, and slide 8 lists
-  every part with prices next to the assembly video.
+  find `../demo/`, `../watch3d/` and `../probe3d/`. Slide 6 presents the two
+  products (the Fallow Stake probe and the Fallow Watch), slide 7 shows the
+  probe live, and slide 8 shows what each one costs to build next to the
+  assembly video.
 - `web/probe3d/index.html`: the Fallow Stake, our garden probe design, in 3D.
   Switch between Probe Lite, Plus and Pro to snap modules on and off, and
   explode it to see every part with labels. `?still=1&tier=pro` renders a
