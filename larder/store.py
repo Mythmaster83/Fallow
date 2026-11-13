@@ -8,6 +8,7 @@ reruns from tripping SQLite's same-thread check.
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from pathlib import Path
 
@@ -16,6 +17,10 @@ from larder.models import InventoryItem
 
 
 def default_db_path() -> Path:
+    """``FALLOW_DB_PATH`` overrides the location (used for clean screenshots)."""
+    override = os.environ.get("FALLOW_DB_PATH", "").strip()
+    if override:
+        return Path(override)
     return project_root() / "data" / "fallow.db"
 
 
