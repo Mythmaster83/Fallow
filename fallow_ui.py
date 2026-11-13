@@ -320,6 +320,76 @@ CSS = """
   .fw-row:hover,.fw-stat:hover{transform:translateY(-2px); box-shadow:0 10px 24px -14px rgba(60,40,120,.35)}
   .fw-feature .cta:hover{transform:translateY(-1px) scale(1.03)}
 }
+/* ---- Product nav ----
+   Desktop: a white floating bar lined up with the page panel; the current page
+   is a charcoal pill. Phone: logo + level stay on top, the tabs become a
+   floating charcoal tab bar at the bottom. No transform/filter on the top bar,
+   so the tab group can be position:fixed to the viewport on phones. */
+[data-testid="stHeader"]{display:none}
+[data-testid="stMainBlockContainer"]{margin-top:96px}
+.st-key-fw-topbar{position:fixed; top:14px; left:50%; margin-left:-590px; width:1180px; max-width:calc(100vw - 28px);
+  z-index:999990; height:58px; padding:0 10px 0 16px; background:var(--card); border-radius:18px;
+  box-shadow:0 12px 30px -16px rgba(60,40,120,.45); flex-wrap:nowrap !important; gap:12px !important}
+@media (max-width:1208px){.st-key-fw-topbar{left:14px; margin-left:0; width:auto; right:14px}}
+.st-key-fw-topbar > div{width:auto !important; flex:0 0 auto}
+.st-key-fw-topbar > div:has(.st-key-fw-tabs){flex:1 1 auto !important; min-width:0}
+.st-key-fw-topbar .stElementContainer:has(> [data-testid="stHtml"] style:only-child){display:none}
+.fw-brandmark{display:flex; align-items:center; gap:10px; white-space:nowrap; text-decoration:none}
+.fw-brandmark img{width:32px; height:32px; border-radius:9px}
+.fw-brandmark b{font-size:17px; font-weight:800; letter-spacing:-0.02em; color:var(--ink)}
+.st-key-fw-tabs{flex:1 1 auto !important; justify-content:center; flex-wrap:nowrap !important; gap:4px !important;
+  overflow-x:auto; scrollbar-width:none}
+.st-key-fw-tabs > div, .st-key-fw-tabs [class*="st-key-fw-tab-"], .st-key-fw-tabs [class*="st-key-fw-tab-"] > div{width:auto !important; flex:0 0 auto}
+.st-key-fw-tabs a{height:40px; padding:0 14px !important; border-radius:12px !important; background:transparent;
+  color:var(--muted) !important; transition:background .15s, color .15s}
+.st-key-fw-tabs a *{color:inherit !important}
+.st-key-fw-tabs a p{font-size:14px !important; font-weight:600 !important; white-space:nowrap}
+.st-key-fw-tabs a [data-testid="stIconMaterial"]{font-size:19px !important}
+.st-key-fw-tabs a:hover{background:var(--t-lav); color:var(--ink) !important}
+.fw-level{display:flex; align-items:center; gap:10px; padding:6px 12px 6px 6px; border-radius:14px; background:var(--panel);
+  white-space:nowrap; text-decoration:none}
+.fw-level .badge{width:30px; height:30px; border-radius:9px; background:var(--dark); color:var(--lime); display:flex;
+  align-items:center; justify-content:center; font-weight:800; font-size:13px}
+.fw-level .txt{display:flex; flex-direction:column; gap:4px; min-width:88px}
+.fw-level .txt b{font-size:12.5px; font-weight:700; color:var(--ink); line-height:1}
+.fw-level .bar{height:4px; border-radius:2px; background:var(--line); overflow:hidden}
+.fw-level .bar i{display:block; height:100%; background:var(--lime-ink); border-radius:2px}
+@media (max-width:1000px){.st-key-fw-tabs a p{display:none} .st-key-fw-tabs a{padding:0 12px !important}}
+@media (max-width:760px){
+  .st-key-fw-topbar{top:0; left:0; right:0; height:56px; border-radius:0; padding:0 12px;
+    box-shadow:0 1px 0 var(--line); justify-content:space-between}
+  [data-testid="stMainBlockContainer"]{margin-top:56px !important; padding-bottom:112px !important}
+  .st-key-fw-tabs{position:fixed !important; left:12px; right:12px; bottom:12px; width:auto !important; height:64px; padding:6px; box-sizing:border-box;
+    background:var(--dark); border-radius:20px; box-shadow:0 14px 34px -10px rgba(28,28,40,.55);
+    justify-content:space-between; gap:2px !important; overflow:visible}
+  .st-key-fw-tabs > div, .st-key-fw-tabs [class*="st-key-fw-tab-"]{flex:1 1 0 !important}
+  .st-key-fw-tabs [class*="st-key-fw-tab-"] div, .st-key-fw-tabs a{width:100% !important}
+  .st-key-fw-tabs a{height:52px; padding:0 !important; flex-direction:column; justify-content:center; gap:2px;
+    color:#A9A7BC !important; border-radius:14px !important}
+  .st-key-fw-tabs a p{display:block; font-size:10px !important; letter-spacing:.01em; overflow:hidden; text-overflow:ellipsis; max-width:100%}
+  .st-key-fw-tabs *{min-width:0}
+  .st-key-fw-tabs a [data-testid="stIconMaterial"]{font-size:22px !important}
+  .st-key-fw-tabs a:hover{background:#2B2B3B; color:#fff !important}
+  .fw-level .txt{min-width:0} .fw-level .bar{display:none}
+}
+/* ---- Pantry: Add food panel ---- */
+.st-key-addform{gap:12px !important; padding:20px !important; border-radius:22px}
+.fw-addhead{display:flex; gap:12px; align-items:center; padding-bottom:14px; border-bottom:1px solid var(--line)}
+.fw-addhead .t{font-size:18px; font-weight:800; color:var(--ink); letter-spacing:-0.02em}
+.fw-addhead .s{font-size:12.5px; color:var(--muted); margin-top:2px; line-height:1.4}
+.fw-addlbl{font-size:12px; font-weight:600; color:var(--muted); margin-bottom:-6px}
+.st-key-quickadd{flex-wrap:wrap !important; gap:6px !important}
+.st-key-quickadd > div{width:auto !important; flex:0 0 auto}
+.st-key-quickadd button{min-height:32px !important; padding:4px 12px !important; border-radius:999px !important;
+  border:1px solid var(--line) !important; background:var(--panel) !important; font-size:13px !important}
+.st-key-quickadd button:hover{border-color:var(--ink) !important; background:var(--card) !important}
+.st-key-addform [data-testid="stWidgetLabel"] p{font-size:12.5px !important; font-weight:600 !important; color:var(--muted) !important}
+.st-key-addform [data-testid="stPills"] button{border-radius:12px !important}
+.fw-estimate{background:var(--panel); border-radius:16px; padding:12px 14px}
+.fw-estimate .k{display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--muted)}
+.fw-estimate .v{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:6px}
+.fw-estimate .v b{font-size:16px; color:var(--ink)}
+.fw-estimate .s{font-size:12px; color:var(--muted); margin-top:4px; line-height:1.4}
 </style>
 """
 
@@ -365,6 +435,42 @@ def greeting() -> str:
 
 def today_label() -> str:
     return date.today().strftime("%A, %b %d").replace(" 0", " ")
+
+
+# Short tab labels so six tabs fit a phone bar; page titles keep the full names.
+NAV_LABELS = {"Soil & farm": "Farm", "Food & recipes": "Recipes"}
+
+
+def navbar(pages: list, current: object) -> None:  # list[StreamlitPage], StreamlitPage
+    """Product nav: brand, page tabs, cycle level. Built from ``st.page_link`` so
+    switching pages stays inside the running app. Streamlit does not mark the
+    current link, so each tab sits in a keyed container and one rule lights it."""
+    try:
+        from larder.achievements import ProgressStore
+
+        progress = ProgressStore().load()
+        level, name, pct = progress.level, progress.level_name, progress.level_pct
+    except Exception:  # progress is a nicety; never block the nav
+        level, name, pct = 1, "Sprout", 0.0
+    with st.container(key="fw-topbar", horizontal=True, vertical_alignment="center"):
+        st.html('<div class="fw-brandmark"><img src="app/static/fallow-logo-app-192.png" alt=""><b>Fallow</b></div>')
+        with st.container(key="fw-tabs", horizontal=True, vertical_alignment="center", gap=None):
+            for index, page in enumerate(pages):
+                with st.container(key=f"fw-tab-{index}"):
+                    st.page_link(page, label=NAV_LABELS.get(page.title, page.title))
+                if page == current:
+                    st.html(
+                        f"<style>.st-key-fw-tab-{index} a{{background:var(--dark) !important; color:#fff !important}}"
+                        f".st-key-fw-tab-{index} a [data-testid=stIconMaterial]{{color:var(--lime) !important}}"
+                        "@media (max-width:760px){"
+                        f".st-key-fw-tab-{index} a{{background:var(--lime) !important; color:var(--ink) !important}}"
+                        f".st-key-fw-tab-{index} a [data-testid=stIconMaterial]{{color:var(--ink) !important}}}}</style>"
+                    )
+        st.html(
+            f'<div class="fw-level" title="Your cycle: {pct:.0f}% to the next level">'
+            f'<span class="badge">{level}</span><span class="txt"><b>{escape(name)}</b>'
+            f'<span class="bar"><i style="width:{pct:.0f}%"></i></span></span></div>'
+        )
 
 
 def top(title: str, subtitle: str, avatar_icon: str = "eco", search: bool = False) -> None:
