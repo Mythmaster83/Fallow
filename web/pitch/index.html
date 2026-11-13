@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fallow: HackPerimeter pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0&display=block">
+<style>
+:root{
+  --lav:#BBA6F0; --lav2:#E6E2FB; --panel:#F6F5F2; --card:#fff; --ink:#1C1C28; --muted:#6F6E7E;
+  --line:#ECEBF0; --dark:#1E1E2A; --lime:#D7F26E; --lime-ink:#3F5A00; --green:#8DC63F;
+  --peach:#FCE6DA; --cream:#FFF0D6; --red:#E5533F; --red-t:#FDE0DC; --amber:#E58A35;
+  --ease:cubic-bezier(.2,.8,.2,1); --spring:cubic-bezier(.34,1.56,.64,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#111118;overflow:hidden;font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--ink)}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.ms{font-family:"Material Symbols Rounded";font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;-webkit-font-feature-settings:"liga";font-feature-settings:"liga";-webkit-font-smoothing:antialiased;user-select:none}
+
+/* stage: designed at 1600 x 900, scaled to fit */
+#wrap{position:fixed;inset:0;overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:center center;border-radius:28px;overflow:hidden;background:var(--panel);box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.slide{position:absolute;inset:0;padding:70px 90px;opacity:0;pointer-events:none;transform:translateX(60px) scale(.985);transition:opacity .55s var(--ease),transform .7s var(--ease)}
+.slide.on{opacity:1;pointer-events:auto;transform:none}
+.slide.left{transform:translateX(-60px) scale(.985)}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .6s var(--ease),transform .75s var(--spring);transition-delay:calc(var(--d,0) * 90ms + 120ms)}
+.slide.on .rv{opacity:1;transform:none}
+
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-weight:700;font-size:20px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.eyebrow .ms{font-size:24px;color:var(--lime-ink)}
+h1{font-size:112px;font-weight:800;letter-spacing:-.04em;line-height:.95}
+h2{font-size:64px;font-weight:800;letter-spacing:-.03em;line-height:1.02;margin-top:14px}
+.lead{font-size:26px;line-height:1.45;color:var(--muted);margin-top:18px;max-width:640px}
+.card{background:var(--card);border-radius:28px;box-shadow:0 1px 0 var(--line),0 18px 40px rgba(30,30,42,.07)}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;font-weight:700;font-size:18px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border-radius:999px;background:var(--dark);color:#fff;font-weight:700;font-size:19px;transition:transform .2s var(--spring),background .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:scale(.96)}
+.btn.lime{background:var(--lime);color:var(--dark)}
+.btn.ghost{background:var(--lav2);color:var(--dark)}
+.btn .ms{font-size:22px}
+.src{position:absolute;left:90px;bottom:34px;font-size:15px;color:var(--muted)}
+
+/* 1. title */
+#s1{background:var(--dark);color:#fff;display:flex;flex-direction:column;justify-content:center}
+#s1 .logo{width:200px;height:200px;filter:drop-shadow(0 24px 40px rgba(215,242,110,.25));animation:bob 5s ease-in-out infinite}
+#s1 .logo svg{width:100%;height:100%}
+@keyframes bob{50%{transform:translateY(-12px) rotate(-3deg)}}
+#s1 h1{font-size:168px;margin-top:34px}
+#s1 h1 span{color:var(--lime)}
+#s1 .lead{color:#C9C8D6;font-size:34px;max-width:900px}
+#s1 .chips{display:flex;gap:14px;margin-top:44px}
+#s1 .chips .pill{background:rgba(255,255,255,.08);color:#fff}
+#s1 .chips .pill .ms{color:var(--lime)}
+.orbit{position:absolute;right:120px;top:50%;width:560px;height:560px;margin-top:-280px;border-radius:50%;border:2px dashed rgba(215,242,110,.25);animation:spin 40s linear infinite}
+.orbit .o{position:absolute;width:96px;height:96px;border-radius:30px;display:grid;place-items:center;background:#2A2A3A;box-shadow:0 10px 30px rgba(0,0,0,.35);animation:spin 40s linear infinite reverse}
+.orbit .o .ms{font-size:46px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hint{position:absolute;right:90px;bottom:40px;font-size:17px;color:#8E8DA0;display:flex;gap:10px;align-items:center}
+kbd{display:inline-block;padding:3px 9px;border-radius:8px;background:rgba(255,255,255,.1);font:600 15px "Plus Jakarta Sans";color:#fff}
+
+/* 2. problem + pantry clock */
+#s2{background:linear-gradient(135deg,var(--lav) 0%,#CDBEF5 100%)}
+#s2 .grid{display:grid;grid-template-columns:560px 1fr;gap:56px;height:100%}
+#s2 .stat{margin-top:40px;padding:34px 36px}
+#s2 .stat b{display:block;font-size:92px;font-weight:800;letter-spacing:-.04em;line-height:1}
+#s2 .stat p{font-size:22px;color:var(--muted);margin-top:10px;line-height:1.4}
+.clock{padding:30px 34px;display:flex;flex-direction:column}
+.clock .top{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.clock .day{font-size:44px;font-weight:800;letter-spacing:-.02em;min-width:190px}
+.clock .day small{font-size:18px;color:var(--muted);font-weight:600;display:block;letter-spacing:0}
+.toggle{display:flex;background:var(--panel);border-radius:999px;padding:6px}
+.toggle button{padding:12px 22px;border-radius:999px;font-weight:700;font-size:18px;color:var(--muted);transition:all .25s var(--ease)}
+.toggle button.on{background:var(--dark);color:#fff}
+.toggle button.on.f{background:var(--lime);color:var(--dark)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:14px;border-radius:999px;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:34px;height:34px;border-radius:50%;background:var(--dark);border:6px solid var(--lime);cursor:grab;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--dark);border:6px solid var(--lime);cursor:grab}
+.clock .slider{display:flex;gap:16px;align-items:center;margin:22px 0 18px}
+.items{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1}
+.it{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:20px;background:var(--panel);transition:background .35s var(--ease),transform .35s var(--spring)}
+.it .ic{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;background:#fff;flex:none}
+.it .ic .ms{font-size:28px}
+.it .nm{font-weight:700;font-size:19px}
+.it .st{font-size:15px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .bar{height:8px;border-radius:9px;background:#E3E2EA;margin-top:7px;overflow:hidden}
+.it .bar i{display:block;height:100%;border-radius:9px;background:var(--green);transition:width .35s var(--ease),background .35s}
+.it .tx{flex:1;min-width:0}
+.it.warn{background:var(--cream)}
+.it.warn .bar i{background:var(--amber)}
+.it.dead{background:var(--red-t)}
+.it.dead .nm{text-decoration:line-through;color:var(--red)}
+.it.dead .bar i{background:var(--red)}
+.it.saved{background:#EEF8CF;transform:scale(1.02)}
+.it.saved .bar i{background:var(--lime-ink)}
+.score{display:flex;gap:14px;margin-top:16px}
+.score div{flex:1;padding:14px 18px;border-radius:20px;font-weight:700;font-size:19px;display:flex;align-items:center;gap:10px}
+.score b{font-size:34px;font-weight:800;margin-left:auto}
+.score .w{background:var(--red-t);color:#8E2A1C}
+.score .s{background:#EEF8CF;color:var(--lime-ink)}
+
+/* 3. loop */
+#s3 .grid{display:grid;grid-template-columns:1fr 700px;gap:40px;height:100%;align-items:center}
+.ring{position:relative;width:700px;height:700px}
+.ring svg{position:absolute;inset:0}
+.node{position:absolute;width:190px;height:190px;margin:-95px 0 0 -95px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;box-shadow:0 14px 34px rgba(30,30,42,.1);transition:transform .35s var(--spring),background .3s,box-shadow .3s;font-weight:800;font-size:22px}
+.node .ms{font-size:52px;transition:transform .4s var(--spring)}
+.node:hover{transform:scale(1.06)}
+.node.lit{background:var(--lime);transform:scale(1.12);box-shadow:0 0 0 14px rgba(215,242,110,.35),0 20px 40px rgba(63,90,0,.2)}
+.node.lit .ms{transform:rotate(-10deg) scale(1.15)}
+.node.done::after{content:"check_circle";font-family:"Material Symbols Rounded";position:absolute;top:8px;right:14px;font-size:34px;color:var(--lime-ink);font-variation-settings:"FILL" 1}
+.core{position:absolute;left:50%;top:50%;width:250px;margin-left:-125px;transform:translateY(-50%);text-align:center}
+.core .xp{font-size:64px;font-weight:800;letter-spacing:-.03em}
+.core .lv{font-size:18px;color:var(--muted);font-weight:700}
+.core .xpbar{height:12px;border-radius:9px;background:var(--line);margin-top:12px;overflow:hidden}
+.core .xpbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--lime));transition:width .6s var(--ease)}
+.detail{margin-top:30px;padding:30px 34px;min-height:220px}
+.detail h3{font-size:34px;font-weight:800;display:flex;align-items:center;gap:12px}
+.detail h3 .ms{font-size:40px;color:var(--lime-ink)}
+.detail p{font-size:22px;line-height:1.5;color:var(--muted);margin-top:12px}
+.detail .tag{margin-top:14px;background:var(--lav2)}
+#s3 .ctl{display:flex;gap:12px;margin-top:26px}
+.toast{position:absolute;left:50%;top:60px;transform:translate(-50%,-160%);background:var(--dark);color:#fff;border-radius:26px;padding:20px 30px 20px 20px;display:flex;align-items:center;gap:18px;box-shadow:0 24px 60px rgba(0,0,0,.35);transition:transform .7s var(--spring);z-index:20}
+.toast.show{transform:translate(-50%,0)}
+.toast .badge{width:76px;height:76px;border-radius:24px;background:var(--lime);display:grid;place-items:center;color:var(--dark);animation:pulse 1.2s ease-in-out infinite}
+.toast .badge .ms{font-size:46px}
+.toast b{font-size:26px;display:block}
+.toast span{font-size:18px;color:#C9C8D6}
+@keyframes pulse{50%{transform:scale(1.08) rotate(6deg)}}
+.conf{position:absolute;width:14px;height:20px;border-radius:4px;z-index:19;pointer-events:none;animation:fall 1.6s var(--ease) forwards}
+@keyframes fall{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--x),var(--y)) rotate(var(--r));opacity:0}}
+
+/* demo slides */
+.split{display:grid;grid-template-columns:420px 1fr;gap:44px;height:100%}
+.frame{position:relative;border-radius:30px;overflow:hidden;background:#fff;box-shadow:0 20px 50px rgba(30,30,42,.14);height:100%}
+.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.frame .loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-weight:700;font-size:20px}
+.frame .live{position:absolute;bottom:18px;left:18px;z-index:2;background:var(--red);color:#fff;font-size:15px;padding:7px 14px;pointer-events:none}
+.frame .live::before{content:"";width:9px;height:9px;border-radius:50%;background:#fff;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.2}}
+.tries{display:flex;flex-direction:column;gap:12px;margin-top:28px}
+.try{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:20px;background:#fff;font-size:19px;line-height:1.4;font-weight:600}
+.try .ms{font-size:28px;color:var(--lime-ink);flex:none;margin-top:-2px}
+.sensors{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px}
+.sensor{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:#fff;font-weight:700;font-size:17px}
+.sensor .ms{font-size:26px;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;flex:none}
+.grp{font-size:15px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:18px}
+
+/* 6. grow advisor */
+#s6{background:linear-gradient(160deg,#EEF8CF 0%,var(--panel) 60%)}
+#s6 .grid{display:grid;grid-template-columns:600px 1fr;gap:50px;height:100%}
+.ctrls{padding:28px 32px;margin-top:30px}
+.ctrl{margin-bottom:24px}
+.ctrl label{display:flex;justify-content:space-between;font-weight:700;font-size:20px;margin-bottom:12px}
+.ctrl label b{font-weight:800}
+.months{display:grid;grid-template-columns:repeat(12,1fr);gap:5px}
+.months button{padding:10px 0;border-radius:12px;background:var(--panel);font-weight:700;font-size:15px;transition:all .2s var(--ease)}
+.months button.on{background:var(--dark);color:#fff;transform:translateY(-2px)}
+.sw{display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:20px}
+.switch{width:76px;height:42px;border-radius:999px;background:var(--line);position:relative;transition:background .25s}
+.switch::after{content:"";position:absolute;left:5px;top:5px;width:32px;height:32px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2);transition:transform .35s var(--spring)}
+.switch.on{background:#7BB6F0}
+.switch.on::after{transform:translateX(34px)}
+.season{display:inline-flex;margin-top:40px;font-size:20px}
+.crops{display:flex;flex-direction:column;gap:16px;margin-top:22px}
+.crop{display:flex;align-items:center;gap:22px;padding:22px 26px;animation:pop .55s var(--spring) both;animation-delay:calc(var(--i) * 90ms)}
+@keyframes pop{from{opacity:0;transform:translateX(40px) scale(.96)}}
+.crop .ci{width:74px;height:74px;border-radius:24px;display:grid;place-items:center;flex:none}
+.crop .ci .ms{font-size:40px}
+.crop .cn{font-size:28px;font-weight:800;text-transform:capitalize}
+.crop .cr{font-size:19px;color:var(--muted);margin-top:4px;line-height:1.4}
+.crop .pill{margin-left:auto;flex:none;font-size:16px}
+.code{font-family:ui-monospace,Menlo,monospace;font-size:16px;background:var(--dark);color:var(--lime);padding:5px 11px;border-radius:9px}
+
+/* 7. compare */
+.cmp{margin-top:40px;padding:14px 30px 20px}
+.cmp table{width:100%;border-collapse:collapse}
+.cmp th{font-size:18px;color:var(--muted);font-weight:700;text-align:center;padding:16px 8px}
+.cmp th:first-child{text-align:left}
+.cmp td{padding:18px 8px;border-top:1px solid var(--line);text-align:center;font-size:22px;font-weight:700}
+.cmp td:first-child{text-align:left;display:flex;align-items:center;gap:14px}
+.cmp td:first-child .ms{font-size:28px;width:48px;height:48px;border-radius:15px;background:var(--panel);display:grid;place-items:center}
+.cmp .y{color:var(--lime-ink);font-size:34px}
+.cmp .n{color:#C9C8D6;font-size:30px}
+.cmp tr.us td{background:var(--lime);border:0;box-shadow:1px 0 0 var(--lime),-1px 0 0 var(--lime)}
+.cmp tr.us td:first-child{border-radius:20px 0 0 20px}
+.cmp tr.us td:last-child{border-radius:0 20px 20px 0}
+.cmp tr.us td:first-child .ms{background:var(--dark);color:var(--lime)}
+.cmp tr.us .y{color:var(--dark)}
+.cmp tr.us .y{display:inline-block;transform:scale(0);transition:transform .5s var(--spring);transition-delay:calc(var(--c) * 120ms)}
+.cmp.reveal tr.us .y{transform:scale(1)}
+.cmp tr.us{opacity:.35;transition:opacity .4s}
+.cmp.reveal tr.us{opacity:1}
+
+/* 8. close */
+#s8{background:var(--dark);color:#fff}
+#s8 .grid{display:grid;grid-template-columns:1fr 520px;gap:60px;height:100%;align-items:center}
+#s8 h1{font-size:120px}
+#s8 h1 span{color:var(--lime)}
+#s8 .lead{color:#C9C8D6;font-size:30px;max-width:760px}
+.next{display:flex;flex-direction:column;gap:14px}
+.next > div:not(.eyebrow){display:flex;align-items:center;gap:16px;padding:20px 22px;border-radius:22px;background:#2A2A3A;font-size:20px;font-weight:600;line-height:1.35}
+.next .ms{font-size:32px;color:var(--lime);flex:none}
+.stack{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
+.stack .pill{background:rgba(255,255,255,.08);font-size:17px}
+.team{margin-top:34px;font-size:22px;color:#C9C8D6}
+.team b{color:#fff}
+.repo{display:inline-flex;align-items:center;gap:10px;margin-top:14px;font-size:20px;color:var(--lime);text-decoration:none;font-weight:700}
+
+/* two products */
+#tiers{background:linear-gradient(160deg,var(--lav2) 0%,var(--panel) 60%)}
+.duo2{display:grid;grid-template-columns:1fr 110px 1fr;align-items:stretch;margin-top:30px;height:590px}
+.prod{position:relative;display:grid;grid-template-columns:42% 1fr;gap:10px;background:#fff;border-radius:34px;padding:28px 30px;box-shadow:0 1px 0 var(--line),0 22px 50px rgba(30,30,42,.08);transition:transform .45s var(--spring),box-shadow .3s}
+.prod:hover{transform:translateY(-8px)}
+.prod.best{background:var(--dark);color:#fff;box-shadow:0 0 0 4px var(--lime),0 26px 60px rgba(30,30,42,.28)}
+.pimg{display:grid;place-items:center;position:relative}
+.pimg::after{content:"";position:absolute;bottom:18px;left:15%;right:15%;height:22px;border-radius:50%;background:radial-gradient(closest-side,rgba(30,30,42,.18),transparent);z-index:0}
+.pimg img{position:relative;z-index:1;max-height:500px;max-width:100%;filter:drop-shadow(0 14px 18px rgba(30,30,42,.22));animation:floaty 5s ease-in-out infinite}
+.prod.best{grid-template-columns:48% 1fr;overflow:hidden}
+.prod.best .pimg img{max-height:460px;max-width:128%;margin-left:-16%;-webkit-mask-image:radial-gradient(closest-side,#000 72%,transparent 100%);mask-image:radial-gradient(closest-side,#000 72%,transparent 100%)}
+.prod.best .pimg::after{background:radial-gradient(closest-side,rgba(215,242,110,.25),transparent)}
+@keyframes floaty{50%{transform:translateY(-10px)}}
+.pinfo{display:flex;flex-direction:column;justify-content:center}
+.kind{font-size:15px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.prod.best .kind{color:var(--lime)}
+.pname{font-size:46px;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-top:4px}
+.ptag{font-size:19px;line-height:1.4;color:var(--muted);margin-top:10px}
+.prod.best .ptag{color:#C9C8D6}
+.pchips{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+.pchips span{font-size:14.5px;font-weight:700;padding:7px 12px;border-radius:999px;background:#EEF8CF;color:var(--lime-ink)}
+.prod.best .pchips span{background:rgba(215,242,110,.14);color:var(--lime)}
+.pprice{font-size:52px;font-weight:800;letter-spacing:-.03em;margin-top:18px}
+.pprice small{font-size:16px;color:var(--muted);font-weight:700;letter-spacing:0;margin-left:8px}
+.prod.best .pprice small{color:#C9C8D6}
+.pnote{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:9px 15px;border-radius:999px;background:var(--panel);font-weight:700;font-size:16px;width:max-content}
+.prod.best .pnote{background:var(--lime);color:var(--dark)}
+.link{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--lime-ink)}
+.link svg{width:100px}
+.link .ms{font-size:40px;width:68px;height:68px;border-radius:22px;background:#fff;display:grid;place-items:center;box-shadow:0 8px 22px rgba(30,30,42,.1)}
+.link small{font-weight:800;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.ribbon{position:absolute;top:22px;right:22px;background:var(--lime);color:var(--dark);font-weight:800;font-size:14px;letter-spacing:.06em;padding:6px 12px;border-radius:999px;animation:pulse 2s ease-in-out infinite;z-index:2}
+.flow{stroke-dasharray:4 12;animation:flow 1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-32}}
+/* bom */
+#bom .bgrid{display:grid;grid-template-columns:760px 1fr;gap:40px;margin-top:6px;position:relative}
+#bom > .eyebrow,#bom > h2,#bom .bgrid > div:first-child{position:relative;z-index:2}
+.vbig{position:absolute;right:-140px;top:-190px;width:860px;height:860px;z-index:1}
+.vbig video{width:100%;height:100%;object-fit:cover;-webkit-mask-image:radial-gradient(closest-side,#000 80%,transparent 100%);mask-image:radial-gradient(closest-side,#000 80%,transparent 100%)}
+.vrep{position:absolute;right:170px;bottom:120px;background:#fff;box-shadow:0 6px 18px rgba(30,30,42,.12)}
+.btabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.btabs button{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:22px;background:#fff;box-shadow:0 1px 0 var(--line),0 10px 24px rgba(30,30,42,.06);text-align:left;transition:all .25s var(--ease)}
+.btabs button > .ms{font-size:30px;width:52px;height:52px;border-radius:16px;background:var(--panel);display:grid;place-items:center;flex:none}
+.btabs .bt b{display:block;font-size:20px;font-weight:800}
+.btabs .bt small{font-size:15px;color:var(--muted);font-weight:700}
+.btabs button.on{background:var(--dark);color:#fff;box-shadow:0 0 0 3px var(--lime)}
+.btabs button.on > .ms{background:var(--lime);color:var(--dark)} .btabs button.on small{color:#C9C8D6}
+.blist{margin-top:14px;padding:8px 22px 14px}
+#bomRows{display:grid;grid-template-columns:1fr 1fr;column-gap:26px}
+.brow{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);animation:pop .45s var(--spring) both;animation-delay:calc(var(--i) * 45ms)}
+.brow .ms{font-size:22px;width:36px;height:36px;border-radius:12px;background:var(--panel);display:grid;place-items:center}
+.brow b{font-size:15.5px;font-weight:700;display:block;line-height:1.2}
+.brow small{font-size:13px;color:var(--muted);line-height:1.2;display:block}
+.brow .c{font-weight:800;font-size:17px;font-variant-numeric:tabular-nums}
+.btotal{display:flex;justify-content:space-between;align-items:center;padding-top:14px;font-weight:800;font-size:20px}
+.btotal b{font-size:40px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.bnote{font-size:15px;color:var(--muted);margin-top:12px;line-height:1.4}
+.vcard{position:relative;border-radius:30px;overflow:hidden;background:#18191d;box-shadow:0 20px 50px rgba(30,30,42,.2);align-self:start;margin-top:4px}
+.vcard video{display:block;width:100%;aspect-ratio:16/9;background:#18191d}
+.vbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;color:#fff;font-weight:700;font-size:18px}
+.vbar > span{display:flex;align-items:center;gap:10px}
+.vbar .ms{color:var(--lime)}
+.vbar .btn .ms{color:var(--dark)}
+
+/* hud */
+#hud{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:7px;border-radius:999px;background:rgba(20,20,28,.82);backdrop-filter:blur(10px);color:#fff;z-index:50;transition:opacity .4s}
+#hud.idle{opacity:.15}
+#hud:hover{opacity:1}
+#hud button{height:44px;min-width:44px;padding:0 12px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:700;font-size:15px}
+#hud button:hover{background:rgba(255,255,255,.12)}
+#hud .ms{font-size:24px}
+#count{min-width:64px;text-align:center;font-weight:700;font-size:15px;color:#C9C8D6}
+#timer.run{background:var(--lime);color:var(--dark)}
+#timer.late{background:var(--red);color:#fff}
+#progress{position:fixed;left:0;top:0;height:5px;background:var(--lime);z-index:51;transition:width .5s var(--ease)}
+#dots{display:flex;gap:6px;padding:0 6px}
+#dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.28);cursor:pointer;transition:all .3s var(--ease)}
+#dots i.on{width:24px;border-radius:9px;background:var(--lime)}
+#notes{position:fixed;left:50%;bottom:78px;width:min(860px,92vw);transform:translate(-50%,20px);opacity:0;pointer-events:none;background:rgba(20,20,28,.92);backdrop-filter:blur(12px);color:#fff;border-radius:22px;padding:20px 24px;font-size:18px;line-height:1.55;z-index:50;transition:all .35s var(--ease)}
+#notes.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#notes b{color:var(--lime);display:block;font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="wrap"><div id="stage">
+
+<!-- 1. Title -->
+<section class="slide" id="s1" data-notes="(about 8 sec) Hi, we're Fallow. When the store is closed, the budget is tight, or a storm hits, your pantry and your backyard are the plan. Fallow runs that plan for you.">
+  <div class="logo rv" style="--d:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-135 -135 807.8 806.9"><rect x="-135" y="-135" width="807.8" height="806.9" rx="186" fill="#D7F26E"/><g transform="translate(-48.243367,591.692895) scale(0.100000,-0.100000)" fill="#1E1E2A"><path d="M3375 5909 c-135 -24 -173 -33 -203 -52 -34 -20 -52 -51 -52 -88 0 -47 193 -102 440 -127 52 -6 115 -18 140 -27 25 -9 86 -30 135 -45 113 -35 211 -87 287 -150 66 -56 188 -194 188 -214 0 -7 13 -30 30 -51 16 -21 37 -63 46 -94 9 -31 25 -83 35 -116 10 -33 21 -87 24 -120 11 -118 -54 -478 -100 -546 -13 -20 -28 -56 -34 -80 -10 -39 -80 -192 -118 -259 -8 -14 -30 -56 -49 -95 -43 -88 -100 -184 -124 -210 -10 -11 -26 -36 -35 -55 -20 -38 -57 -88 -122 -160 -24 -26 -43 -53 -43 -60 0 -7 -15 -27 -34 -44 -18 -18 -39 -43 -46 -56 -7 -14 -43 -61 -79 -105 -62 -75 -93 -124 -141 -221 -58 -118 -46 -340 22 -425 73 -91 103 -121 147 -146 25 -15 53 -32 61 -39 33 -27 236 -106 310 -120 43 -8 104 -23 136 -34 133 -46 490 -51 649 -10 44 12 125 33 180 47 55 14 111 33 125 43 14 9 45 26 70 37 150 67 317 221 426 394 17 27 38 57 48 68 9 10 26 43 37 72 12 30 29 68 40 85 38 62 89 365 89 527 0 176 -54 524 -95 617 -13 30 -31 84 -40 120 -8 36 -25 78 -36 93 -11 15 -32 58 -45 95 -14 37 -33 76 -43 87 -10 11 -28 46 -41 78 -12 31 -26 60 -31 63 -5 3 -19 24 -30 46 -49 97 -179 198 -217 170 -10 -6 -33 -21 -54 -32 -27 -14 -41 -32 -54 -67 -10 -27 -26 -62 -37 -80 -11 -19 -22 -68 -28 -125 -11 -115 -28 -207 -40 -230 -6 -10 -23 -79 -39 -154 -17 -74 -41 -156 -54 -182 -13 -26 -29 -66 -35 -88 -14 -54 -106 -250 -121 -259 -7 -4 -23 -31 -35 -59 -13 -29 -30 -58 -40 -66 -9 -8 -30 -41 -47 -74 -17 -34 -37 -69 -46 -79 -9 -10 -25 -33 -37 -52 -28 -47 -157 -212 -200 -257 -19 -20 -35 -43 -35 -51 0 -8 -12 -27 -26 -43 -31 -33 -45 -106 -23 -120 34 -22 85 -30 129 -21 54 12 187 102 280 192 45 43 177 201 191 228 6 12 20 31 29 42 17 19 34 47 120 210 21 39 49 90 64 115 14 25 26 52 26 60 0 9 15 39 34 68 19 29 41 83 51 120 9 37 25 81 35 97 10 17 25 65 34 108 16 79 39 137 55 137 14 0 71 -69 82 -98 30 -77 89 -462 89 -575 0 -133 -48 -386 -86 -453 -13 -23 -32 -66 -44 -96 -21 -57 -142 -193 -236 -265 -73 -55 -232 -131 -309 -147 -38 -9 -88 -24 -110 -36 -81 -40 -365 -35 -480 9 -28 11 -79 24 -113 31 -140 25 -342 157 -342 223 0 34 64 168 92 194 11 10 28 34 38 54 10 19 26 41 35 49 9 7 32 37 52 67 19 29 39 53 43 53 5 0 22 21 39 48 17 26 39 58 49 72 11 14 31 43 46 65 49 74 75 110 98 139 57 70 274 507 294 591 4 17 17 50 29 75 12 25 26 61 30 80 4 19 23 82 41 139 65 201 73 605 14 722 -10 19 -28 65 -40 101 -11 36 -33 85 -49 109 -15 24 -30 51 -33 59 -12 31 -109 164 -156 214 -89 92 -194 168 -302 217 -25 11 -67 31 -95 44 -136 64 -523 112 -680 84z M2135 5699 c-22 -5 -58 -18 -80 -29 -22 -10 -73 -28 -114 -39 -40 -10 -85 -28 -100 -38 -14 -11 -53 -30 -85 -42 -33 -12 -72 -33 -88 -46 -16 -14 -36 -25 -43 -25 -7 0 -35 -16 -61 -36 -26 -20 -61 -44 -78 -55 -65 -39 -306 -267 -306 -289 0 -6 -14 -19 -31 -29 -17 -10 -40 -32 -52 -49 -12 -16 -49 -65 -82 -108 -69 -91 -109 -152 -162 -247 -21 -38 -46 -82 -55 -99 -53 -95 -40 -242 24 -269 63 -26 205 -11 289 32 30 15 82 35 115 43 32 9 84 25 114 37 30 11 99 31 155 44 55 14 125 31 155 40 203 58 828 54 1131 -7 146 -29 191 -22 213 33 9 22 16 42 16 44 0 17 -82 91 -124 112 -27 14 -61 34 -76 44 -14 10 -61 27 -105 38 -44 11 -107 30 -140 42 -73 26 -228 38 -465 39 -262 0 -383 -13 -565 -61 -191 -49 -235 -47 -235 16 0 23 279 295 303 295 5 0 26 15 47 33 35 31 87 66 174 116 23 13 57 34 76 47 19 13 71 33 115 44 44 12 107 31 140 43 93 32 328 29 411 -6 32 -13 82 -32 111 -41 28 -10 62 -25 75 -35 13 -10 42 -28 66 -40 23 -12 48 -31 55 -42 6 -11 30 -30 51 -41 44 -23 135 -113 175 -173 14 -22 38 -56 52 -75 14 -19 34 -55 43 -80 10 -25 24 -52 32 -61 8 -9 23 -47 34 -85 11 -38 28 -89 39 -114 32 -76 55 -267 43 -350 -23 -157 -90 -181 -372 -135 -453 75 -1228 60 -1480 -29 -36 -13 -96 -29 -135 -36 -38 -7 -89 -23 -113 -37 -23 -13 -61 -31 -84 -39 -94 -33 -197 -106 -323 -230 -69 -67 -125 -127 -125 -132 0 -6 -14 -25 -31 -43 -18 -19 -45 -63 -61 -99 -16 -36 -35 -72 -42 -80 -22 -26 -70 -237 -88 -386 -10 -86 -9 -99 26 -280 24 -123 47 -210 65 -249 15 -33 34 -76 41 -95 7 -19 23 -48 35 -65 12 -16 32 -50 45 -75 24 -47 37 -65 134 -179 72 -85 128 -109 174 -74 19 14 27 29 26 49 -1 44 -50 216 -72 255 -11 19 -30 66 -42 104 -13 39 -26 75 -30 80 -26 36 -62 217 -75 380 -16 192 53 428 164 564 88 107 223 212 322 252 28 10 68 29 91 40 23 12 84 30 137 40 53 11 123 28 156 39 174 57 949 54 1188 -4 428 -105 704 -13 777 258 38 139 26 435 -24 612 -30 102 -82 241 -102 269 -11 17 -28 51 -38 77 -9 26 -27 59 -39 74 -12 15 -31 42 -42 60 -86 137 -293 343 -419 415 -6 4 -39 23 -73 43 -33 20 -92 45 -130 57 -37 11 -82 29 -100 39 -17 10 -63 23 -101 29 -85 13 -390 13 -447 0z M2267 3309 c-32 -5 -68 -14 -81 -21 -13 -7 -56 -30 -97 -51 -41 -21 -82 -46 -92 -55 -10 -9 -33 -25 -51 -37 -62 -37 -111 -80 -166 -140 -29 -33 -71 -78 -92 -100 -73 -75 -85 -90 -102 -123 -9 -18 -35 -56 -56 -85 -22 -29 -40 -57 -40 -64 0 -6 -10 -24 -23 -40 -13 -15 -34 -57 -47 -93 -12 -36 -28 -74 -35 -85 -24 -39 -95 -381 -95 -456 0 -44 21 -188 50 -343 12 -64 28 -111 43 -135 14 -20 32 -60 42 -88 9 -29 21 -55 26 -58 5 -3 29 -38 54 -76 54 -84 255 -286 322 -325 26 -16 64 -40 83 -54 19 -15 55 -35 80 -45 25 -10 52 -25 61 -32 8 -7 41 -22 72 -32 31 -11 75 -31 99 -44 24 -13 74 -32 112 -41 38 -9 94 -28 125 -41 31 -13 107 -30 171 -39 63 -9 160 -26 215 -37 147 -29 405 -29 469 0 25 12 49 21 54 21 40 0 91 119 64 153 -5 6 -15 28 -21 49 -11 33 -130 156 -197 202 -11 8 -45 40 -76 72 -30 31 -61 62 -67 68 -88 85 -224 224 -253 258 -96 111 -222 300 -285 428 -14 30 -39 73 -55 94 -15 21 -28 45 -28 52 0 7 -15 41 -34 76 -18 35 -41 90 -50 123 -10 33 -26 75 -37 93 -11 19 -29 62 -40 95 -20 61 -88 147 -115 147 -6 0 -29 -21 -49 -46 -44 -54 -58 -110 -49 -199 7 -69 76 -319 103 -373 10 -21 26 -62 36 -92 10 -30 51 -117 91 -192 41 -75 74 -141 74 -147 0 -6 19 -32 43 -59 23 -28 62 -75 87 -107 37 -47 136 -164 211 -251 10 -11 29 -29 43 -41 43 -35 33 -102 -15 -104 -53 -2 -217 34 -279 60 -36 16 -89 36 -118 46 -29 9 -77 32 -105 51 -28 19 -57 34 -64 34 -7 0 -27 12 -45 28 -18 15 -54 38 -80 51 -96 48 -302 273 -334 364 -8 22 -23 55 -34 73 -74 118 -74 577 -1 698 10 17 26 55 36 84 9 29 27 65 39 80 12 15 30 47 40 72 19 49 52 91 137 178 263 267 440 314 519 138 16 -34 36 -68 44 -75 9 -8 25 -42 36 -78 11 -35 30 -83 44 -106 13 -23 32 -67 41 -97 10 -30 24 -62 31 -71 8 -8 23 -42 34 -74 31 -90 185 -390 221 -431 9 -11 26 -38 37 -60 12 -23 28 -44 36 -47 8 -3 23 -21 32 -39 27 -53 142 -210 204 -278 89 -98 136 -144 172 -167 21 -14 38 -29 38 -33 0 -5 46 -39 103 -76 56 -38 117 -81 135 -96 18 -16 37 -28 43 -28 6 0 37 -13 70 -30 33 -16 78 -34 100 -40 73 -20 319 -60 367 -60 82 0 350 57 416 89 34 16 83 37 109 47 27 9 51 23 54 30 3 8 27 27 53 43 41 25 139 120 314 302 19 20 43 54 54 76 11 21 27 45 36 52 8 7 24 36 35 64 10 29 31 75 45 102 44 85 60 221 30 263 -12 17 -25 22 -58 22 -54 0 -107 -53 -264 -265 -49 -66 -280 -303 -312 -320 -14 -7 -38 -25 -55 -39 -16 -14 -46 -31 -65 -37 -19 -7 -57 -23 -84 -37 -133 -66 -473 -69 -584 -6 -23 14 -68 35 -100 47 -155 60 -471 366 -609 591 -10 15 -35 54 -55 85 -21 31 -38 61 -38 66 0 6 -16 35 -35 65 -20 30 -40 71 -45 91 -6 20 -23 56 -40 80 -16 24 -36 67 -44 94 -8 28 -27 66 -41 85 -14 19 -32 56 -40 82 -7 26 -25 66 -39 90 -13 24 -32 70 -41 103 -9 33 -27 78 -40 100 -12 22 -28 58 -35 80 -12 39 -100 166 -143 206 -98 93 -203 121 -360 98z"/></g></svg></div>
+  <h1 class="rv" style="--d:1">Fall<span>ow</span></h1>
+  <p class="lead rv" style="--d:2">Eat what's about to spoil. Grow what you'll run short of. Check your body is keeping up.</p>
+  <div class="chips rv" style="--d:3">
+    <span class="pill"><span class="ms">emoji_events</span>HackPerimeter 2026</span>
+    <span class="pill"><span class="ms">school</span>GSU Perimeter</span>
+    <span class="pill"><span class="ms">bolt</span>Live demo inside</span>
+  </div>
+  <div class="orbit rv" style="--d:2">
+    <div class="o" style="left:232px;top:-48px"><span class="ms" style="color:#F2A766">inventory_2</span></div>
+    <div class="o" style="right:-48px;top:232px"><span class="ms" style="color:var(--lime)">restaurant</span></div>
+    <div class="o" style="left:232px;bottom:-48px"><span class="ms" style="color:#8DC63F">potted_plant</span></div>
+    <div class="o" style="left:-48px;top:232px"><span class="ms" style="color:#F27A8A">favorite</span></div>
+  </div>
+  <div class="hint"><kbd>→</kbd> next <kbd>T</kbd> 90 sec timer <kbd>N</kbd> notes <kbd>F</kbd> full screen</div>
+</section>
+
+<!-- 2. Problem -->
+<section class="slide" id="s2" data-notes="(about 15 sec) Food goes bad quietly. USDA estimates 30 to 40 percent of the US food supply is wasted. Drag the days: without Fallow, the spinach and chicken are gone by day 5. Flip Fallow on, and the same food turns into dinner before it spoils.">
+  <div class="grid">
+    <div>
+      <div class="eyebrow rv" style="--d:0"><span class="ms">warning</span>The problem</div>
+      <h2 class="rv" style="--d:1">Food goes bad quietly.</h2>
+      <p class="lead rv" style="--d:2">Nobody tracks what's about to expire, meals ignore it, and gardens get planted by guess.</p>
+      <div class="card stat rv" style="--d:3">
+        <b>30 to 40%</b>
+        <p>of the US food supply is wasted, by USDA's estimate.</p>
+      </div>
+    </div>
+    <div class="card clock rv" style="--d:2">
+      <div class="top">
+        <div class="day"><small>Pantry clock</small><span id="dayLbl">Day 0</span></div>
+        <div class="toggle" id="fwToggle">
+          <button data-v="0" class="on">Without Fallow</button>
+          <button data-v="1" class="f">With Fallow</button>
+        </div>
+      </div>
+      <div class="slider">
+        <button class="btn lime" id="clockPlay"><span class="ms">play_arrow</span>Play</button>
+        <input type="range" id="day" min="0" max="14" value="0" step="1" aria-label="Day">
+      </div>
+      <div class="items" id="items"></div>
+      <div class="score">
+        <div class="w"><span class="ms">delete</span>Wasted<b id="wN">0</b></div>
+        <div class="s"><span class="ms">restaurant</span>Eaten in time<b id="sN">0</b></div>
+      </div>
+    </div>
+  </div>
+  <div class="src">Source: USDA, Food Loss and Waste (usda.gov/foodwaste)</div>
+</section>
+
+<!-- 3. The loop -->
+<section class="slide" id="s3" data-notes="(about 15 sec) Fallow is one loop. Pantry tracks what's spoiling. Meals use it first. Grow tells you what to plant to fill the gaps. Health checks your body is getting what it needs. Every full loop earns an achievement, so it feels like a game. Hit Play loop.">
+  <div class="grid">
+    <div>
+      <div class="eyebrow rv" style="--d:0"><span class="ms">all_inclusive</span>How it works</div>
+      <h2 class="rv" style="--d:1">One loop, four jobs.</h2>
+      <p class="lead rv" style="--d:2">Every step feeds the next. Tap a circle, or play the whole cycle.</p>
+      <div class="card detail rv" style="--d:3" id="detail"></div>
+      <div class="ctl rv" style="--d:4">
+        <button class="btn lime" id="loopPlay"><span class="ms">play_arrow</span>Play loop</button>
+        <button class="btn ghost" id="loopReset"><span class="ms">restart_alt</span>Reset</button>
+      </div>
+    </div>
+    <div class="ring rv" style="--d:2">
+      <svg viewBox="0 0 700 700"><circle cx="350" cy="350" r="250" fill="none" stroke="#E3E2EA" stroke-width="10" stroke-dasharray="4 18" stroke-linecap="round"/><circle id="arc" cx="350" cy="350" r="250" fill="none" stroke="#8DC63F" stroke-width="10" stroke-linecap="round" stroke-dasharray="1571" stroke-dashoffset="1571" transform="rotate(-90 350 350)" style="transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)"/></svg>
+      <div class="core"><div class="xp" id="xp">0 XP</div><div class="lv" id="lv">Level 1 · Seedling</div><div class="xpbar"><i id="xpbar"></i></div></div>
+    </div>
+  </div>
+  <div class="toast" id="toast"><div class="badge"><span class="ms">military_tech</span></div><div><b>Full cycle complete!</b><span>Pantry to plate to plot. +100 XP, badge unlocked</span></div></div>
+</section>
+
+<!-- 4. Live app -->
+<section class="slide" id="s4" data-notes="(about 20 sec) This is the app, live. Five pages: Dashboard, Pantry, Soil and farm, Health, and Food and recipes. The search button jumps to the pantry, weather and health sit side by side, and marking a meal cooked pops an achievement. Switch to the watch view to show the same data on the wrist.">
+  <div class="split">
+    <div>
+      <div class="eyebrow rv" style="--d:0"><span class="ms">smartphone</span>Live demo</div>
+      <h2 class="rv" style="--d:1">The app, running.</h2>
+      <div class="tries">
+        <div class="try rv" style="--d:2"><span class="ms">touch_app</span>Switch between Phone, Watch and Website views.</div>
+        <div class="try rv" style="--d:3"><span class="ms">tune</span>Open the sensor drawer and change the soil or the air.</div>
+        <div class="try rv" style="--d:4"><span class="ms">restaurant</span>Mark a meal cooked to earn an achievement.</div>
+        <div class="try rv" style="--d:5"><span class="ms">code</span>Built on our Python app: Streamlit, Pydantic and SQLite.</div>
+      </div>
+    </div>
+    <div class="frame rv" style="--d:2"><span class="pill live">LIVE</span><div class="loading">Loading the demo...</div><iframe data-src="demo/index.html" title="Fallow interactive demo" loading="lazy"></iframe></div>
+  </div>
+</section>
+
+<!-- 5. Hardware -->
+<section class="slide" id="s5" data-notes="(about 15 sec) And the hardware. A soil probe plus a watch. The probe reads soil pH, temperature and moisture, and the air for CO2, humidity and radiation. The watch reads your blood oxygen and heart rate. This is our real CAD, exploded: the motherboard, battery and the optical sensor on the back. Tap the watch face to flip between your vitals, the air, and the garden bed.">
+  <div class="split">
+    <div>
+      <div class="eyebrow rv" style="--d:0"><span class="ms">watch</span>Hardware</div>
+      <h2 class="rv" style="--d:1">Probe + watch.</h2>
+      <div class="grp rv" style="--d:2">Soil probe</div>
+      <div class="sensors">
+        <div class="sensor rv" style="--d:2"><span class="ms" style="background:#EEF8CF;color:var(--lime-ink)">science</span>Soil pH</div>
+        <div class="sensor rv" style="--d:3"><span class="ms" style="background:var(--peach);color:#B4561E">thermostat</span>Temperature</div>
+        <div class="sensor rv" style="--d:3"><span class="ms" style="background:#DCEBFB;color:#2E6DB4">water_drop</span>Moisture</div>
+        <div class="sensor rv" style="--d:4"><span class="ms" style="background:var(--lav2);color:#5B45B0">co2</span>Air CO2</div>
+        <div class="sensor rv" style="--d:4"><span class="ms" style="background:#DCEBFB;color:#2E6DB4">humidity_percentage</span>Humidity</div>
+        <div class="sensor rv" style="--d:5"><span class="ms" style="background:var(--cream);color:#8A6A00">sensors</span>Radiation</div>
+      </div>
+      <div class="grp rv" style="--d:5">Watch</div>
+      <div class="sensors">
+        <div class="sensor rv" style="--d:6"><span class="ms" style="background:var(--red-t);color:var(--red)">spo2</span>Blood O2</div>
+        <div class="sensor rv" style="--d:6"><span class="ms" style="background:var(--red-t);color:var(--red)">ecg_heart</span>Heart rate</div>
+        <div class="sensor rv" style="--d:7"><span class="ms" style="background:var(--lav2);color:#5B45B0">memory</span>Motherboard</div>
+        <div class="sensor rv" style="--d:7"><span class="ms" style="background:#DCEBFB;color:#2E6DB4">battery_full</span>Battery</div>
+      </div>
+      <div class="tries"><div class="try rv" style="--d:7"><span class="ms">3d_rotation</span>Drag to spin, press E to explode, tap the face to change screens.</div></div>
+    </div>
+    <div class="frame rv" style="--d:2;background:#14141c"><div class="loading" style="color:#8E8DA0">Loading the 3D model...</div><iframe data-src="watch3d/index.html" title="Fallow watch 3D exploded view" loading="lazy"></iframe></div>
+  </div>
+</section>
+
+<!-- 6. Two products -->
+<section class="slide" id="tiers" data-notes="(about 10 sec) Fallow is two products. The Fallow Stake stays in the garden bed and sends soil and air readings to any phone, for 39 dollars. The Fallow Watch is the best option: compact and all in one, with your heart rate and blood oxygen, the air, and the probe's soil data right on your wrist.">
+  <div class="eyebrow rv" style="--d:0"><span class="ms">category</span>Two products</div>
+  <h2 class="rv" style="--d:1">A probe for the garden. A watch for you.</h2>
+  <div class="duo2">
+    <div class="prod rv" style="--d:2" id="prodProbe">
+      <div class="pimg"><img src="media/probe-plus.png" alt="Fallow Stake probe"></div>
+      <div class="pinfo">
+        <div class="kind">Garden probe</div>
+        <div class="pname">Fallow Stake</div>
+        <p class="ptag">Stays in the bed. Read it on any phone. Cheap enough for every bed.</p>
+        <div class="pchips"><span>Soil moisture</span><span>Soil temperature</span><span>Soil pH</span><span>Air humidity</span><span>Air temperature</span></div>
+        <div class="pprice">$39<small>target price</small></div>
+        <span class="pnote"><span class="ms">smartphone</span>Any phone, Bluetooth</span>
+      </div>
+    </div>
+    <div class="link rv" style="--d:3" aria-hidden="true">
+      <svg viewBox="0 0 120 40"><path class="flow" d="M4 20 H116" stroke="#8DC63F" stroke-width="4" stroke-linecap="round" fill="none"/></svg>
+      <span class="ms">bluetooth</span><small>pairs</small>
+    </div>
+    <div class="prod best rv" style="--d:4" id="prodWatch">
+      <span class="ribbon">BEST</span>
+      <div class="pimg"><img src="media/watch-big.png" alt="Fallow Watch"></div>
+      <div class="pinfo">
+        <div class="kind">Wearable</div>
+        <div class="pname">Fallow Watch</div>
+        <p class="ptag">Compact and all in one. Your body, the air and the soil on your wrist.</p>
+        <div class="pchips"><span>Heart rate</span><span>Blood oxygen</span><span>Air CO₂</span><span>Air humidity</span><span>Soil moisture</span><span>Soil pH from the probe</span></div>
+        <div class="pprice">$129<small>target price</small></div>
+        <span class="pnote"><span class="ms">watch</span>No phone needed</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. The probe -->
+<section class="slide" id="stake" data-notes="(about 10 sec) This is our own probe design, the Fallow Stake. A seed-pod head with an LED ring that glows the bed's status, and modules that snap on: the air collar, the CO2 chamber and the solar cap. Tap a tier and watch it change, then explode it.">
+  <div class="split">
+    <div>
+      <div class="eyebrow rv" style="--d:0"><span class="ms">yard</span>Our probe design</div>
+      <h2 class="rv" style="--d:1">Meet the Fallow Stake.</h2>
+      <div class="tries">
+        <div class="try rv" style="--d:2"><span class="ms">lightbulb</span>Seed-pod head with an LED ring that glows the bed's status at a glance.</div>
+        <div class="try rv" style="--d:3"><span class="ms">layers</span>One stake, snap-on modules: air collar, CO₂ chamber, solar cap.</div>
+        <div class="try rv" style="--d:4"><span class="ms">straighten</span>Ground flange keeps it level. Copper bands read moisture, the tip reads temperature.</div>
+        <div class="try rv" style="--d:5"><span class="ms">smartphone</span>Bluetooth to any phone. Pro adds a long-range antenna.</div>
+      </div>
+    </div>
+    <div class="frame rv" style="--d:2;background:#14141c"><span class="pill live" style="top:18px;right:18px;bottom:auto;left:auto">LIVE 3D</span><div class="loading" style="color:#8E8DA0">Loading the probe...</div><iframe data-src="probe3d/index.html" title="Fallow Stake probe 3D model" loading="lazy"></iframe></div>
+  </div>
+</section>
+
+<!-- 7. Parts and assembly -->
+<section class="slide" id="bom" data-notes="(about 10 sec) Here is what each product costs to build, with real part prices. The watch is about 79 dollars in parts and sells for 129. The probe is about 32 dollars and sells for 39. And this is the watch coming together: every part named, then assembled into one product.">
+  <div class="eyebrow rv" style="--d:0"><span class="ms">inventory</span>Parts and cost</div>
+  <h2 class="rv" style="--d:1">What it costs to build them.</h2>
+  <div class="bgrid">
+    <div>
+      <div class="btabs rv" style="--d:2" id="bomTabs"></div>
+      <div class="card blist rv" style="--d:3"><div id="bomRows"></div><div class="btotal"><span>Cost to build one</span><b id="bomTotal">$0</b></div></div>
+      <p class="bnote rv" style="--d:4">Approximate single-unit prototype prices in USD from DigiKey, RobotShop, Seeed and retail listings. Volume pricing is lower.</p>
+    </div>
+    <div class="vbig rv" style="--d:2">
+      <video id="asmVid" muted loop playsinline preload="none" poster="media/fallow-assembly-clean-poster.jpg" data-src="media/fallow-assembly-clean.mp4"></video>
+      <button class="btn ghost vrep" id="vidReplay"><span class="ms">replay</span>Replay</button>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Grow advisor -->
+<section class="slide" id="s6" data-notes="(about 10 sec) These are the same rules our Python code runs. Pick a month, flip frost, dry out the soil, and the planting plan changes on the spot.">
+  <div class="grid">
+    <div>
+      <div class="eyebrow rv" style="--d:0"><span class="ms">potted_plant</span>Try it</div>
+      <h2 class="rv" style="--d:1">What should I plant?</h2>
+      <div class="card ctrls rv" style="--d:2">
+        <div class="ctrl"><label>Month <b id="mLbl">Nov</b></label><div class="months" id="months"></div></div>
+        <div class="ctrl"><label>Air temperature <b id="tLbl">12°C</b></label><input type="range" id="temp" min="-5" max="35" value="12" aria-label="Air temperature"></div>
+        <div class="ctrl"><label>Soil moisture <b id="smLbl">45%</b></label><input type="range" id="moist" min="0" max="100" value="45" aria-label="Soil moisture"></div>
+        <div class="ctrl" style="margin:0"><div class="sw">Frost risk tonight<button class="switch" id="frost" aria-label="Frost risk"></button></div></div>
+      </div>
+    </div>
+    <div>
+      <span class="pill season rv" style="--d:2;background:var(--dark);color:#fff" id="season"></span>
+      <div class="crops" id="crops"></div>
+      <p class="rv" style="--d:4;margin-top:22px;font-size:18px;color:var(--muted)">Same logic as <span class="code">larder/grow/advisor.py</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Why different -->
+<section class="slide" id="s7" data-notes="(about 7 sec) Other apps each do one piece. A pantry app, a recipe app, a garden planner, a fitness watch. Fallow is the first we know of that connects all of them into one loop.">
+  <div class="eyebrow rv" style="--d:0"><span class="ms">hub</span>Why it's different</div>
+  <h2 class="rv" style="--d:1">Others do one piece. Fallow connects them.</h2>
+  <div class="card cmp rv" style="--d:2" id="cmp">
+    <table>
+      <tr><th></th><th>Tracks spoilage</th><th>Meals from it</th><th>What to grow</th><th>Soil &amp; air</th><th>Body vitals</th></tr>
+      <tr><td><span class="ms">inventory_2</span>Typical pantry app</td><td class="y">✓</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td></tr>
+      <tr><td><span class="ms">menu_book</span>Typical recipe app</td><td class="n">·</td><td class="y">✓</td><td class="n">·</td><td class="n">·</td><td class="n">·</td></tr>
+      <tr><td><span class="ms">yard</span>Typical garden planner</td><td class="n">·</td><td class="n">·</td><td class="y">✓</td><td class="n">·</td><td class="n">·</td></tr>
+      <tr><td><span class="ms">watch</span>Typical fitness watch</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="y">✓</td></tr>
+      <tr class="us"><td><span class="ms">eco</span>Fallow</td><td><span class="y" style="--c:1">✓</span></td><td><span class="y" style="--c:2">✓</span></td><td><span class="y" style="--c:3">✓</span></td><td><span class="y" style="--c:4">✓</span></td><td><span class="y" style="--c:5">✓</span></td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 8. Close -->
+<section class="slide" id="s8" data-notes="(about 5 sec) Fallow. Waste less, grow what you're short on, and stay ready. Thank you!">
+  <div class="grid">
+    <div>
+      <div class="eyebrow rv" style="--d:0;color:#8E8DA0"><span class="ms" style="color:var(--lime)">favorite</span>Thank you</div>
+      <h1 class="rv" style="--d:1;margin-top:16px">Fall<span>ow</span></h1>
+      <p class="lead rv" style="--d:2">Waste less. Grow what you're short on. Stay ready.</p>
+      <div class="stack rv" style="--d:3">
+        <span class="pill">Python</span><span class="pill">Streamlit</span><span class="pill">Pydantic</span><span class="pill">SQLite</span><span class="pill">JavaScript</span><span class="pill">Three.js</span><span class="pill">CAD (STEP)</span>
+      </div>
+      <p class="team rv" style="--d:4">Built by <b>Ali Ahmed</b> and <b>Al Sadik</b></p>
+      <a class="repo rv" style="--d:5" href="https://github.com/Mythmaster83/Fallow" target="_blank" rel="noopener"><span class="ms">code</span>github.com/Mythmaster83/Fallow</a>
+    </div>
+    <div class="next">
+      <div class="eyebrow rv" style="--d:2;color:#8E8DA0">What's next</div>
+      <div class="rv" style="--d:3"><span class="ms">precision_manufacturing</span>Build the probe and watch prototype from our CAD.</div>
+      <div class="rv" style="--d:4"><span class="ms">cloud_off</span>Offline mode, so it works when the power or the internet is out.</div>
+      <div class="rv" style="--d:5"><span class="ms">groups</span>Field test with a community garden and a food pantry.</div>
+    </div>
+  </div>
+</section>
+
+</div></div>
+
+<div id="notes"><b>Speaker notes</b><span id="notesTx"></span></div>
+<div id="hud">
+  <button id="prev" aria-label="Previous slide"><span class="ms">chevron_left</span></button>
+  <div id="dots"></div>
+  <span id="count">1 / 10</span>
+  <button id="next" aria-label="Next slide"><span class="ms">chevron_right</span></button>
+  <button id="timer" title="90 second pitch timer (T)"><span class="ms">timer</span><span id="tLeft">1:30</span></button>
+  <button id="notesBtn" title="Speaker notes (N)"><span class="ms">sticky_note_2</span></button>
+  <button id="fsBtn" title="Full screen (F)"><span class="ms">fullscreen</span></button>
+</div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const slides = $$(".slide");
+  const N = slides.length;
+  const stage = $("#stage");
+  let cur = 0;
+
+  /* scale the 1600 x 900 stage to the window */
+  function fit() {
+    const s = Math.min(innerWidth / 1600, innerHeight / 900) * 0.96;
+    stage.style.transform = `translate(-50%,-50%) scale(${s})`;
+  }
+  addEventListener("resize", fit); fit();
+  /* embedded demos can scroll their parents when they focus something: pin them back */
+  [stage, $("#wrap"), document.scrollingElement].forEach(el => el && el.addEventListener("scroll", () => { el.scrollTop = 0; el.scrollLeft = 0; }));
+  $$(".slide,.frame").forEach(el => el.addEventListener("scroll", () => { el.scrollTop = 0; el.scrollLeft = 0; }));
+
+  /* iframes live next to this file in the artifact, one folder up in the repo */
+  const base = /\/web\/pitch\//.test(location.pathname) ? "../" : "";
+  function loadFrames(sl) {
+    $$("iframe[data-src]", sl).forEach(f => {
+      if (f.src) return;
+      f.addEventListener("load", () => { const l = f.parentElement.querySelector(".loading"); if (l) l.remove(); }, { once: true });
+      f.src = base + f.dataset.src;
+    });
+  }
+
+  /* navigation */
+  const dots = $("#dots");
+  slides.forEach((_, i) => { const d = document.createElement("i"); d.onclick = () => go(i); dots.appendChild(d); });
+  function go(n) {
+    n = Math.max(0, Math.min(N - 1, n));
+    slides.forEach((s, i) => { s.classList.toggle("on", i === n); s.classList.toggle("left", i < n); });
+    $$("#dots i").forEach((d, i) => d.classList.toggle("on", i === n));
+    cur = n;
+    $("#count").textContent = `${n + 1} / ${N}`;
+    $("#progress").style.width = `${((n + 1) / N) * 100}%`;
+    $("#notesTx").textContent = slides[n].dataset.notes || "";
+    loadFrames(slides[n]);
+    if (n + 1 < N) setTimeout(() => loadFrames(slides[n + 1]), 900);
+    onEnter(slides[n].id);
+    history.replaceState(null, "", "#" + (n + 1));
+  }
+  $("#prev").onclick = () => go(cur - 1);
+  $("#next").onclick = () => go(cur + 1);
+  addEventListener("keydown", e => {
+    if (e.target.closest && e.target.closest("input,textarea,select")) {
+      if (!["PageDown", "PageUp"].includes(e.key)) return;
+    }
+    const k = e.key;
+    if (["ArrowRight", "PageDown", " "].includes(k)) { e.preventDefault(); go(cur + 1); }
+    else if (["ArrowLeft", "PageUp"].includes(k)) { e.preventDefault(); go(cur - 1); }
+    else if (k === "Home") go(0);
+    else if (k === "End") go(N - 1);
+    else if (k === "t" || k === "T") toggleTimer();
+    else if (k === "r" || k === "R") resetTimer();
+    else if (k === "n" || k === "N") toggleNotes();
+    else if (k === "f" || k === "F") toggleFs();
+  });
+  /* let arrow keys move slides again once a slider is let go */
+  addEventListener("change", e => { if (e.target.type === "range") e.target.blur(); });
+  addEventListener("pointerup", () => { const a = document.activeElement; if (a && a.type === "range") setTimeout(() => a.blur(), 0); });
+  let tx = null;
+  stage.addEventListener("touchstart", e => { tx = e.touches[0].clientX; }, { passive: true });
+  stage.addEventListener("touchend", e => {
+    if (tx == null || e.target.closest("input,.frame,button")) return;
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 60) go(cur + (dx < 0 ? 1 : -1));
+    tx = null;
+  });
+
+  /* hud: timer, notes, full screen, auto hide */
+  let left = 90, tick = null;
+  const tBtn = $("#timer");
+  function paint() {
+    const m = Math.floor(Math.abs(left) / 60), s = String(Math.abs(left) % 60).padStart(2, "0");
+    $("#tLeft").textContent = (left < 0 ? "-" : "") + `${m}:${s}`;
+    tBtn.classList.toggle("late", left <= 15);
+  }
+  function toggleTimer() {
+    if (tick) { clearInterval(tick); tick = null; tBtn.classList.remove("run"); return; }
+    tBtn.classList.add("run");
+    tick = setInterval(() => { left--; paint(); }, 1000);
+  }
+  function resetTimer() { clearInterval(tick); tick = null; left = 90; tBtn.classList.remove("run"); paint(); }
+  tBtn.onclick = toggleTimer;
+  tBtn.ondblclick = resetTimer;
+  function toggleNotes() { $("#notes").classList.toggle("show"); }
+  $("#notesBtn").onclick = toggleNotes;
+  function toggleFs() {
+    try {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen();
+    } catch (e) { /* full screen not allowed here */ }
+  }
+  $("#fsBtn").onclick = toggleFs;
+  let idle;
+  function wake() { $("#hud").classList.remove("idle"); clearTimeout(idle); idle = setTimeout(() => $("#hud").classList.add("idle"), 2500); }
+  addEventListener("mousemove", wake); wake();
+
+  /* slide 2: pantry clock */
+  const FOOD = [
+    { n: "Spinach", ic: "eco", c: "#4E8A1F", life: 4, meal: "spinach omelette" },
+    { n: "Chicken", ic: "set_meal", c: "#C0563A", life: 3, meal: "chicken rice bowl" },
+    { n: "Milk", ic: "water_full", c: "#2E6DB4", life: 7, meal: "pancakes" },
+    { n: "Bread", ic: "bakery_dining", c: "#B4561E", life: 6, meal: "French toast" },
+    { n: "Bananas", ic: "nutrition", c: "#C99A1E", life: 6, meal: "banana oats" },
+    { n: "Tomatoes", ic: "local_florist", c: "#E5533F", life: 9, meal: "tomato soup" },
+    { n: "Eggs", ic: "egg", c: "#8A6A00", life: 30, meal: "" },
+    { n: "Rice", ic: "rice_bowl", c: "#6F6E7E", life: 400, meal: "" },
+  ];
+  let fallow = 0;
+  const itemsEl = $("#items");
+  itemsEl.innerHTML = FOOD.map((f, i) => `<div class="it" id="it${i}"><div class="ic"><span class="ms" style="color:${f.c}">${f.ic}</span></div><div class="tx"><div class="nm">${f.n}</div><div class="st"></div><div class="bar"><i></i></div></div></div>`).join("");
+  function clock() {
+    const d = +$("#day").value;
+    $("#dayLbl").textContent = `Day ${d}`;
+    let w = 0, s = 0;
+    FOOD.forEach((f, i) => {
+      const el = $("#it" + i), left = f.life - d;
+      const saveDay = Math.max(0, f.life - 1);
+      let cls = "", st, pct = Math.max(0, Math.min(100, (left / Math.min(f.life, 14)) * 100));
+      if (fallow && f.meal && d >= saveDay) { cls = "saved"; st = `Cooked: ${f.meal}`; s++; pct = 100; }
+      else if (left <= 0) { cls = "dead"; st = "Spoiled, thrown out"; w++; pct = 0; }
+      else if (left <= 2) { cls = "warn"; st = fallow ? `Use soon: ${left} day${left > 1 ? "s" : ""} left` : `${left} day${left > 1 ? "s" : ""} left`; }
+      else st = left > 60 ? "Keeps for months" : `${left} days left`;
+      el.className = "it " + cls;
+      $(".st", el).textContent = st;
+      $(".bar i", el).style.width = pct + "%";
+    });
+    $("#wN").textContent = w; $("#sN").textContent = s;
+  }
+  $("#day").addEventListener("input", clock);
+  $$("#fwToggle button").forEach(b => b.onclick = () => {
+    fallow = +b.dataset.v;
+    $$("#fwToggle button").forEach(x => x.classList.toggle("on", x === b));
+    clock();
+  });
+  let cTick = null;
+  $("#clockPlay").onclick = () => {
+    clearInterval(cTick);
+    const r = $("#day"); if (+r.value >= 14) r.value = 0;
+    cTick = setInterval(() => { r.value = +r.value + 1; clock(); if (+r.value >= 14) clearInterval(cTick); }, 420);
+  };
+  clock();
+
+  /* slide 3: the loop */
+  const STEPS = [
+    { k: "Pantry", ic: "inventory_2", c: "#F2A766", t: "Know what's spoiling", d: "Log what you have. Fallow estimates days left for each item from a shelf life table and flags what's at risk first.", tag: "Spoilage risk score" },
+    { k: "Meals", ic: "restaurant", c: "#3F5A00", t: "Cook it before it goes", d: "Meals are planned around the items closest to spoiling, so food gets eaten instead of thrown out.", tag: "Use it first planner" },
+    { k: "Grow", ic: "potted_plant", c: "#4E8A1F", t: "Plant what you'll run short of", d: "Soil and weather sensors plus your pantry gaps decide what to plant now: protein, calorie staples or fresh food.", tag: "Sensor grow advisor" },
+    { k: "Health", ic: "favorite", c: "#E5533F", t: "Check your body keeps up", d: "Nutrition balance by food group, plus blood oxygen and heart rate from the watch, so you see what's covered and what's missing.", tag: "Nutrition + vitals" },
+  ];
+  const ring = $(".ring");
+  const pos = [[350, 100], [600, 350], [350, 600], [100, 350]];
+  STEPS.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.className = "node"; b.id = "nd" + i;
+    b.style.left = pos[i][0] + "px"; b.style.top = pos[i][1] + "px";
+    b.innerHTML = `<span class="ms" style="color:${s.c}">${s.ic}</span>${s.k}`;
+    b.onclick = () => { stopLoop(); show(i, true); };
+    ring.appendChild(b);
+  });
+  let xp = 0;
+  function setXp(v) {
+    xp = v;
+    $("#xp").textContent = `${xp} XP`;
+    const lvl = xp >= 100 ? 2 : 1;
+    $("#lv").textContent = lvl === 2 ? "Level 2 · Sprout" : "Level 1 · Seedling";
+    $("#xpbar").style.width = Math.min(100, xp) + "%";
+  }
+  function show(i, lit) {
+    const s = STEPS[i];
+    $("#detail").innerHTML = `<h3><span class="ms" style="color:${s.c}">${s.ic}</span>${s.t}</h3><p>${s.d}</p><span class="pill tag">${s.tag}</span>`;
+    $$(".node").forEach((n, j) => n.classList.toggle("lit", lit && j === i));
+  }
+  let lTimers = [];
+  function stopLoop() { lTimers.forEach(clearTimeout); lTimers = []; }
+  function resetLoop() {
+    stopLoop();
+    $$(".node").forEach(n => n.classList.remove("lit", "done"));
+    $("#arc").style.strokeDashoffset = 1571;
+    $("#toast").classList.remove("show");
+    setXp(0); show(0, false);
+  }
+  function playLoop() {
+    resetLoop();
+    STEPS.forEach((_, i) => {
+      lTimers.push(setTimeout(() => {
+        show(i, true);
+        $("#arc").style.strokeDashoffset = 1571 - (1571 * (i + 1)) / 4;
+        if (i > 0) $("#nd" + (i - 1)).classList.add("done");
+        setXp((i + 1) * 15);
+      }, i * 1300));
+    });
+    lTimers.push(setTimeout(() => {
+      $("#nd3").classList.add("done");
+      $$(".node").forEach(n => n.classList.remove("lit"));
+      setXp(100);
+      $("#toast").classList.add("show");
+      confetti($("#s3"));
+      lTimers.push(setTimeout(() => $("#toast").classList.remove("show"), 3600));
+    }, 4 * 1300 + 200));
+  }
+  $("#loopPlay").onclick = playLoop;
+  $("#loopReset").onclick = resetLoop;
+  function confetti(host) {
+    const cols = ["#D7F26E", "#BBA6F0", "#8DC63F", "#F2A766", "#F27A8A", "#fff"];
+    for (let i = 0; i < 90; i++) {
+      const p = document.createElement("i");
+      p.className = "conf";
+      p.style.left = "800px"; p.style.top = "130px";
+      p.style.background = cols[i % cols.length];
+      p.style.setProperty("--x", `${Math.random() * 1300 - 650}px`);
+      p.style.setProperty("--y", `${Math.random() * 700 - 80}px`);
+      p.style.setProperty("--r", `${Math.random() * 1080 - 540}deg`);
+      p.style.animationDelay = `${Math.random() * 0.15}s`;
+      host.appendChild(p);
+      setTimeout(() => p.remove(), 1900);
+    }
+  }
+  resetLoop();
+
+  /* slide 6: grow advisor, mirrors larder/grow/advisor.py */
+  const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const COLD = new Set([11, 12, 1, 2, 3]), WARM = new Set([5, 6, 7, 8, 9]);
+  const ICON = { kale: ["eco", "#EEF8CF", "#3F5A00"], spinach: ["spa", "#EEF8CF", "#3F5A00"], garlic: ["grain", "#FFF0D6", "#8A6A00"],
+    "bush beans": ["grass", "#E6E2FB", "#5B45B0"], potatoes: ["egg_alt", "#FCE6DA", "#B4561E"], chard: ["energy_savings_leaf", "#EEF8CF", "#3F5A00"],
+    peas: ["scatter_plot", "#E6E2FB", "#5B45B0"], radishes: ["nutrition", "#FDE0DC", "#E5533F"], thyme: ["local_florist", "#FFF0D6", "#8A6A00"] };
+  const FILL = { "fresh food": ["#EEF8CF", "#3F5A00"], protein: ["#E6E2FB", "#5B45B0"], "calorie staples": ["#FFF0D6", "#8A6A00"] };
+  let month = 11, frost = false;
+  $("#months").innerHTML = MON.map((m, i) => `<button data-m="${i + 1}">${m[0]}</button>`).join("");
+  $$("#months button").forEach(b => b.onclick = () => { month = +b.dataset.m; advise(); });
+  $("#frost").onclick = () => { frost = !frost; advise(); };
+  $("#temp").addEventListener("input", advise);
+  $("#moist").addEventListener("input", advise);
+  let lastKey = "";
+  function advise() {
+    const t = +$("#temp").value, sm = +$("#moist").value / 100;
+    $$("#months button").forEach(b => b.classList.toggle("on", +b.dataset.m === month));
+    $("#mLbl").textContent = MON[month - 1];
+    $("#tLbl").textContent = `${t}°C`;
+    $("#smLbl").textContent = `${Math.round(sm * 100)}%`;
+    $("#frost").classList.toggle("on", frost);
+    const cold = frost || t <= 8 || COLD.has(month);
+    const warm = !frost && t >= 18 && WARM.has(month);
+    let crops, season;
+    if (cold && !warm) {
+      season = "Cold season plan";
+      crops = [["kale", "Kale keeps producing after a frost and replaces fresh food.", "fresh food"],
+               ["spinach", "A short cold-season green for the weeks the fridge runs low.", "fresh food"],
+               ["garlic", "Garlic overwinters and stores, which steadies the calorie shelf.", "calorie staples"]];
+    } else if (warm) {
+      season = "Warm season plan";
+      crops = [["bush beans", "Beans add protein you can dry and keep.", "protein"],
+               ["potatoes", "Potatoes are the calorie crop that stores in a cool cupboard.", "calorie staples"],
+               ["chard", "Chard is the fresh food that keeps picking through summer.", "fresh food"]];
+    } else {
+      season = "Shoulder season plan";
+      crops = [["kale", "Shoulder season still suits a frost-tolerant green.", "fresh food"],
+               ["peas", "Peas like cool soil and add protein before the heat arrives.", "protein"],
+               ["radishes", "Radishes are ready quickly if fresh food is the thin spot.", "fresh food"]];
+    }
+    const dry = sm < 0.3;
+    if (dry) {
+      crops = crops.filter(c => c[0] !== "spinach");
+      crops.push(["thyme", "Dry soil favors an herb over thirsty greens. Water deeply, less often.", "fresh food"]);
+    }
+    $("#season").innerHTML = `<span class="ms">${cold && !warm ? "ac_unit" : warm ? "sunny" : "partly_cloudy_day"}</span>${season}${dry ? " · dry soil" : ""}`;
+    const key = season + dry;
+    if (key === lastKey) return;
+    lastKey = key;
+    $("#crops").innerHTML = crops.map((c, i) => {
+      const [ic, bg, fg] = ICON[c[0]], [fb, ff] = FILL[c[2]];
+      return `<div class="card crop" style="--i:${i}"><div class="ci" style="background:${bg}"><span class="ms" style="color:${fg}">${ic}</span></div><div><div class="cn">${c[0]}</div><div class="cr">${c[1]}</div></div><span class="pill" style="background:${fb};color:${ff}">${c[2]}</span></div>`;
+    }).join("");
+  }
+  advise();
+
+
+
+  /* bill of materials, approx single-unit prices in USD */
+  const BOM = {
+    watch: { nm: "Fallow Watch", price: 129, rows: [
+      ["memory", "XIAO nRF52840 Sense", "Bluetooth processor and motion sensor", 15],
+      ["smartphone", "1.69 in color touch display", "The watch face", 12],
+      ["ecg_heart", "MAX30102 optical sensor", "Heart rate and blood oxygen", 6],
+      ["co2", "Sensirion SCD40", "CO₂, plus air temperature and humidity", 17],
+      ["water_drop", "Slide-out soil tip", "Moisture and soil temperature", 4],
+      ["battery_full", "300 mAh LiPo battery", "Power for a full day", 5],
+      ["vibration", "Vibration motor", "Wrist alerts", 1],
+      ["developer_board", "Custom PCB + small parts", "Main board", 6],
+      ["deployed_code", "Resin case, cork plug, gaskets", "From our CAD files", 8],
+      ["watch", "Silicone strap", "Two halves", 5],
+    ] },
+    probe: { nm: "Fallow Stake", price: 39, rows: [
+      ["memory", "ESP32-C3 mini board", "Bluetooth to any phone", 3],
+      ["water_drop", "Capacitive soil moisture sensor", "Soil moisture", 2],
+      ["thermostat", "Waterproof soil thermometer", "Soil temperature", 2],
+      ["science", "Soil pH probe kit", "Probe and signal board", 15],
+      ["humidity_percentage", "SHT40 sensor", "Air temperature and humidity", 4],
+      ["battery_full", "2 × AA battery holder", "Months of runtime", 3],
+      ["deployed_code", "3D printed pod head, stem, flange", "Weatherproof, our design", 3],
+    ] },
+  };
+  let bomShown = 0, bomAnim = null;
+  $("#bomTabs").innerHTML = Object.entries(BOM).map(([k, v]) => { const c = v.rows.reduce((a, r) => a + r[3], 0); return `<button data-k="${k}"><span class="ms">${k === "watch" ? "watch" : "yard"}</span><span class="bt"><b>${v.nm}</b><small>$${c} to build · sells for $${v.price}</small></span></button>`; }).join("");
+  function showBom(k) {
+    $$("#bomTabs button").forEach(b => b.classList.toggle("on", b.dataset.k === k));
+    const rows = BOM[k].rows;
+    $("#bomRows").innerHTML = rows.map((r, i) => `<div class="brow" style="--i:${i}"><span class="ms">${r[0]}</span><div><b>${r[1]}</b><small>${r[2]}</small></div><span class="c">$${r[3]}</span></div>`).join("");
+    const to = rows.reduce((a, r) => a + r[3], 0), from = bomShown, t0 = performance.now();
+    cancelAnimationFrame(bomAnim);
+    const step = now => {
+      const p = Math.min(1, (now - t0) / 700), v = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3)));
+      $("#bomTotal").textContent = `$${v}`; bomShown = v;
+      if (p < 1) bomAnim = requestAnimationFrame(step);
+    };
+    bomAnim = requestAnimationFrame(step);
+  }
+  $$("#bomTabs button").forEach(b => b.addEventListener("click", () => showBom(b.dataset.k)));
+  showBom("watch");
+  const vid = $("#asmVid");
+  $("#vidReplay").onclick = () => { vid.currentTime = 0; vid.play().catch(() => {}); };
+
+  /* per slide entry effects */
+  function onEnter(id) {
+    if (id === "s7") { const c = $("#cmp"); c.classList.remove("reveal"); setTimeout(() => c.classList.add("reveal"), 900); }
+    if (id !== "s3") stopLoop();
+    if (id === "bom") {
+      if (!vid.src) vid.src = vid.dataset.src;
+      vid.currentTime = 0; vid.play().catch(() => {});
+    } else if (vid && !vid.paused) vid.pause();
+  }
+
+  const start = parseInt(location.hash.slice(1), 10);
+  go(Number.isFinite(start) ? start - 1 : 0);
+  paint();
+})();
+</script>
+</body>
+</html>

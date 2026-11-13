@@ -10,7 +10,7 @@ nothing is wasted, everything is planned.
 An **LLM** is a language model you call over the network. Fallow asks it for
 JSON, then checks that JSON against a fixed shape. A **heuristic** is the
 offline backup: a shelf-life table plus the expiry date already on the item.
-A **protocol** here is the small contract every sensor must follow — one
+A **protocol** here is the small contract every sensor must follow: one
 `read()` method that returns the same snapshot type.
 
 The live sensor reads weather, frost, and soil moisture from Open-Meteo. The
@@ -81,16 +81,28 @@ sample again.
 
 ## Deploy
 
-A push to `main` publishes the app to Cloudflare Workers. The workflow is
-`.github/workflows/cloudflare.yml`. It needs the Workers Paid plan, because
-Streamlit cannot start inside the free plan's CPU limit, and these GitHub
-Actions secrets:
+A push to `main` builds and publishes the website to Cloudflare Workers on the
+free plan, through `.github/workflows/deploy-cloudflare.yml`:
 
-- `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_ACCOUNT_ID`
+- `/` is the landing page (`site/index.html`) with two buttons:
+  **Watch the presentation** and **Try the live demo**.
+- `/web/pitch/` is the pitch deck, with `/web/demo/`, `/web/watch3d/` and
+  `/web/probe3d/` next to it as the deck expects.
+- `/app/` is the real Fallow app. stlite runs the Streamlit app inside the
+  visitor's browser, so Cloudflare only serves files.
 
-The public site starts from the sample inventory. Pantry edits live on that
-Worker and reset after the instance goes idle.
+Build and preview it locally:
+
+```bash
+python deploy/build_static.py      # writes dist/
+python deploy/serve_spa.py 8502    # open http://localhost:8502
+```
+
+The workflow reads `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` from the
+`Fallow` environment secrets. Each visitor's live demo starts from the sample
+pantry and resets on reload. In the browser the live sensor and the LLM have no
+network access, so the demo uses the mock sensor and the shelf-life table.
+
 ## Web demo, 3D watch and hardware
 
 These run without Python. Open them in a browser (they need internet for
@@ -99,8 +111,28 @@ fonts, and the 3D page also loads Three.js from a CDN).
 - `web/demo/index.html`: clickable demo of the whole app. Phone, Watch and
   Website views, a sensor simulator, cooking, planting and achievements.
 - `web/watch3d/index.html`: 3D exploded view of the survival watch built from
-  the CAD files. Explode slider, turn and flip controls, labels, and a live
-  health screen on the watch face.
+  the CAD files, plus a detailed motherboard, battery, vibration motor and the
+  optical heart and blood oxygen sensor on the back. The watch face has four
+  screens (Home, Vitals, Air, Garden bed) driven by sliders for heart rate,
+  blood oxygen, CO2, humidity, soil pH and soil moisture. Tap the face to
+  change screens. Controls sit in a bottom bar (View, Watch screen,
+  Sensors, Parts) so the watch fills the screen.
+- `web/pitch/index.html`: the HackPerimeter pitch deck. Eleven slides with the
+  demo and the 3D watch running live inside, a pantry clock, a playable loop
+  and the grow advisor. Arrow keys move slides, T starts a 90 second timer,
+  N shows speaker notes, F goes full screen. Keep it inside `web/` so it can
+  find `../demo/`, `../watch3d/` and `../probe3d/`. Slide 6 presents the two
+  products (the Fallow Stake probe and the Fallow Watch), slide 7 shows the
+  probe live, and slide 8 shows what each one costs to build next to the
+  assembly video.
+- `web/probe3d/index.html`: the Fallow Stake, our garden probe design, in 3D.
+  Switch between Probe Lite, Plus and Pro to snap modules on and off, and
+  explode it to see every part with labels. `?still=1&tier=pro` renders a
+  transparent still for slides.
+- `web/pitch/media/fallow-assembly.mp4`: 15 second video that names every
+  part of the watch and then assembles it. `fallow-assembly-clean.mp4` is the
+  same on the slide background with no captions (`&clean=1&bg=F6F5F2`). Re-render it from the 3D viewer
+  with `web/watch3d/index.html?film=1` (call `window.__film(seconds)`).
 - `hardware/cad/`: the Onshape STEP files (Assembly 1).
 - `hardware/fallow-watch.glb`: the same assembly as one GLB, one named node
   per part, for Blender or Three.js.

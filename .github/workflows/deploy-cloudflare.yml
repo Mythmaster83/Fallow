@@ -1,0 +1,47 @@
+# Builds the Fallow website (landing page, pitch deck, live in-browser app) and
+# publishes it to Cloudflare Workers as static files. Free plan: no Python runs there.
+# Needs CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID on the "Fallow" environment.
+name: Deploy static site to Cloudflare
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: cloudflare-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # The Cloudflare secrets are stored on the "Fallow" environment.
+    environment: Fallow
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run tests
+        run: |
+          pip install -q -e ".[dev]"
+          pytest -q
+
+      - name: Build static site
+        run: python deploy/build_static.py
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4.162.0 deploy

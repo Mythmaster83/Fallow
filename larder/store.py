@@ -28,10 +28,20 @@ def default_inventory_fixture() -> Path:
     return project_root() / "fixtures" / "inventory.sample.json"
 
 
+def _has_inventory_table(db_path: Path) -> bool:
+    if not db_path.exists():
+        return False
+    with sqlite3.connect(db_path) as conn:
+        row = conn.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'inventory'").fetchone()
+    return row is not None
+
+
 def open_store(path: Path | None = None) -> InventoryStore:
     """Open the database, and load the sample inventory the first time."""
     db_path = Path(path) if path is not None else default_db_path()
-    fresh = not db_path.exists()
+    # Other stores (achievements) share this file and may create it first, so
+    # "fresh" means the inventory table is missing, not that the file is.
+    fresh = not _has_inventory_table(db_path)
     store = InventoryStore(db_path)
     if fresh:
         try:
