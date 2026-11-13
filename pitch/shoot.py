@@ -8,7 +8,7 @@ What it does:
 1. Starts ``streamlit run app.py`` headless on a free port, with a fresh
    database seeded from the sample fixture, SENSOR_MODE=mock and no LLM key,
    so every run produces the same shots.
-2. Visits the dashboard plus every file in ``pages/`` and saves a PNG per page
+2. Visits the dashboard plus every file in ``views/`` and saves a PNG per page
    to ``pitch/screenshots/``.
 3. Rewrites the ``SHOTS:*`` regions of ``pitch/index.html``:
    - slide 4 shows ``pitch/demo.mp4`` if it exists, otherwise the screenshots
@@ -43,6 +43,10 @@ DECK = PITCH / "index.html"
 # Slug (screenshot file stem) -> caption on the demo slide, in demo-flow order.
 CAPTIONS: dict[str, str] = {
     "dashboard": "1 · What spoils first, and what to cook tonight",
+    "pantry": "2 · Every item, every location, ranked by urgency",
+    "farm": "3 · Soil + weather + pantry gaps → what to plant",
+    "health": "4 · Fresh food, staples, and protein still in reserve",
+    "recipes": "5 · Steps for the meals that use food already on hand",
     "inventory": "2 · Every item, every location, ranked by urgency",
     "grow": "3 · Soil + weather + pantry gaps → what to plant",
     "cycle": "4 · Harvest → cook → compost → soil → seed",
@@ -76,10 +80,12 @@ def free_port() -> int:
 
 
 def discover_targets() -> list[Target]:
+    """Pages from ``views/``, using the same URL paths as ``st.navigation``."""
     targets = [Target("dashboard", "")]
-    for page_file in sorted((ROOT / "pages").glob("*.py")):
-        name = re.sub(r"^\d+_", "", page_file.stem)
-        targets.append(Target(name.lower(), name))
+    for page_file in sorted((ROOT / "views").glob("*.py")):
+        if page_file.stem == "dashboard":
+            continue
+        targets.append(Target(page_file.stem, page_file.stem))
     return targets
 
 

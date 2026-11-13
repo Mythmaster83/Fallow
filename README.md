@@ -42,8 +42,8 @@ streamlit run app.py
 ```
 
 Streamlit prints a local address, usually `http://localhost:8501`. Open that
-in a browser. The home page is the dashboard. **Inventory** and **Grow** are
-in the sidebar.
+in a browser. The top bar has Dashboard, Pantry, Soil & farm, Health, and
+Food & recipes.
 
 Leave this command running while you use the site. Stop it with Ctrl+C in
 that terminal. Nothing here is deployed to the public internet; it runs on
@@ -61,7 +61,8 @@ pytest
 
 `tests/test_spoilage_fallback.py` checks that a failed model call still
 returns shelf-life risks. `tests/test_planner_inventory_only.py` checks that
-every meal uses food already in the inventory.
+every meal uses food already in the inventory. `tests/test_recipes_and_health.py`
+checks the recipe steps and the food-group grades the new screens show.
 
 ## Layout
 
@@ -69,16 +70,23 @@ every meal uses food already in the inventory.
 ├── README.md
 ├── pyproject.toml
 ├── .env.example                 # LLM_API_KEY, SENSOR_MODE=mock|live
-├── app.py                       # Streamlit entry (dashboard)
-├── pages/
-│   ├── 1_Inventory.py
-│   └── 2_Grow.py
+├── app.py                       # Streamlit entry and top navigation
+├── fallow_ui.py                 # Shared look for every screen
+├── views/
+│   ├── dashboard.py
+│   ├── pantry.py
+│   ├── farm.py
+│   ├── health.py
+│   └── recipes.py
+├── static/fonts/                # Plus Jakarta Sans, served with the app
 ├── larder/
 │   ├── models.py                # Pydantic: InventoryItem, SpoilageRisk, MealPlan, GrowPlan
 │   ├── spoilage/
 │   │   ├── predictor.py         # LLM call + heuristic fallback
 │   │   └── shelf_life.py        # Static baseline table
-│   ├── meals/planner.py
+│   ├── meals/
+│   │   ├── planner.py
+│   │   └── recipes.py           # Steps and "mark cooked" amounts
 │   ├── grow/
 │   │   ├── advisor.py
 │   │   └── balance.py
@@ -89,6 +97,7 @@ every meal uses food already in the inventory.
 │   ├── llm/
 │   │   ├── client.py            # Retries, timeout, JSON validation
 │   │   └── prompts.py
+│   ├── health/nutrition.py      # Fresh, staple, and protein reserves
 │   └── store.py                 # SQLite
 ├── fixtures/
 │   ├── inventory.sample.json

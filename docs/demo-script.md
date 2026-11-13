@@ -29,17 +29,16 @@ You should see:
 - Spinach is the first row. In the sample it expires on 13 November 2026, so
   on that day it is critical, and after that day it is the most overdue item.
   Chicken, carrots, bread, and milk follow. Rice and beans stay at the bottom.
-- The caption under the table says the estimates come from the shelf-life table.
-- The sidebar says `Sensor: mock` and `Spoilage: shelf-life table`.
+- The greeting line says spoilage comes from the shelf-life table.
 - The first meal uses spinach and rice. Rice is the staple that can wait.
 - The garden block says Hudson Valley, about 7 °C, moist loam, and frost.
 - The balance line says planting covers the fresh-food gap. Kale, spinach,
   and garlic are the crops. Garlic is there because a cold, frosty reading
   does not support summer crops.
 
-## 2. Inventory
+## 2. Pantry
 
-Open **Inventory** in the sidebar.
+Open **Pantry** in the top bar.
 
 - The sample rows are listed: spinach, chicken, carrots, milk, bread, rice, beans.
 - The spoilage table matches the dashboard.
@@ -49,9 +48,9 @@ Open **Inventory** in the sidebar.
 - The new row appears, and strawberries show up as high risk.
 - Remove the strawberries row with **Remove**. The sample items stay.
 
-## 3. Grow
+## 3. Soil & farm
 
-Open **Grow**.
+Open **Soil & farm**.
 
 - Location, temperature, soil, and frost match the fixture.
 - Open **Raw sensor reading** and confirm it is `fixtures/sensor.sample.json`
@@ -66,7 +65,7 @@ Stop Streamlit. In `.env` set:
 SENSOR_MODE=live
 ```
 
-Start Streamlit again and open **Grow**.
+Start Streamlit again and open **Soil & farm**.
 
 You should see a warning that the live sensor feed is not built yet, and no
 invented weather underneath it. Set `SENSOR_MODE` back to `mock` when you

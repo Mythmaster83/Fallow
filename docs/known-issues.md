@@ -24,27 +24,27 @@ pantry, shelf-life spoilage, a short cook list, and the mock garden plan.
   all list rice, and the plan never checks whether the quantity covers that.
 - Bread and other staple categories can still get their own meal, and that
   meal also attaches rice. A loaf does not need a second grain beside it.
-- The cook list is capped at `horizon_days` (3 on the dashboard). Extra urgent
-  items stay in `priority_item_ids` and on the spoilage table, but the summary
-  does not say they did not fit.
-- Cooking does not reduce quantity. The same spinach stays at the top until
-  someone removes it by hand.
+- The cook list is still capped at `horizon_days` before anyone cooks. Extra
+  urgent items stay on the spoilage list, and the plan does not check that one
+  bag of rice can cover every meal that lists it.
+- Marking a meal cooked on Food & recipes uses up the urgent item and one
+  portion of the staple. Removing a row by hand is still the other way to
+  clear food.
 - There is no edit form. You can add or remove a row, not change the expiry
-  on an existing one.
+  on an existing one. The add form does refuse an expiry date that is earlier
+  than the day you got the food.
 
 ## Pantry data
 
 - The sample dates are fixed in November 2026. On that day spinach is critical.
   On a later day the same rows are overdue by a growing number of days. Later:
   seed the sample relative to today.
-- `acquired_on` is not checked against `expires_on`. An acquired date after
-  the expiry is stored as-is.
+- The domain still accepts an acquired date after the expiry if something
+  other than the Pantry form writes the row.
 - Shelf life ignores where the food sits. Freezer and counter use the same
   table unless you pick the `frozen` category yourself.
 - Two rows can share a display name. Meals key off ids, so the plan is still
   honest, but the table looks like one food twice.
-- The "Added …" confirmation is cleared at once because the page reruns
-  immediately after the write.
 
 ## Garden and sensors
 
@@ -60,9 +60,5 @@ pantry, shelf-life spoilage, a short cook list, and the mock garden plan.
 - Protein-from-the-pantry is a short name list (`beans`, `lentils`, `tofu`,
   `chickpeas`). `soybeans` does not match. `green beans` does, and then counts
   as stored protein and calories, which can hide a real gap.
-- A fixture that fails validation (missing field, bad type) is not caught by
-  the pages. They catch file and mode errors, not a Pydantic validation
-  error, so a broken fixture becomes a traceback instead of the warning used
-  for the live sensor.
-- The home entry in the sidebar is labeled `app`, because that is the script
-  name. Inventory and Grow pick up their names from the page files.
+- A bad sensor fixture is shown as a warning on Dashboard and Soil & farm.
+  The warning is the validation message, not a made-up forecast.

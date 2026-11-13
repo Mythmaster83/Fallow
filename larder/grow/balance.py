@@ -23,7 +23,7 @@ _PROTEIN_CATEGORIES = {"meat", "fish", "eggs", "dairy"}
 _LEGUMES = {"beans", "bean", "lentils", "lentil", "tofu", "chickpeas", "chickpea"}
 
 # Food that expires inside this window is not a reserve.
-_RESERVE_DAYS = 3
+RESERVE_DAYS = 3
 
 
 def find_gaps(
@@ -71,11 +71,16 @@ def _has_reserve(
 ) -> bool:
     for item in items:
         risk = by_id.get(item.id)
-        if risk is None or risk.days_remaining <= _RESERVE_DAYS:
+        if risk is None or risk.days_remaining <= RESERVE_DAYS:
             continue
         if label in _buckets(item):
             return True
     return False
+
+
+def buckets_for(item: InventoryItem) -> set[str]:
+    """The food groups one item counts toward."""
+    return _buckets(item)
 
 
 def _buckets(item: InventoryItem) -> set[str]:

@@ -1,12 +1,13 @@
 # Architecture
 
-Fallow is a small pipeline. The Streamlit pages collect an inventory and a
-sensor reading, then call plain Python functions. Those functions do not
-import Streamlit, which is why the tests can run them with no browser.
+Fallow is a small pipeline. The Streamlit screens in `views/` collect an
+inventory and a sensor reading, then call plain Python functions. Those
+functions do not import Streamlit, which is why the tests can run them with
+no browser. `fallow_ui.py` is only the shared look.
 
 ```mermaid
 flowchart TD
-  UI["Streamlit: app.py and pages"] --> Store["SQLite inventory"]
+  UI["Streamlit: app.py and views"] --> Store["SQLite inventory"]
   UI --> Predict["Spoilage predictor"]
   Predict --> LLM["LLM client"]
   Predict --> Table["Shelf-life heuristic"]
@@ -96,7 +97,8 @@ fixture only when the database file is created.
 - The live sensor feed.
 - Asking the model to write meals or planting advice. Those two stay
   deterministic so they work offline and stay easy to test.
-- Decrementing inventory after you cook a meal.
+- Asking the model to write the recipe steps. The steps are templates. Marking
+  a meal cooked on Food & recipes reduces the pantry amounts.
 
 Bugs and rough edges that are intentionally left for a later pass are listed
 in [known-issues.md](known-issues.md).

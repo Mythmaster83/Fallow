@@ -1,0 +1,44 @@
+[server]
+headless = true
+enableStaticServing = true
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
+
+[theme]
+base = "light"
+primaryColor = "#1E1E2A"
+backgroundColor = "#F6F5F2"
+secondaryBackgroundColor = "#F0EFF4"
+textColor = "#1C1C28"
+borderColor = "#E6E4EC"
+linkColor = "#1E1E2A"
+baseRadius = "0.9rem"
+showWidgetBorder = false
+font = "Plus Jakarta Sans"
+headingFont = "Plus Jakarta Sans"
+
+# Fonts are served from static/fonts so the app looks right offline too.
+[[theme.fontFaces]]
+family = "Plus Jakarta Sans"
+url = "app/static/fonts/plus-jakarta-sans-latin-400-normal.woff2"
+weight = 400
+[[theme.fontFaces]]
+family = "Plus Jakarta Sans"
+url = "app/static/fonts/plus-jakarta-sans-latin-500-normal.woff2"
+weight = 500
+[[theme.fontFaces]]
+family = "Plus Jakarta Sans"
+url = "app/static/fonts/plus-jakarta-sans-latin-600-normal.woff2"
+weight = 600
+[[theme.fontFaces]]
+family = "Plus Jakarta Sans"
+url = "app/static/fonts/plus-jakarta-sans-latin-700-normal.woff2"
+weight = 700
+[[theme.fontFaces]]
+family = "Plus Jakarta Sans"
+url = "app/static/fonts/plus-jakarta-sans-latin-800-normal.woff2"
+weight = 800
