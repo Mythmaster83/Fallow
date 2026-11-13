@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Fallow · From dirt to plate and back</title>
+  <meta name="description" content="Fallow tracks what's in your pantry, cooks what spoils first, and plans what to plant so nothing goes to waste." />
+  <link rel="icon" href="/app/src/static/fallow-logo-app-192.png" />
+  <script>
+    // Cloudflare serves this page for any unknown path. A reload inside the
+    // live app (e.g. /app/pantry) belongs to the app, so send it back there.
+    if (/^\/app\/./.test(location.pathname)) location.replace("/app/");
+  </script>
+  <style>
+    :root{
+      --ink:#17171F; --ink-2:#3E3D4A; --muted:#6E6D7C; --dark:#1C1C26;
+      --lime:#D4EF6A; --lav:#8E7BE0; --lav-ink:#5B46C7;
+      --sys:-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+      --raise:0 1px 0 rgba(255,255,255,.95), 0 1px 1px rgba(23,23,31,.06), 0 10px 24px rgba(48,36,110,.14);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0; min-height:100%}
+    body{font-family:var(--sys); color:var(--ink); -webkit-font-smoothing:antialiased;
+      background:
+        radial-gradient(900px 560px at 10% -10%, rgba(187,166,240,.9), transparent 62%),
+        radial-gradient(760px 520px at 95% 5%, rgba(212,239,106,.5), transparent 60%),
+        radial-gradient(900px 700px at 70% 90%, rgba(187,166,240,.35), transparent 65%),
+        #F3F1F7;
+      background-attachment:fixed}
+    a{color:inherit}
+
+    header{position:sticky; top:0; z-index:5; display:flex; align-items:center; justify-content:space-between;
+      padding:14px max(20px, calc((100vw - 1120px)/2)); background:rgba(255,255,255,.5);
+      -webkit-backdrop-filter:blur(22px) saturate(170%); backdrop-filter:blur(22px) saturate(170%);
+      border-bottom:1px solid rgba(255,255,255,.75)}
+    .brand{display:flex; align-items:center; gap:10px; text-decoration:none; font-weight:700; font-size:18px; letter-spacing:-0.02em}
+    .brand img{width:32px; height:32px; border-radius:9px; box-shadow:0 4px 10px -4px rgba(91,70,199,.5)}
+    header nav{display:flex; gap:6px}
+    header nav a{font-size:14px; font-weight:600; text-decoration:none; color:var(--ink-2); padding:8px 14px; border-radius:999px}
+    header nav a:hover{background:rgba(255,255,255,.7)}
+
+    main{max-width:1120px; margin:0 auto; padding:72px 20px 40px}
+    .hero{display:grid; grid-template-columns:1.1fr .9fr; gap:48px; align-items:center}
+    .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--lav-ink);
+      padding:6px 12px; border-radius:999px; background:rgba(255,255,255,.6); border:1px solid rgba(255,255,255,.85);
+      box-shadow:inset 0 1px 0 #fff}
+    .eyebrow i{width:7px; height:7px; border-radius:50%; background:var(--lav)}
+    h1{font-size:clamp(40px, 6vw, 68px); line-height:1.02; letter-spacing:-0.045em; font-weight:800; margin:20px 0 18px; text-shadow:var(--raise)}
+    h1 span{background:linear-gradient(120deg, #5B46C7, #8E7BE0 55%, #7FA21E); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:none}
+    .lede{font-size:clamp(17px, 2vw, 20px); line-height:1.5; color:var(--ink-2); max-width:34em; margin:0}
+
+    .actions{display:flex; flex-wrap:wrap; gap:12px; margin-top:32px}
+    .btn{display:inline-flex; align-items:center; gap:10px; height:54px; padding:0 26px; border-radius:999px; font-size:16px;
+      font-weight:700; text-decoration:none; transition:transform .15s ease, filter .15s ease}
+    .btn:hover{transform:translateY(-1px); filter:brightness(1.03)}
+    .btn svg{width:20px; height:20px}
+    .btn.primary{color:var(--ink); background:linear-gradient(180deg, #E0F48A 0%, #CDEA5C 100%);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 10px 22px -10px rgba(90,120,0,.7)}
+    .btn.glass{color:var(--ink); background:rgba(255,255,255,.62); border:1px solid rgba(255,255,255,.9);
+      -webkit-backdrop-filter:blur(22px) saturate(170%); backdrop-filter:blur(22px) saturate(170%);
+      box-shadow:inset 0 1px 0 #fff, 0 10px 26px -14px rgba(48,36,110,.4)}
+    .note{font-size:13px; color:var(--muted); margin-top:14px}
+
+    .visual{position:relative; aspect-ratio:1; border-radius:36px; display:flex; align-items:center; justify-content:center;
+      background:radial-gradient(60% 60% at 70% 20%, rgba(212,239,106,.35), transparent 70%),
+                 radial-gradient(70% 70% at 20% 90%, rgba(142,123,224,.55), transparent 70%), #1C1C26;
+      border:1px solid rgba(255,255,255,.08); box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 40px 80px -40px rgba(28,20,70,.7); overflow:hidden}
+    .visual img{width:78%; height:auto; filter:drop-shadow(0 30px 40px rgba(0,0,0,.45))}
+
+    .cards{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px; margin-top:80px}
+    .card{padding:24px; border-radius:24px; background:rgba(255,255,255,.58); border:1px solid rgba(255,255,255,.85);
+      -webkit-backdrop-filter:blur(22px) saturate(170%); backdrop-filter:blur(22px) saturate(170%);
+      box-shadow:inset 0 1px 0 #fff, 0 10px 30px -12px rgba(48,36,110,.2)}
+    .card .ic{width:44px; height:44px; border-radius:13px; display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(160deg, #B5A6F2, #7E69DC); box-shadow:inset 0 1px 0 rgba(255,255,255,.45), 0 4px 10px -4px rgba(91,70,199,.55)}
+    .card .ic svg{width:22px; height:22px; stroke:#fff}
+    .card h3{font-size:18px; letter-spacing:-0.02em; margin:16px 0 6px; text-shadow:var(--raise)}
+    .card p{margin:0; font-size:15px; line-height:1.5; color:var(--ink-2)}
+
+    footer{max-width:1120px; margin:0 auto; padding:24px 20px 48px; display:flex; justify-content:space-between; gap:12px;
+      font-size:13px; color:var(--muted); flex-wrap:wrap}
+    footer a{color:var(--lav-ink); text-decoration:none; font-weight:600}
+
+    @media (max-width:860px){
+      main{padding-top:40px}
+      .hero{grid-template-columns:1fr; gap:36px}
+      .visual{max-width:440px; width:100%; margin:0 auto; border-radius:28px}
+      .cards{grid-template-columns:1fr; margin-top:56px}
+      header nav{display:none}
+      .btn{flex:1 1 220px; justify-content:center}
+    }
+    @media (prefers-reduced-motion: reduce){.btn{transition:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="/"><img src="/app/src/static/fallow-logo-app-192.png" alt="" />Fallow</a>
+    <nav>
+      <a href="/web/pitch/">Presentation</a>
+      <a href="/app/">Live demo</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <span class="eyebrow"><i></i>Kitchen and garden planner</span>
+        <h1>Nothing rots.<br />Nothing is <span>wasted.</span></h1>
+        <p class="lede">Fallow tracks what's in your pantry, tells you what to cook before it spoils, and plans what to plant
+          to fill the gaps, from dirt to plate and back.</p>
+        <div class="actions">
+          <a class="btn primary" href="/web/pitch/">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M10 8.5v5l4-2.5z"/></svg>
+            Watch the presentation
+          </a>
+          <a class="btn glass" href="/app/">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            Try the live demo
+          </a>
+        </div>
+        <p class="note">The live demo runs entirely in your browser. The first load takes a few seconds.</p>
+      </div>
+      <div class="visual"><img src="/web/pitch/media/watch-big.png" alt="The Fallow watch" /></div>
+    </section>
+
+    <section class="cards" aria-label="What Fallow does">
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></div>
+        <h3>Cook what spoils first</h3>
+        <p>Every item gets a use-by estimate, and the meal plan is built from whatever is closest to going off.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21.2l8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/></svg></div>
+        <h3>Keep the body stocked</h3>
+        <p>Fresh food, calorie staples and protein are tracked as reserves, and readings from the watch shape what to eat.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12M12 12C12 8 9 5 4 5c0 5 3 7 8 7zM12 12c0-3 2-6 7-6 0 4-2 6-7 6z"/></svg></div>
+        <h3>Plant against the gap</h3>
+        <p>Soil and weather readings decide what can go in the ground now, and scraps go back to the soil as compost.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Fallow · built at HackPerimeter</span>
+    <span><a href="/web/pitch/">Presentation</a> · <a href="/app/">Live demo</a></span>
+  </footer>
+</body>
+</html>

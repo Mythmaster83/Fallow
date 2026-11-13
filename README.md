@@ -81,16 +81,28 @@ sample again.
 
 ## Deploy
 
-A push to `main` publishes the app to Cloudflare Workers. The workflow is
-`.github/workflows/cloudflare.yml`. It needs the Workers Paid plan, because
-Streamlit cannot start inside the free plan's CPU limit, and these GitHub
-Actions secrets:
+A push to `main` builds and publishes the website to Cloudflare Workers on the
+free plan, through `.github/workflows/deploy-cloudflare.yml`:
 
-- `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_ACCOUNT_ID`
+- `/` is the landing page (`site/index.html`) with two buttons:
+  **Watch the presentation** and **Try the live demo**.
+- `/web/pitch/` is the pitch deck, with `/web/demo/`, `/web/watch3d/` and
+  `/web/probe3d/` next to it as the deck expects.
+- `/app/` is the real Fallow app. stlite runs the Streamlit app inside the
+  visitor's browser, so Cloudflare only serves files.
 
-The public site starts from the sample inventory. Pantry edits live on that
-Worker and reset after the instance goes idle.
+Build and preview it locally:
+
+```bash
+python deploy/build_static.py      # writes dist/
+python deploy/serve_spa.py 8502    # open http://localhost:8502
+```
+
+The workflow reads `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` from the
+`Fallow` environment secrets. Each visitor's live demo starts from the sample
+pantry and resets on reload. In the browser the live sensor and the LLM have no
+network access, so the demo uses the mock sensor and the shelf-life table.
+
 ## Web demo, 3D watch and hardware
 
 These run without Python. Open them in a browser (they need internet for

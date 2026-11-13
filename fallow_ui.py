@@ -614,7 +614,7 @@ def top(title: str, subtitle: str, avatar_icon: str = "eco", search: bool = Fals
     )
     st.html(
         f'<div class="fw-top"><div class="fw-lhs"><div class="fw-avatar">{icon(avatar_icon)}</div>'
-        f'<div style="min-width:0"><p class="fw-hello">{escape(title)}</p>'
+        f'<div style="min-width:0"><div class="fw-hello">{escape(title)}</div>'
         f'<div class="fw-sub">{escape(subtitle)}</div></div></div>'
         f'<div class="fw-topbtns">{sb}</div></div>'
     )
