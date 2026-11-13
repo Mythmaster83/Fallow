@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from html import escape
 
 import streamlit as st
@@ -9,7 +10,7 @@ import streamlit as st
 import fallow_ui as ui
 from larder.llm.client import LLMClient
 from larder.meals.planner import plan_meals
-from larder.meals.recipes import cook, recipe_for
+from larder.meals.recipes import cook_meal, recipe_for
 from larder.spoilage.predictor import predict_spoilage
 from larder.store import open_store
 
@@ -28,9 +29,11 @@ if flash:
 
 def _cooked(index: int) -> None:
     recipe = recipes[index]
-    for item in cook(recipe, items):
-        store.upsert(item)
-    st.session_state.recipes_flash = f"Cooked: {recipe.name}. Pantry amounts updated."
+    step = cook_meal(recipe, items, date.today())
+    store.save(step)
+    scraps = [i for i in step.items if i.state == "scraps"]
+    extra = f" {scraps[0].name.capitalize()} went to the compost." if scraps else ""
+    st.session_state.recipes_flash = f"Cooked: {recipe.name}. Pantry updated.{extra}"
 
 
 if recipes:
@@ -58,6 +61,6 @@ if recipes:
                     args=(index,),
                     width="stretch",
                 )
-    st.caption("Marking a meal cooked uses up the main food and one portion of the staple.")
+    st.caption("Marking a meal cooked uses up the main food and one portion of the staple. Trimmings go to the compost; see Cycle.")
 else:
     ui.feature("All clear", "Nothing needs cooking yet", plan.summary, "Open pantry", "pantry", "verified")

@@ -46,26 +46,24 @@ DECK = PITCH / "index.html"
 CAPTIONS: dict[str, str] = {
     "dashboard": "1 · What spoils first, and what to cook tonight",
     "pantry": "2 · Every item, every location, ranked by urgency",
-    "farm": "3 · Soil + weather + pantry gaps → what to plant",
-    "health": "4 · Fresh food, staples, and protein still in reserve",
-    "recipes": "5 · Steps for the meals that use food already on hand",
-    "inventory": "2 · Every item, every location, ranked by urgency",
-    "grow": "3 · Soil + weather + pantry gaps → what to plant",
-    "cycle": "4 · Harvest → cook → compost → soil → seed",
+    "recipes": "3 · Cook from what's expiring — never from a shopping list",
+    "farm": "4 · Soil + weather + pantry gaps → what to plant",
+    "cycle": "5 · Harvest → cook → compost → soil → seed",
+    "health": "6 · Fresh food, staples, and protein still in reserve",
 }
 
 # Feature cards on slide 5: (title, colour, blurb, screenshot slug).
 FEATURES: list[tuple[str, str, str, str]] = [
-    ("🔴 Spoilage tracking", "#e74c3c", "Knows what dies first, works offline.", "dashboard"),
-    ("🟡 Meal planning", "#f39c12", "Meals from what's expiring. Never invents food.", "dashboard"),
-    ("🟢 Grow advisor", "#4ecdc4", "Sensors + pantry gaps → what to plant now.", "grow"),
+    ("🔴 Spoilage tracking", "#e74c3c", "Knows what dies first, works offline.", "pantry"),
+    ("🟡 Meal planning", "#f39c12", "Meals from what's expiring. Never invents food.", "recipes"),
+    ("🟢 Grow advisor", "#4ecdc4", "Sensors + pantry gaps → what to plant now.", "farm"),
     ("🟣 Compost loop", "#9b59b6", "Scraps feed soil, soil feeds seeds, seeds feed you.", "cycle"),
 ]
 
+# The top navigation lives in the header, so keep it; hide only dev chrome.
 HIDE_CHROME_CSS = """
-header[data-testid="stHeader"], [data-testid="stToolbar"],
-[data-testid="stDecoration"], [data-testid="stStatusWidget"],
-.stDeployButton, footer { display: none !important; }
+[data-testid="stToolbar"], [data-testid="stDecoration"],
+[data-testid="stStatusWidget"], .stDeployButton, footer { display: none !important; }
 """
 
 
@@ -167,7 +165,7 @@ def take_shots(base: str, targets: list[Target]) -> list[str]:
         context = browser.new_context(
             viewport={"width": 1440, "height": 900},
             device_scale_factor=2,
-            color_scheme="dark",
+            color_scheme="light",
         )
         page = context.new_page()
         for target in targets:
@@ -317,7 +315,6 @@ def main() -> None:
                 "--server.headless", "true",
                 "--server.port", str(port),
                 "--browser.gatherUsageStats", "false",
-                "--theme.base", "dark",
             ],
             cwd=ROOT,
             env=env,

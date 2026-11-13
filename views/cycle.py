@@ -59,19 +59,22 @@ nodes: list[str] = []
 for state in TRANSITIONS:
     n = counts.get(state, 0)
     food = state in FOOD_STATES
-    fill = ("#ff6b35" if food else "#4ecdc4") if n else "#2a2a2a"
-    font = "#0a0a0a" if n else "#888888"
+    # Palette from fallow_ui: lime for food, lavender for garden and compost.
+    if n:
+        fill, border, font = ("#D7F26E", "#B9D64A", "#3F5A00") if food else ("#DCD2F7", "#BBA6F0", "#1C1C28")
+    else:
+        fill, border, font = "#FFFFFF", "#D9D7E0", "#7D7C8C"
     nodes.append(
-        f'"{state}" [label="{_label(state)}\\n{n}", style=filled, fillcolor="{fill}", '
-        f'fontcolor="{font}", color="{fill}"]'
+        f'"{state}" [label="{_label(state)}\\n{n}", style="rounded,filled", fillcolor="{fill}", '
+        f'fontcolor="{font}", color="{border}", penwidth=1.2]'
     )
 edges = [f'"{a}" -> "{b}"' for a, outs in TRANSITIONS.items() for b in sorted(outs)]
 edges.append('"applied" -> "seed" [style=dashed, label=" feeds the next bed"]')
 dot = (
     "digraph cycle {\n"
     'bgcolor="transparent"; rankdir=LR; nodesep=0.3; ranksep=0.35;\n'
-    'node [shape=box, style=rounded, fontname="Helvetica", fontsize=11];\n'
-    'edge [color="#777777", fontcolor="#999999", fontsize=9];\n'
+    'node [shape=box, style=rounded, fontname="Helvetica", fontsize=11, margin="0.15,0.06"];\n'
+    'edge [color="#B5B3C0", fontcolor="#7D7C8C", fontsize=9, arrowsize=0.7];\n'
     + "\n".join(nodes + edges)
     + "\n}"
 )
@@ -79,7 +82,7 @@ try:
     st.graphviz_chart(dot, width="stretch")
 except Exception as exc:
     st.warning(f"The loop diagram needs the graphviz package. The steps below still work. ({exc})")
-st.caption("Orange: food you can eat. Teal: the garden and compost side of the loop. The number is how many items sit there now.")
+st.caption("Lime: food you can eat. Lavender: the garden and compost side of the loop. The number is how many items sit there now.")
 
 # --- Actions ------------------------------------------------------------------
 step_tab, plant_tab, harvest_tab, store_tab = st.tabs(

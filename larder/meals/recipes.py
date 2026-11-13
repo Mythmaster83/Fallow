@@ -7,9 +7,12 @@ shopping item. Cooking uses up the urgent food and one portion of the staple.
 
 from __future__ import annotations
 
+from datetime import date
+
 from pydantic import BaseModel
 
-from larder.models import InventoryItem, PlannedMeal
+from larder.lifecycle import advance
+from larder.models import CycleEvent, InventoryItem, PlannedMeal, Transition
 
 # One serving of a staple, by unit. Anything not listed uses 1.
 PORTION = {"kg": 0.25, "g": 250, "lb": 0.5, "oz": 8, "loaf": 0.5, "quart": 0.25, "l": 0.25}
@@ -122,3 +125,43 @@ def cook(recipe: Recipe, items: list[InventoryItem]) -> list[InventoryItem]:
         left = max(0.0, round(item.quantity - ingredient.amount, 3))
         changed.append(item.model_copy(update={"quantity": left}))
     return changed
+
+
+def cook_meal(recipe: Recipe, items: list[InventoryItem], today: date) -> Transition:
+    """Cook and eat a recipe through the lifecycle.
+
+    The main food goes raw → cooked → consumed, and its trimmings become
+    scraps for the compost. Each staple loses one portion and stays on the
+    shelf. Every change is logged, so the Cycle page shows the meal.
+    """
+    by_id = {item.id: item for item in items}
+    saved: list[InventoryItem] = []
+    events: list[CycleEvent] = []
+    for index, ingredient in enumerate(recipe.ingredients):
+        item = by_id.get(ingredient.item_id)
+        if item is None or not item.is_food:
+            continue
+        if index == 0:
+            if item.state != "cooked":
+                cooked = advance(item, "cooked", today, note=recipe.name)
+                saved.extend(cooked.items[1:])  # scraps
+                events.extend(cooked.events)
+                item = cooked.items[0]
+            eaten = advance(item, "consumed", today, note=recipe.name)
+            saved.insert(0, eaten.items[0])
+            events.extend(eaten.events)
+            continue
+        left = max(0.0, round(item.quantity - ingredient.amount, 3))
+        saved.append(item.model_copy(update={"quantity": left}))
+        events.append(
+            CycleEvent(
+                item_id=item.id,
+                item_name=item.name,
+                from_state=item.state,
+                to_state=item.state,
+                location=item.location,
+                on=today,
+                note=f"used {item.quantity - left:g} {item.unit} in {recipe.name}",
+            )
+        )
+    return Transition(items=saved, events=events)

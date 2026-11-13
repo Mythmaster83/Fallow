@@ -41,7 +41,7 @@ if plan.meals and risks:
     when = ui.days_short(lead.days_remaining).lower()
     title = f"{lead.item_name.capitalize()} {'expires today' if when == 'today' else 'has ' + when + ' left'}"
     ui.feature("Cook first", title, f"Day {first.day}: {first.name}.", "Open the recipe", "recipes", "skillet")
-elif not items:
+elif not any(i.is_food for i in items):
     ui.feature("Get started", "Your pantry is empty", "Add what you have and Fallow plans what to cook first.", "Add food", "pantry", "kitchen")
 else:
     ui.feature("All clear", "Nothing is close to spoiling", plan.summary, "Open pantry", "pantry", "verified")
@@ -51,7 +51,7 @@ plant_now = sum(1 for c in grow.crops if c.action == "plant now") if grow else 0
 ui.heading("Your kitchen", "View all", "pantry")
 ui.stats(
     [
-        ("kitchen", "peach", str(len(items)), "Items on hand"),
+        ("kitchen", "peach", str(sum(1 for i in items if i.is_food)), "Items on hand"),
         ("timer", "lav", str(at_risk), "Spoil within 2 days"),
         ("skillet", "lime", str(len(plan.meals)), f"Meals, next {plan.horizon_days} days"),
         ("potted_plant", "cream", str(plant_now), "Crops to plant"),
