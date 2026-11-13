@@ -65,15 +65,17 @@ CSS = """
   --line:#E7E5EC; --line-2:#F0EFF3;
   --dark:#1C1C26; --dark-2:#2A2A36;
   --lime:#D4EF6A; --lime-hover:#C8E658; --lime-ink:#3F5A00;
-  --lav:#8E7BE0; --lav-soft:#EFECFB;
+  --lav:#8E7BE0; --lav-soft:#F0ECFD; --lav-ink:#5B46C7; --lav-bar:#A897EC;
+  --sh-1:0 1px 2px rgba(23,23,31,.04), 0 8px 24px -12px rgba(48,36,110,.14);
+  --sh-2:0 2px 4px rgba(23,23,31,.05), 0 18px 40px -18px rgba(48,36,110,.28);
   --ok:#4E7A00; --ok-bg:#EDF5DA; --warn:#9A6200; --warn-bg:#FBF0D9;
   --hot:#B3470F; --hot-bg:#FCEBE1; --bad:#B4331F; --bad-bg:#FBE6E2;
   --t-peach:var(--hot-bg); --t-lime:var(--ok-bg); --t-lav:var(--lav-soft); --t-cream:var(--warn-bg); --t-red:var(--bad-bg);
-  --r-lg:12px; --r:8px; --r-sm:6px;
+  --r-lg:18px; --r:12px; --r-sm:999px;
 }
 
 /* ---- Page frame: full bleed, content column ---- */
-[data-testid="stAppViewContainer"]{background:var(--bg)}
+[data-testid="stAppViewContainer"]{background:radial-gradient(1200px 420px at 50% -120px, #C9BBF6 0%, #E4DCFB 45%, rgba(245,244,240,0) 100%), var(--bg); background-repeat:no-repeat}
 [data-testid="stHeader"]{display:none}
 [data-testid="stMainBlockContainer"]{max-width:1160px; margin:0 auto; padding:92px 32px 64px !important}
 .ms{font-family:'Material Symbols Rounded'; font-weight:400; font-style:normal; font-size:20px; line-height:1;
@@ -84,8 +86,8 @@ CSS = """
 .fw-top{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding-bottom:4px}
 .fw-lhs{display:flex; align-items:center; gap:12px; min-width:0}
 .fw-avatar{display:none}
-.fw-hello{font-size:26px; font-weight:700; letter-spacing:-0.025em; margin:0; color:var(--ink); line-height:1.2}
-.fw-sub{color:var(--muted); font-size:14px; margin-top:4px}
+.fw-hello{font-size:32px; font-weight:800; letter-spacing:-0.035em; margin:0; color:var(--ink); line-height:1.2}
+.fw-sub{color:var(--ink-2); opacity:.75; font-size:14.5px; margin-top:6px}
 .fw-topbtns{display:flex; align-items:center; gap:8px; flex-shrink:0}
 .fw-sbtn{width:40px; height:40px; border-radius:var(--r); background:var(--card); border:1px solid var(--line); color:var(--ink-2);
   display:flex; align-items:center; justify-content:center; text-decoration:none}
@@ -97,12 +99,12 @@ CSS = """
 
 /* ---- Section headings ---- */
 .fw-h{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin:32px 0 12px}
-.fw-h h3{font-size:17px; font-weight:700; margin:0; padding:0; color:var(--ink); letter-spacing:-0.01em}
-.fw-h a{font-size:13px; font-weight:600; color:var(--muted); text-decoration:none; white-space:nowrap}
-.fw-h a:hover{color:var(--ink)}
+.fw-h h3{font-size:19px; font-weight:800; margin:0; padding:0; color:var(--ink); letter-spacing:-0.01em}
+.fw-h a{font-size:13.5px; font-weight:600; color:var(--lav-ink); text-decoration:none; white-space:nowrap}
+.fw-h a:hover{color:var(--ink); text-decoration:underline; text-underline-offset:3px}
 
 /* ---- Status labels ---- */
-.fw-pill{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; padding:3px 8px;
+.fw-pill{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:700; padding:4px 10px;
   border-radius:var(--r-sm); white-space:nowrap; line-height:1.45}
 .fw-pill .ms{font-size:14px}
 .fw-pill.lime{background:var(--ok-bg); color:var(--ok)}
@@ -113,31 +115,35 @@ CSS = """
 .fw-pill.ghost{background:transparent; color:var(--ink-2); box-shadow:inset 0 0 0 1px var(--line)}
 
 /* ---- Icon tiles: neutral; status lives in labels, not tile colors ---- */
-.fw-tile{width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center;
-  flex-shrink:0; background:var(--sunk); color:var(--ink-2)}
-.fw-tile .ms{font-size:19px}
-.fw-tile.lime, .fw-tile.lav, .fw-tile.peach, .fw-tile.cream, .fw-tile.red{background:var(--sunk)}
+.fw-tile{width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; background:var(--lav-soft); color:var(--lav-ink)}
+.fw-tile .ms{font-size:21px}
+.fw-tile.lime, .fw-tile.lav, .fw-tile.peach, .fw-tile.cream, .fw-tile.red{background:var(--lav-soft)}
 
 /* ---- Surfaces ---- */
 .fw-card, .fw-stat, .fw-cond, .fw-group, .fw-group-card, .fw-empty, .fw-rows,
-[class*="st-key-card-"], .st-key-addform{background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:none}
-.fw-card{padding:18px}
+[class*="st-key-card-"], .st-key-addform{background:var(--card); border:1px solid rgba(23,23,31,.05); border-radius:var(--r-lg); box-shadow:var(--sh-1)}
+.fw-card{padding:20px}
 .fw-empty{padding:18px; color:var(--muted); font-size:14px}
 .fw-card .chead{display:flex; justify-content:space-between; align-items:center; gap:8px}
-.fw-card .ctitle{font-size:15px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:8px}
-.fw-card .ctitle .ms{font-size:19px; color:var(--ink-2)}
+.fw-card .ctitle{font-size:16px; font-weight:800; color:var(--ink); display:flex; align-items:center; gap:8px}
+.fw-card .ctitle .ms{font-size:20px; color:var(--lav-ink)}
 .fw-foot{font-size:12px; color:var(--muted); margin-top:12px}
 
 /* ---- Next-action banner ---- */
-.fw-feature{background:var(--dark); color:#fff; border-radius:var(--r-lg); padding:22px 24px; position:relative; overflow:hidden; margin-top:20px}
+.fw-feature{background:radial-gradient(420px 220px at 100% 0%, rgba(212,239,106,.20), transparent 70%), radial-gradient(520px 260px at 0% 120%, rgba(142,123,224,.35), transparent 70%), var(--dark); color:#fff; border-radius:var(--r-lg); padding:26px 28px; box-shadow:var(--sh-2); position:relative; overflow:hidden; margin-top:20px}
 .fw-feature .eyebrow{display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:#B9B7CC}
 .fw-feature .eyebrow .ms{font-size:16px; color:var(--lime)}
-.fw-feature .title{font-size:22px; font-weight:700; letter-spacing:-0.02em; margin:8px 0 4px; line-height:1.25}
+.fw-feature .title{font-size:26px; font-weight:800; letter-spacing:-0.02em; margin:8px 0 4px; line-height:1.25}
 .fw-feature .desc{font-size:14px; color:#B9B7CC; line-height:1.5; max-width:62ch}
-.fw-feature .cta{display:inline-flex; align-items:center; margin-top:16px; background:var(--lime); color:var(--ink); font-weight:700;
-  font-size:14px; padding:9px 16px; border-radius:var(--r); text-decoration:none}
+.fw-feature .cta{display:inline-flex; align-items:center; margin-top:18px; background:var(--lime); color:var(--ink); font-weight:700;
+  font-size:14px; padding:10px 18px; border-radius:var(--r-sm); text-decoration:none}
 .fw-feature .cta:hover{background:var(--lime-hover)}
-.fw-feature .blob{display:none}
+.fw-feature .blob{position:absolute; right:28px; top:50%; transform:translateY(-50%); width:84px; height:84px; border-radius:22px;
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); display:flex; align-items:center; justify-content:center}
+.fw-feature .blob .ms{font-size:40px; color:var(--lime)}
+.fw-feature .title, .fw-feature .desc{max-width:calc(100% - 120px)}
+@media (max-width:640px){.fw-feature .blob{display:none} .fw-feature .title, .fw-feature .desc{max-width:100%}}
 .fw-meter3{display:flex; gap:4px; margin-top:14px; max-width:240px}
 .fw-meter3 span{flex:1; height:6px; border-radius:3px; background:#3A3A48}
 .fw-meter3 span.on{background:var(--lime)}
@@ -147,23 +153,23 @@ CSS = """
 /* ---- Stat tiles ---- */
 .fw-stats{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px}
 @media (max-width:900px){.fw-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.fw-stat{padding:16px; display:flex; flex-direction:column; gap:12px}
+.fw-stat{padding:18px; display:flex; flex-direction:column; gap:14px}
 .fw-stat .row{display:flex; align-items:center; gap:10px}
 .fw-stat .name{font-size:13px; font-weight:600; color:var(--muted); line-height:1.3}
 .fw-stat .small{font-size:12px; color:var(--muted)}
-.fw-stat .v{font-size:28px; font-weight:700; letter-spacing:-0.03em; color:var(--ink); font-variant-numeric:tabular-nums}
+.fw-stat .v{font-size:34px; font-weight:800; letter-spacing:-0.03em; color:var(--ink); font-variant-numeric:tabular-nums}
 
 /* ---- Spoilage chart ---- */
 .fw-chart .head{display:flex; justify-content:space-between; align-items:flex-start; gap:8px}
-.fw-chart .title{font-size:15px; font-weight:700; color:var(--ink)}
+.fw-chart .title{font-size:16px; font-weight:800; color:var(--ink)}
 .fw-chart .note{font-size:12.5px; color:var(--muted); margin-top:3px}
 .fw-chart .note b{color:var(--bad)}
 .fw-chart .bars{display:flex; align-items:flex-end; justify-content:space-between; gap:10px; height:150px; margin-top:12px;
   padding:0 4px; border-bottom:1px solid var(--line);
   background-image:linear-gradient(var(--line-2) 1px, transparent 1px); background-size:100% 37.5px}
 .fw-chart .col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative}
-.fw-chart .bar{width:14px; border-radius:3px 3px 0 0; background:var(--ink-2)}
-.fw-chart .bar.hot{background:var(--bad); width:14px}
+.fw-chart .bar{width:18px; border-radius:6px 6px 2px 2px; background:var(--lav-bar)}
+.fw-chart .bar.hot{background:#E2553F; width:18px}
 .fw-chart .tip{position:absolute; top:-6px; left:50%; transform:translate(-50%,-100%); background:var(--dark); color:#fff;
   font-size:11px; font-weight:600; padding:4px 7px; border-radius:var(--r-sm); white-space:nowrap; text-transform:capitalize}
 .fw-chart .labels{display:flex; justify-content:space-between; gap:10px; padding:8px 4px 0}
@@ -172,16 +178,16 @@ CSS = """
 
 /* ---- Rows: always one table, divided by hairlines ---- */
 .fw-rows{display:flex; flex-direction:column; overflow:hidden}
-.fw-row{display:flex; align-items:center; gap:12px; padding:12px 16px; background:transparent; border-bottom:1px solid var(--line-2)}
+.fw-row{display:flex; align-items:center; gap:14px; padding:14px 18px; background:transparent; border-bottom:1px solid var(--line-2)}
 .fw-rows > .fw-row:last-child, .fw-group > .fw-row:last-child{border-bottom:0}
 .fw-row .main{flex:1; min-width:0}
-.fw-row .name{font-size:14px; font-weight:600; color:var(--ink); text-transform:capitalize; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.fw-row .name{font-size:14.5px; font-weight:700; color:var(--ink); text-transform:capitalize; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .fw-row .small{font-size:12.5px; color:var(--muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .fw-row .chev{flex-shrink:0; color:var(--faint); display:flex}
 .fw-row .rem{flex-shrink:0; min-width:60px; text-align:right}
 .fw-row .rem .small{display:none}
 .fw-row .rem b{font-size:13px; font-weight:600; color:var(--ink-2); font-variant-numeric:tabular-nums}
-.fw-group{padding:0 16px}
+.fw-group{padding:0 18px}
 .fw-group .fw-row{padding:12px 0}
 [class*="st-key-card-"]{padding:14px 16px; gap:4px}
 [class*="st-key-card-"] .fw-row{background:transparent; padding:0 !important; border:0}
@@ -232,18 +238,18 @@ CSS = """
 .fw-recipe h4{font-size:13px; font-weight:700; color:var(--ink); margin:14px 0 8px; padding:0}
 .fw-steps{margin:0 !important; padding:0 !important; list-style:none; counter-reset:s; display:flex; flex-direction:column; gap:8px}
 .fw-steps li{margin:0 !important; padding:0 !important; counter-increment:s; display:flex; gap:10px; font-size:14px; line-height:1.5; color:var(--ink)}
-.fw-steps li::before{content:counter(s); flex-shrink:0; width:22px; height:22px; border-radius:var(--r-sm); background:var(--sunk);
-  color:var(--ink-2); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums}
+.fw-steps li::before{content:counter(s); flex-shrink:0; width:24px; height:24px; border-radius:50%; background:var(--lav-soft);
+  color:var(--lav-ink); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums}
 
 /* ---- Weather + Health cards ---- */
 .fw-duo{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:12px; align-items:stretch}
 .fw-duo > .fw-card{display:flex; flex-direction:column}
 .fw-duo > .fw-card .fw-foot{margin-top:auto; padding-top:12px}
 .fw-wx .now{display:flex; align-items:center; gap:14px; margin:14px 0 4px}
-.fw-wx .deg{font-size:42px; font-weight:700; letter-spacing:-0.04em; color:var(--ink); line-height:1; font-variant-numeric:tabular-nums}
+.fw-wx .deg{font-size:48px; font-weight:800; letter-spacing:-0.04em; color:var(--ink); line-height:1; font-variant-numeric:tabular-nums}
 .fw-wx .cond{font-size:15px; font-weight:700; color:var(--ink)}
 .fw-mini{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:14px}
-.fw-mini .m{background:var(--sunk); border-radius:var(--r); padding:12px}
+.fw-mini .m{background:#F7F5FE; border-radius:14px; padding:14px}
 .fw-mini .k{font-size:12.5px; color:var(--muted); display:flex; align-items:center; gap:6px}
 .fw-mini .k .ms{font-size:16px}
 .fw-mini .v{font-size:18px; font-weight:700; color:var(--ink); margin:6px 0; letter-spacing:-0.02em; font-variant-numeric:tabular-nums}
@@ -259,11 +265,11 @@ CSS = """
 /* ---- Your cycle: stepper, badges, XP ---- */
 .fw-cycle{display:flex; align-items:flex-start; justify-content:space-between; position:relative; margin:18px 4px 6px}
 .fw-cycle .line{position:absolute; top:21px; left:12%; right:12%; height:2px; background:var(--line)}
-.fw-cycle .line span{display:block; height:100%; background:var(--ok)}
+.fw-cycle .line span{display:block; height:100%; background:var(--lav)}
 .fw-step{position:relative; z-index:1; flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none; color:var(--ink)}
 .fw-step .dot{width:44px; height:44px; border-radius:50%; background:var(--card); border:1px solid var(--line); color:var(--muted);
   display:flex; align-items:center; justify-content:center; position:relative}
-.fw-step.done .dot{background:var(--ok-bg); border-color:transparent; color:var(--ok)}
+.fw-step.done .dot{background:var(--lime); border-color:transparent; color:var(--ink)}
 .fw-step.next .dot{background:var(--dark); border-color:var(--dark); color:var(--lime)}
 .fw-step .chk{position:absolute; right:-3px; bottom:-3px; width:18px; height:18px; border-radius:50%; background:var(--ok); color:#fff;
   display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 2px var(--card)}
@@ -273,11 +279,11 @@ CSS = """
 .fw-badge{width:40px; height:40px; border-radius:var(--r); display:flex; align-items:center; justify-content:center;
   background:var(--sunk); color:var(--faint)}
 .fw-badge .ms{font-size:19px}
-.fw-badge.on{background:var(--ok-bg); color:var(--ok)}
+.fw-badge.on{background:var(--lav-soft); color:var(--lav-ink)}
 .fw-xp{display:flex; justify-content:space-between; font-size:12.5px; color:var(--muted); margin-top:14px}
 .fw-xp b{color:var(--ink)}
 .fw-xpbar{height:6px; border-radius:3px; background:var(--line-2); overflow:hidden; margin-top:6px}
-.fw-xpbar span{display:block; height:100%; border-radius:3px; background:var(--ink-2)}
+.fw-xpbar span{display:block; height:100%; border-radius:3px; background:linear-gradient(90deg, var(--lav), var(--lav-ink))}
 
 /* ---- Achievement popup: the one place with motion ---- */
 .fw-ach-wrap{position:fixed; inset:0; z-index:999999; display:flex; align-items:flex-start; justify-content:center;
@@ -313,14 +319,14 @@ CSS = """
 }
 
 /* ---- Streamlit widgets ---- */
-.stButton button[kind="primary"]{background:var(--lime); color:var(--ink); border:0; font-weight:700; border-radius:var(--r); min-height:42px}
+.stButton button[kind="primary"]{background:var(--lime); color:var(--ink); border:0; font-weight:700; border-radius:12px; min-height:44px; box-shadow:0 1px 0 rgba(23,23,31,.06), inset 0 -2px 0 rgba(63,90,0,.12)}
 .stButton button[kind="primary"]:hover{background:var(--lime-hover); color:var(--ink)}
 .stButton button[kind="secondary"]{border-radius:var(--r); border-color:var(--line); color:var(--ink-2)}
 .stButton button[kind="secondary"]:hover{border-color:var(--ink-2); color:var(--ink)}
 .stButton button[kind="tertiary"]{color:var(--muted)}
 .stButton button[kind="tertiary"]:hover{color:var(--bad)}
 [data-testid="stTextInputRootElement"], [data-baseweb="select"] > div, [data-testid="stNumberInputContainer"],
-[data-testid="stDateInputField"]{background:var(--sunk) !important; border-radius:var(--r) !important}
+[data-testid="stDateInputField"]{background:#F7F6F3 !important; border-radius:10px !important}
 [data-testid="stSegmentedControl"] button, [data-testid="stPills"] button{border-radius:var(--r) !important}
 [data-testid="stExpander"] details{border-radius:var(--r-lg) !important; border-color:var(--line) !important; background:var(--card)}
 
@@ -331,7 +337,7 @@ CSS = """
    No transform/filter on the top bar, so the tab group can be fixed to the
    viewport on phones. */
 .st-key-fw-topbar{position:fixed; top:0; left:0; right:0; z-index:999990; height:64px; padding:0 max(24px, calc((100vw - 1160px) / 2 + 32px));
-  background:var(--card); border-bottom:1px solid var(--line); flex-wrap:nowrap !important; gap:16px !important}
+  background:var(--card); border-bottom:1px solid rgba(23,23,31,.06); box-shadow:0 6px 20px -16px rgba(48,36,110,.35); flex-wrap:nowrap !important; gap:16px !important}
 .st-key-fw-topbar > div{width:auto !important; flex:0 0 auto}
 .st-key-fw-topbar > div:has(.st-key-fw-tabs){flex:1 1 auto !important; min-width:0}
 .st-key-fw-topbar .stElementContainer:has(> [data-testid="stHtml"] style:only-child){display:none}
@@ -352,7 +358,7 @@ CSS = """
 .fw-level .txt{display:flex; flex-direction:column; gap:5px; min-width:84px}
 .fw-level .txt b{font-size:12.5px; font-weight:700; color:var(--ink); line-height:1}
 .fw-level .bar{height:4px; border-radius:2px; background:var(--line-2); overflow:hidden}
-.fw-level .bar i{display:block; height:100%; background:var(--ok); border-radius:2px}
+.fw-level .bar i{display:block; height:100%; background:var(--lav); border-radius:2px}
 
 /* Medium widths: icons only, no text anywhere in the bar */
 @media (max-width:1060px){
