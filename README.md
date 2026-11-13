@@ -84,8 +84,11 @@ fonts, and the 3D page also loads Three.js from a CDN).
 - `web/demo/index.html`: clickable demo of the whole app. Phone, Watch and
   Website views, a sensor simulator, cooking, planting and achievements.
 - `web/watch3d/index.html`: 3D exploded view of the survival watch built from
-  the CAD files. Explode slider, turn and flip controls, labels, and a live
-  health screen on the watch face.
+  the CAD files, plus a detailed motherboard, battery, vibration motor and the
+  optical heart and blood oxygen sensor on the back. The watch face has four
+  screens (Home, Vitals, Air, Garden bed) driven by sliders for heart rate,
+  blood oxygen, CO2, humidity, soil pH and soil moisture. Tap the face to
+  change screens.
 - `web/pitch/index.html`: the HackPerimeter pitch deck. Eight slides with the
   demo and the 3D watch running live inside, a pantry clock, a playable loop
   and the grow advisor. Arrow keys move slides, T starts a 90 second timer,
