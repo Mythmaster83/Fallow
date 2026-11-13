@@ -5,6 +5,7 @@ from __future__ import annotations
 import streamlit as st
 
 import fallow_ui as ui
+from larder.achievements import ProgressStore, record_cook
 from larder.llm.client import LLMClient
 from larder.meals.planner import plan_meals
 from larder.meals.recipes import cook, recipe_for
@@ -28,6 +29,9 @@ def _cooked(index: int) -> None:
     recipe = recipes[index]
     for item in cook(recipe, items):
         store.upsert(item)
+    after = store.list_items()
+    risks_after = predict_spoilage(after, client=LLMClient.from_env())
+    st.session_state.fw_reward = record_cook(ProgressStore(), recipe, risks, risks_after)
     st.session_state.recipes_flash = f"Cooked: {recipe.name}. Pantry amounts updated."
 
 

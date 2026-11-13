@@ -8,6 +8,7 @@ import streamlit as st
 from pydantic import ValidationError
 
 import fallow_ui as ui
+from larder.achievements import ProgressStore, record_plant
 from larder.grow.advisor import build_grow_plan
 from larder.llm.client import LLMClient
 from larder.sensors import current_sensor
@@ -44,7 +45,21 @@ ui.balance(grow)
 
 ui.heading("Plant")
 if grow.crops:
-    ui.crop_rows(grow)
+    planted = set(ProgressStore().load().planted)
+
+    def _plant(index: int) -> None:
+        st.session_state.fw_reward = record_plant(ProgressStore(), grow.crops[index], grow.gaps)
+
+    cols = st.columns(min(len(grow.crops), 3), gap="small")
+    for index, crop in enumerate(grow.crops):
+        with cols[index % len(cols)]:
+            with st.container(key=f"card-crop-{index}"):
+                ui.crop_rows(grow.model_copy(update={"crops": [crop]}))
+                if crop.crop in planted:
+                    st.html('<span class="fw-pill lime">Planted</span>')
+                elif crop.action == "plant now":
+                    st.button("Mark planted", key=f"plant-{index}", type="primary", icon=":material/potted_plant:",
+                              on_click=_plant, args=(index,), width="stretch")
     ui.heading("Why these crops", anchor="why")
     ui.crop_reasons(grow)
 else:

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from fallow_ui import inject_css
+from fallow_ui import achievement_popup, inject_css
 from larder.llm.client import load_project_env
 
 load_project_env()
@@ -27,3 +27,8 @@ nav = st.navigation(
     position="top",
 )
 nav.run()
+
+# A reward earned by a button on the page shows once, after the page renders.
+reward = st.session_state.pop("fw_reward", None)
+if reward is not None:
+    achievement_popup(reward)

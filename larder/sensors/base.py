@@ -24,6 +24,10 @@ class SensorSnapshot(BaseModel):
     soil_condition: str = Field(min_length=1)
     soil_moisture: float | None = Field(default=None, ge=0, le=1)
     frost_risk: bool
+    # Optional site-station readings. A feed that lacks them leaves them None.
+    humidity: float | None = Field(default=None, ge=0, le=1)
+    co2_ppm: float | None = Field(default=None, ge=0)
+    radiation_usv_h: float | None = Field(default=None, ge=0)
 
 
 class Sensor(Protocol):

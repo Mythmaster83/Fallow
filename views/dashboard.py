@@ -3,19 +3,22 @@
 from __future__ import annotations
 
 import os
+from html import escape
 
 import streamlit as st
 from pydantic import ValidationError
 
 import fallow_ui as ui
 from larder.grow.advisor import build_grow_plan
+from larder.achievements import ProgressStore
 from larder.health.nutrition import nutrition_report
+from larder.health.vitals import read_body_sample
 from larder.llm.client import LLMClient
 from larder.meals.planner import plan_meals
 from larder.sensors import current_sensor
 from larder.sensors.base import LiveSensorUnavailable
 from larder.spoilage.predictor import predict_spoilage
-from larder.store import open_store
+from larder.store import default_db_path, open_store
 
 store = open_store()
 items = store.list_items()
@@ -46,6 +49,20 @@ elif not items:
 else:
     ui.feature("All clear", "Nothing is close to spoiling", plan.summary, "Open pantry", "pantry", "verified")
 
+report = nutrition_report(items, risks=risks)
+try:
+    body = read_body_sample()
+except (OSError, ValueError, ValidationError):
+    body = None
+ui.heading("Today", "Health details", "health")
+if snapshot:
+    ui.duo(ui.weather_card(snapshot, sensor_mode), ui.health_card(body, report))
+else:
+    ui.duo(f'<div class="fw-empty">{escape(sensor_error or "No weather reading.")}</div>', ui.health_card(body, report))
+
+st.write("")
+ui.cycle_card(ProgressStore().load())
+
 at_risk = sum(1 for r in risks if r.risk in ("critical", "high"))
 plant_now = sum(1 for c in grow.crops if c.action == "plant now") if grow else 0
 ui.heading("Your kitchen", "View all", "pantry")
@@ -57,10 +74,6 @@ ui.stats(
         ("potted_plant", "cream", str(plant_now), "Crops to plant"),
     ]
 )
-
-report = nutrition_report(items, risks=risks)
-ui.heading("Food health", "Details", "health")
-ui.group_strip(report)
 
 left, right = st.columns(2, gap="medium")
 with left:
@@ -84,10 +97,18 @@ else:
 
 ui.heading("Plant against the next gap", "Soil & farm", "farm")
 if grow and snapshot:
-    ui.conditions(snapshot)
-    st.write("")
     ui.balance(grow)
     st.write("")
     ui.crop_rows(grow)
 else:
     st.warning(sensor_error or "No sensor reading.")
+
+
+def _reset_demo() -> None:
+    """Back to the sample pantry and zero progress, for rehearsing the pitch."""
+    default_db_path().unlink(missing_ok=True)
+    st.session_state.pop("fw_reward", None)
+
+
+st.write("")
+st.button("Reset demo data", icon=":material/restart_alt:", type="tertiary", on_click=_reset_demo)

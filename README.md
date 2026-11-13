@@ -53,6 +53,16 @@ menu button):
 - **Food & recipes**: step-by-step meals from food on hand. **Mark as cooked**
   uses up the main food and one portion of the staple.
 
+The dashboard also shows **Weather** (from the sensor, including air CO2 and
+radiation when the station reports them) and **Health** (blood oxygen and
+heart rate from `fixtures/body.sample.json` until a watch or oximeter is
+connected; wellness info, not medical advice).
+
+**Your cycle** turns the loop into a game: cooking, checking health and
+planting earn XP and unlock achievements, each with an animated popup.
+**Reset demo data** at the bottom of the dashboard restores the sample pantry
+and clears progress, for rehearsing the pitch.
+
 The look (lavender backdrop, white cards, lime accents) lives in
 `.streamlit/config.toml` and `fallow_ui.py`. The Plus Jakarta Sans font is
 served from `static/fonts/`, so the app looks the same with no internet. After editing `fallow_ui.py`, stop the server with Ctrl+C and
@@ -101,6 +111,8 @@ every meal uses food already in the inventory.
 │   │   ├── planner.py
 │   │   └── recipes.py           # Steps per meal; cooking reduces quantity
 │   ├── health/nutrition.py      # Food-group reserve report
+│   ├── health/vitals.py         # Body readings + reference-range labels
+│   ├── achievements.py          # XP, levels, achievements (SQLite)
 │   ├── grow/
 │   │   ├── advisor.py
 │   │   └── balance.py

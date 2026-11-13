@@ -15,7 +15,9 @@ from html import escape
 
 import streamlit as st
 
+from larder.achievements import CATALOG, XP_PER_LEVEL, Progress, Reward
 from larder.health.nutrition import NutritionReport
+from larder.health.vitals import BodySnapshot, co2_label, heart_rate_label, radiation_label, spo2_label
 from larder.meals.recipes import Recipe
 from larder.models import GrowPlan, InventoryItem, MealPlan, SpoilageRisk
 from larder.sensors.base import SensorSnapshot
@@ -186,6 +188,117 @@ CSS = """
 .fw-steps li{margin:0 !important; padding:0 !important; counter-increment:s; display:flex; gap:10px; font-size:14px; line-height:1.45; color:var(--ink)}
 .fw-steps li::before{content:counter(s); flex-shrink:0; width:24px; height:24px; border-radius:50%; background:var(--t-lime);
   color:var(--lime-ink); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center}
+/* weather + health cards */
+.fw-duo{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:12px}
+@media (max-width:900px){.fw-duo{grid-template-columns:1fr}}
+.fw-card .chead{display:flex; justify-content:space-between; align-items:center; gap:8px}
+.fw-card .ctitle{font-size:18px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:8px}
+.fw-wx .now{display:flex; align-items:center; gap:14px; margin:14px 0 4px}
+.fw-wx .deg{font-size:46px; font-weight:800; letter-spacing:-0.04em; color:var(--ink); line-height:1}
+.fw-wx .cond{font-size:15px; font-weight:700; color:var(--ink)}
+.fw-mini{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:14px}
+.fw-mini .m{background:var(--panel); border-radius:16px; padding:12px}
+.fw-mini .k{font-size:12px; color:var(--muted); display:flex; align-items:center; gap:6px}
+.fw-mini .k .ms{font-size:16px}
+.fw-mini .v{font-size:18px; font-weight:800; color:var(--ink); margin:6px 0 6px; letter-spacing:-0.02em}
+.fw-mini .v small{font-size:12px; font-weight:600; color:var(--muted); margin-left:3px}
+.fw-meter3.light span{background:var(--panel)}
+.fw-meter3.light span.on{background:#8DC63F}
+.fw-foot{font-size:12px; color:var(--muted); margin-top:12px}
+/* achievements: popup, cycle stepper, badges */
+.fw-ach-wrap{position:fixed; inset:0; z-index:999999; display:flex; align-items:flex-start; justify-content:center;
+  padding-top:90px; pointer-events:none; animation:fw-ach-out .45s ease-in 6.5s forwards}
+.fw-ach-wrap:has(input:checked){display:none}
+.fw-ach{pointer-events:auto; position:relative; width:min(340px,88vw); background:var(--dark); color:#fff; border-radius:28px;
+  padding:26px 22px 20px; text-align:center; box-shadow:0 30px 70px -20px rgba(30,20,80,.6); overflow:visible}
+.fw-ach .x{position:absolute; top:10px; right:12px; width:36px; height:36px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; color:#CFCDE0; cursor:pointer}
+.fw-ach .x input{position:absolute; opacity:0; width:0; height:0}
+.fw-ach-badge{width:92px; height:92px; margin:-70px auto 10px; border-radius:50%; background:var(--lime); color:var(--dark);
+  display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; box-shadow:0 0 0 6px var(--dark), 0 0 0 9px #D7F26E55}
+.fw-ach-badge .ms{font-size:44px}
+.fw-ach-badge .shine{position:absolute; top:-20%; left:-60%; width:40%; height:140%; background:rgba(255,255,255,.55); transform:rotate(25deg)}
+.fw-ach .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--lime); font-weight:800}
+.fw-ach .title{font-size:24px; font-weight:800; letter-spacing:-0.02em; margin:6px 0 4px}
+.fw-ach .desc{font-size:13px; color:#B7B5C9; line-height:1.45}
+.fw-ach .more{display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin-top:10px}
+.fw-ach .more span{font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; background:#2B2B3B; color:#E6E4F5}
+.fw-ach .xpline{display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin:16px 0 6px; color:#CFCDE0}
+.fw-ach .xpline b{color:var(--lime); font-size:14px}
+.fw-ach .bar{height:10px; border-radius:5px; background:#2B2B3B; overflow:hidden}
+.fw-ach .bar span{display:block; height:100%; border-radius:5px; background:var(--lime); width:var(--to)}
+.fw-ach .lvlup{display:inline-block; margin-top:12px; font-size:12px; font-weight:800; color:var(--dark); background:var(--lime);
+  padding:5px 12px; border-radius:999px}
+.fw-confetti{position:absolute; left:50%; top:30px; width:9px; height:14px; border-radius:2px; opacity:0}
+.fw-cycle{display:flex; align-items:flex-start; justify-content:space-between; position:relative; margin:18px 4px 6px}
+.fw-cycle .line{position:absolute; top:23px; left:12%; right:12%; height:4px; border-radius:2px; background:var(--panel)}
+.fw-cycle .line span{display:block; height:100%; border-radius:2px; background:#8DC63F}
+.fw-step{position:relative; z-index:1; flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none; color:var(--ink)}
+.fw-step .dot{width:50px; height:50px; border-radius:50%; background:var(--panel); color:var(--muted); display:flex; align-items:center;
+  justify-content:center; position:relative; transition:transform .2s ease}
+.fw-step:hover .dot{transform:scale(1.08) rotate(-4deg)}
+.fw-step.done .dot{background:var(--lime); color:var(--dark)}
+.fw-step.next .dot{background:var(--dark); color:var(--lime)}
+.fw-step .chk{position:absolute; right:-2px; bottom:-2px; width:20px; height:20px; border-radius:50%; background:var(--dark); color:var(--lime);
+  display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 2px #fff}
+.fw-step .chk .ms{font-size:14px}
+.fw-step .lbl{font-size:12px; font-weight:700; text-align:center; line-height:1.25}
+.fw-badges{display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:8px; margin-top:14px}
+@media (max-width:640px){.fw-badges{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.fw-badge{aspect-ratio:1; border-radius:16px; display:flex; align-items:center; justify-content:center; background:var(--panel);
+  color:#B9B8C6; transition:transform .2s ease; perspective:200px}
+.fw-badge.on{background:var(--t-lime); color:var(--lime-ink)}
+.fw-badge.on:nth-child(3n+2){background:var(--t-lav); color:#3D358F}
+.fw-badge.on:nth-child(3n){background:var(--t-peach); color:#8A3B12}
+.fw-badge:hover{transform:translateY(-3px) rotateY(18deg)}
+.fw-xp{display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-top:14px}
+.fw-xp b{color:var(--ink)}
+.fw-xpbar{height:10px; border-radius:5px; background:var(--panel); overflow:hidden; margin-top:6px}
+.fw-xpbar span{display:block; height:100%; border-radius:5px; background:var(--dark)}
+@keyframes fw-ach-in{0%{opacity:0; transform:translateY(-30px) scale(.8)} 60%{opacity:1; transform:translateY(4px) scale(1.04)} 100%{transform:none}}
+@keyframes fw-ach-out{to{opacity:0; visibility:hidden}}
+@keyframes fw-spin-in{0%{transform:scale(0) rotate(-200deg)} 70%{transform:scale(1.15) rotate(10deg)} 100%{transform:scale(1) rotate(0)}}
+@keyframes fw-shine{0%{left:-60%} 100%{left:140%}}
+@keyframes fw-xp{from{width:var(--from)} to{width:var(--to)}}
+@keyframes fw-burst{0%{opacity:1; transform:translate(0,0) rotate(0)} 100%{opacity:0; transform:translate(var(--x),var(--y)) rotate(var(--r))}}
+@keyframes fw-pulse{0%{box-shadow:0 0 0 0 rgba(215,242,110,.7)} 100%{box-shadow:0 0 0 14px rgba(215,242,110,0)}}
+@keyframes fw-glow{0%,100%{box-shadow:0 0 0 6px var(--dark), 0 0 0 9px #D7F26E55} 50%{box-shadow:0 0 0 6px var(--dark), 0 0 0 16px #D7F26E33}}
+@media (prefers-reduced-motion: no-preference){
+  .fw-ach{animation:fw-ach-in .6s cubic-bezier(.2,.8,.2,1) both}
+  .fw-ach-badge{animation:fw-spin-in .8s cubic-bezier(.2,.8,.2,1) .15s both, fw-glow 1.6s ease-in-out 1s infinite}
+  .fw-ach-badge .shine{animation:fw-shine 1.1s ease-in-out .8s both}
+  .fw-ach .bar span{animation:fw-xp 1.2s cubic-bezier(.2,.7,.2,1) .7s both}
+  .fw-ach .lvlup{animation:fw-pop .5s ease-out 1.8s both}
+  .fw-confetti{animation:fw-burst 1.4s cubic-bezier(.15,.7,.3,1) both}
+  .fw-step.next .dot{animation:fw-pulse 1.4s ease-out infinite}
+}
+/* motion: slide-in, staggered; off when the device asks for reduced motion */
+@keyframes fw-slide{from{opacity:0; transform:translateY(16px)} to{opacity:1; transform:none}}
+@keyframes fw-slide-x{from{opacity:0; transform:translateX(28px)} to{opacity:1; transform:none}}
+@keyframes fw-grow{from{transform:scaleY(0)} to{transform:scaleY(1)}}
+@keyframes fw-fill{from{transform:scaleX(0)} to{transform:scaleX(1)}}
+@keyframes fw-pop{0%{transform:scale(.6); opacity:0} 70%{transform:scale(1.08)} 100%{transform:scale(1); opacity:1}}
+@media (prefers-reduced-motion: no-preference){
+  .fw-top,.fw-search,.fw-feature,.fw-h,.fw-stat,.fw-card,.fw-row,.fw-cond,.fw-group-card,.fw-note,.fw-empty,
+  [class*="st-key-card-"],.st-key-addform{animation:fw-slide .55s cubic-bezier(.2,.7,.2,1) both}
+  .fw-search{animation-delay:.05s} .fw-feature{animation-delay:.1s}
+  .fw-feature .blob{animation:fw-slide-x .7s cubic-bezier(.2,.7,.2,1) .25s both}
+  .fw-feature .cta{animation:fw-pop .45s ease-out .45s both}
+  .fw-avatar{animation:fw-pop .5s ease-out .1s both}
+  .fw-stats>*:nth-child(2),.fw-rows>*:nth-child(2),.fw-duo>*:nth-child(2),.fw-conds>*:nth-child(2),.fw-groups>*:nth-child(2),.fw-group>.fw-row:nth-child(2){animation-delay:.08s}
+  .fw-stats>*:nth-child(3),.fw-rows>*:nth-child(3),.fw-conds>*:nth-child(3),.fw-groups>*:nth-child(3),.fw-group>.fw-row:nth-child(3){animation-delay:.16s}
+  .fw-stats>*:nth-child(4),.fw-rows>*:nth-child(4),.fw-conds>*:nth-child(4){animation-delay:.24s}
+  .fw-rows>*:nth-child(5){animation-delay:.32s}
+  .fw-chart .bar{transform-origin:bottom; animation:fw-grow .7s cubic-bezier(.2,.7,.2,1) .2s both}
+  .fw-chart .col:nth-child(2) .bar{animation-delay:.26s} .fw-chart .col:nth-child(3) .bar{animation-delay:.32s}
+  .fw-chart .col:nth-child(4) .bar{animation-delay:.38s} .fw-chart .col:nth-child(5) .bar{animation-delay:.44s}
+  .fw-chart .col:nth-child(6) .bar{animation-delay:.5s} .fw-chart .col:nth-child(7) .bar{animation-delay:.56s}
+  .fw-chart .tip{animation:fw-pop .4s ease-out .9s both}
+  .fw-meter3 span.on,.fw-cond .gauge span{transform-origin:left; animation:fw-fill .7s cubic-bezier(.2,.7,.2,1) .35s both}
+  .fw-row,.fw-stat,.fw-crop,.fw-feature .cta,.fw-search{transition:transform .2s ease, box-shadow .2s ease}
+  .fw-row:hover,.fw-stat:hover{transform:translateY(-2px); box-shadow:0 10px 24px -14px rgba(60,40,120,.35)}
+  .fw-feature .cta:hover{transform:translateY(-1px) scale(1.03)}
+}
 </style>
 """
 
@@ -439,4 +552,137 @@ def recipe_card(recipe: Recipe, tone: str = "lime") -> None:
         f'<div class="why">{escape(recipe.why[:1].upper() + recipe.why[1:])}</div>'
         f'<h4>From your pantry</h4><div class="fw-chips">{ingredients}</div>'
         f'<h4>Steps</h4><ol class="fw-steps">{steps}</ol></div>'
+    )
+
+
+TONE_PILL = {"good": "lime", "watch": "cream", "alert": "red"}
+
+
+def _mini(icon_name: str, key: str, value: str, unit: str, label: tuple[str, str] | None) -> str:
+    pill = f'<span class="fw-pill {TONE_PILL[label[1]]}">{escape(label[0])}</span>' if label else ""
+    return (
+        f'<div class="m"><div class="k">{icon(icon_name)}{escape(key)}</div>'
+        f'<div class="v">{escape(value)}<small>{escape(unit)}</small></div>{pill}</div>'
+    )
+
+
+def weather_card(snapshot: SensorSnapshot, mode: str) -> str:
+    frost = ("Frost risk", "alert") if snapshot.frost_risk else ("No frost", "good")
+    cells = [
+        _mini("humidity_percentage", "Humidity", f"{snapshot.humidity * 100:.0f}" if snapshot.humidity is not None else "n/a",
+              "%" if snapshot.humidity is not None else "", None),
+        _mini("ac_unit", "Frost", "Tonight", "", frost),
+    ]
+    if snapshot.co2_ppm is not None:
+        cells.append(_mini("co2", "Air CO\u2082", f"{snapshot.co2_ppm:.0f}", "ppm", co2_label(snapshot.co2_ppm)))
+    if snapshot.radiation_usv_h is not None:
+        cells.append(
+            _mini("radiology", "Radiation", f"{snapshot.radiation_usv_h:.2f}", "\u00b5Sv/h", radiation_label(snapshot.radiation_usv_h))
+        )
+    source = "Sample reading" if mode == "mock" else "Live"
+    return (
+        f'<div class="fw-card fw-wx"><div class="chead"><div class="ctitle">{icon("partly_cloudy_day")}Weather</div>'
+        f'<span class="fw-pill ghost">{source}</span></div>'
+        f'<div class="now"><div class="deg">{snapshot.temp_c:.0f}&deg;</div>'
+        f'<div><div class="cond">{escape(snapshot.weather)}</div>'
+        f'<div class="small" style="font-size:13px;color:var(--muted)">{escape(snapshot.location)}</div></div></div>'
+        f'<div class="fw-mini">{"".join(cells)}</div></div>'
+    )
+
+
+def health_card(body: BodySnapshot | None, report: NutritionReport | None = None) -> str:
+    cells = []
+    if body and body.spo2_pct is not None:
+        cells.append(_mini("spo2", "Blood oxygen", f"{body.spo2_pct:.0f}", "%", spo2_label(body.spo2_pct)))
+    if body and body.heart_rate_bpm is not None:
+        cells.append(_mini("favorite", "Heart rate", f"{body.heart_rate_bpm:.0f}", "bpm", heart_rate_label(body.heart_rate_bpm)))
+    vitals = f'<div class="fw-mini">{"".join(cells)}</div>' if cells else '<div class="fw-foot">No watch or oximeter connected.</div>'
+    food = ""
+    if report is not None:
+        total = len(report.groups)
+        gap = f" &middot; short on {escape(', '.join(report.gaps))}" if report.gaps else ""
+        food = (
+            f'<div style="margin-top:14px"><div class="cond" style="font-size:14px;font-weight:700;color:var(--ink)">'
+            f'{report.covered} of {total} food groups stocked</div>'
+            f'<div style="font-size:12px;color:var(--muted);margin-top:2px">Fresh food, staples, protein{gap}</div>'
+            f'<div class="fw-meter3 light" style="max-width:100%">'
+            + "".join(f'<span class="{"on" if i < report.covered else ""}"></span>' for i in range(total))
+            + "</div></div>"
+        )
+    source = escape(body.source.capitalize()) if body else "Not connected"
+    return (
+        f'<div class="fw-card"><div class="chead"><div class="ctitle">{icon("monitor_heart")}Health</div>'
+        f'<span class="fw-pill ghost">{source}</span></div>{vitals}{food}'
+        '<div class="fw-foot">Wellness info, not medical advice.</div></div>'
+    )
+
+
+def duo(left: str, right: str) -> None:
+    st.html(f'<div class="fw-duo">{left}{right}</div>')
+
+
+CONFETTI_COLORS = ["#D7F26E", "#BBA6F0", "#FCE6DA", "#FFF0D6", "#8DC63F", "#FFFFFF", "#F29B4B"]
+
+
+def achievement_popup(reward: Reward) -> None:
+    """Game-style popup: badge spin, shine, confetti burst, XP bar fill. Tap x to close; fades out on its own."""
+    import random
+
+    rng = random.Random(reward.xp_after)
+    confetti = "".join(
+        f'<span class="fw-confetti" style="background:{rng.choice(CONFETTI_COLORS)};'
+        f"--x:{rng.randint(-170, 170)}px;--y:{rng.randint(-120, 210)}px;--r:{rng.randint(-540, 540)}deg;"
+        f'animation-delay:{0.25 + rng.random() * 0.35:.2f}s"></span>'
+        for _ in range(28)
+    )
+    if reward.unlocked:
+        first = reward.unlocked[0]
+        eyebrow, title, desc, glyph = "Achievement unlocked", first.title, first.description, first.icon
+        more = "".join(f"<span>{escape(a.title)}</span>" for a in reward.unlocked[1:])
+        more = f'<div class="more">{more}</div>' if more else ""
+    else:
+        eyebrow, title, desc, glyph, more = "Nice work", reward.action, "Progress saved.", "check", ""
+    start = 0 if reward.leveled_up else (reward.xp_before % XP_PER_LEVEL) / XP_PER_LEVEL * 100
+    end = (reward.xp_after % XP_PER_LEVEL) / XP_PER_LEVEL * 100 or (100 if reward.xp_after else 0)
+    lvlup = f'<div class="lvlup">Level up! Level {reward.level_after}</div>' if reward.leveled_up else ""
+    st.html(
+        '<div class="fw-ach-wrap" role="status" aria-live="polite"><div class="fw-ach">'
+        f'<label class="x" aria-label="Close">{icon("close")}<input type="checkbox"></label>'
+        f"{confetti}"
+        f'<div class="fw-ach-badge">{icon(glyph)}<span class="shine"></span></div>'
+        f'<div class="eyebrow">{eyebrow}</div><div class="title">{escape(title)}</div>'
+        f'<div class="desc">{escape(desc)}</div>{more}'
+        f'<div class="xpline"><b>+{reward.xp_gained} XP</b><span>Level {reward.level_after}</span></div>'
+        f'<div class="bar"><span style="--from:{start:.0f}%;--to:{end:.0f}%"></span></div>{lvlup}'
+        "</div></div>"
+    )
+
+
+def cycle_card(progress: Progress) -> None:
+    steps = [("skillet", "Cook what spoils", "recipes"), ("monitor_heart", "Check health", "health"), ("potted_plant", "Plant the gap", "farm")]
+    done = progress.cycle
+    next_i = next((i for i, d in enumerate(done) if not d), None)
+    filled = sum(done) / len(done) * 100 if len(done) > 1 else 0
+    cells = []
+    for i, (ic, label, href) in enumerate(steps):
+        state = "done" if done[i] else ("next" if i == next_i else "")
+        chk = f'<span class="chk">{icon("check")}</span>' if done[i] else ""
+        cells.append(
+            f'<a class="fw-step {state}" href="{href}" target="_self"><span class="dot">{icon(ic)}{chk}</span>'
+            f'<span class="lbl">{escape(label)}</span></a>'
+        )
+    badges = "".join(
+        f'<div class="fw-badge {"on" if a.id in progress.unlocked else ""}" title="{escape(a.title)}: {escape(a.description)}">'
+        f'{icon(a.icon if a.id in progress.unlocked else "lock", 22)}</div>'
+        for a in CATALOG
+    )
+    into = progress.xp % XP_PER_LEVEL
+    st.html(
+        '<div class="fw-card"><div class="chead"><div class="ctitle">' + icon("cycle") + "Your cycle</div>"
+        f'<span class="fw-pill lime">Level {progress.level} &middot; {escape(progress.level_name)}</span></div>'
+        f'<div class="fw-cycle"><div class="line"><span style="width:{filled:.0f}%"></span></div>{"".join(cells)}</div>'
+        f'<div class="fw-xp"><span><b>{progress.xp} XP</b> total</span><span>{into} / {XP_PER_LEVEL} to level {progress.level + 1}</span></div>'
+        f'<div class="fw-xpbar"><span style="width:{into / XP_PER_LEVEL * 100:.0f}%"></span></div>'
+        f'<div class="fw-badges">{badges}</div>'
+        f'<div class="fw-foot">{len(progress.unlocked)} of {len(CATALOG)} achievements</div></div>'
     )

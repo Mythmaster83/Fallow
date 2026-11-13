@@ -7,5 +7,8 @@
   "temp_c": 7.0,
   "soil_condition": "moist loam",
   "soil_moisture": 0.45,
-  "frost_risk": true
+  "frost_risk": true,
+  "humidity": 0.62,
+  "co2_ppm": 428,
+  "radiation_usv_h": 0.11
 }

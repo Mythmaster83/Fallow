@@ -5,7 +5,9 @@ from __future__ import annotations
 import streamlit as st
 
 import fallow_ui as ui
+from larder.achievements import ProgressStore, record_health_check
 from larder.health.nutrition import nutrition_report
+from larder.health.vitals import read_body_sample
 from larder.llm.client import LLMClient
 from larder.spoilage.predictor import predict_spoilage
 from larder.store import open_store
@@ -14,6 +16,10 @@ store = open_store()
 items = store.list_items()
 risks = predict_spoilage(items, client=LLMClient.from_env())
 report = nutrition_report(items, risks=risks)
+
+checkup = record_health_check(ProgressStore())
+if checkup is not None:
+    st.session_state.fw_reward = checkup
 
 ui.top("Health", f"{ui.today_label()} · food groups in reserve", avatar_icon="monitor_heart")
 
@@ -30,6 +36,13 @@ st.html(
     f'<div class="title">{title}</div><div class="desc">{desc}</div>{ui.meter3(report.covered, total)}'
     f'<div class="blob">{ui.icon("nutrition")}</div></div>'
 )
+
+ui.heading("Body", pill="Sample reading")
+try:
+    body = read_body_sample()
+except (OSError, ValueError):
+    body = None
+st.html(ui.health_card(body))
 
 ui.heading("Food groups")
 ui.group_cards(report)

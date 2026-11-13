@@ -42,3 +42,21 @@ def test_nutrition_report_grades_each_group():
     assert status["protein"] == "covered"  # canned beans last past the window
     assert status["fresh food"] in {"short", "covered"}
     assert report.covered == sum(1 for g in report.groups if g.status == "covered")
+
+
+def test_body_sample_and_labels():
+    from larder.health.vitals import co2_label, radiation_label, read_body_sample, spo2_label
+
+    body = read_body_sample()
+    assert body.spo2_pct is not None and 0 <= body.spo2_pct <= 100
+    assert spo2_label(98)[1] == "good"
+    assert spo2_label(88)[1] == "alert"
+    assert co2_label(420)[1] == "good" and co2_label(1500)[1] == "watch"
+    assert radiation_label(0.1)[1] == "good" and radiation_label(2.0)[1] == "alert"
+
+
+def test_sensor_fixture_has_station_readings():
+    from larder.sensors.mock import MockSensor
+
+    snap = MockSensor().read()
+    assert snap.humidity is not None and snap.co2_ppm is not None and snap.radiation_usv_h is not None
