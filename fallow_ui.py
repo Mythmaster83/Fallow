@@ -20,7 +20,7 @@ from larder.health.nutrition import NutritionReport
 from larder.health.body import BodySnapshot, co2_label, heart_rate_label, radiation_label, spo2_label
 from larder.meals.recipes import Recipe
 from larder.models import GrowPlan, InventoryItem, MealPlan, SpoilageRisk
-from larder.sensors.base import SensorSnapshot
+from larder.sensors.base import SensorSnapshot, aqi_label
 
 # Category -> (Material Symbols icon, pastel tile tone)
 CATEGORY_ICON = {
@@ -492,6 +492,50 @@ def conditions(snapshot: SensorSnapshot) -> None:
     )
 
 
+def environment_details(snapshot: SensorSnapshot) -> None:
+    """Second row of condition cards: air, root-zone soil, humidity, wind and rain.
+
+    A card appears only when the sensor actually read that value.
+    """
+    cards: list[str] = []
+    air = snapshot.air
+    if air is not None:
+        tone = "lime" if air.us_aqi <= 50 else ("cream" if air.us_aqi <= 100 else "red")
+        extra = []
+        if air.pm2_5 is not None:
+            extra.append(f"PM2.5 {air.pm2_5:.0f} µg/m³")
+        if air.co2_ppm is not None:
+            extra.append(f"CO₂ {air.co2_ppm:.0f} ppm")
+        cards.append(
+            f'<div class="fw-cond"><div class="l">{icon("air")}Air quality</div>'
+            f'<div class="v">AQI {air.us_aqi} <span class="fw-pill {tone}">{escape(aqi_label(air.us_aqi))}</span></div>'
+            f'<div class="l" style="margin-top:4px">{escape(" · ".join(extra))}</div></div>'
+        )
+    root = snapshot.soil_moisture_root
+    if root is not None or snapshot.soil_temp_c is not None:
+        value = f"{root * 100:.0f}% wet" if root is not None else "n/a"
+        gauge = f'<div class="gauge"><span style="width:{root * 100:.0f}%"></span></div>' if root is not None else ""
+        temp = f"{snapshot.soil_temp_c:.0f}&deg;C at 6 cm" if snapshot.soil_temp_c is not None else ""
+        cards.append(
+            f'<div class="fw-cond"><div class="l">{icon("grass")}Root zone (9–27 cm)</div>'
+            f'<div class="v">{value}</div>{gauge}<div class="l" style="margin-top:4px">{temp}</div></div>'
+        )
+    if snapshot.humidity is not None:
+        cards.append(
+            f'<div class="fw-cond"><div class="l">{icon("humidity_percentage")}Humidity</div>'
+            f'<div class="v">{snapshot.humidity * 100:.0f}%</div></div>'
+        )
+    if snapshot.wind_kph is not None or snapshot.rain_today_mm is not None:
+        wind = f"{snapshot.wind_kph:.0f} km/h" if snapshot.wind_kph is not None else "n/a"
+        rain = f"{snapshot.rain_today_mm:.1f} mm rain today" if snapshot.rain_today_mm is not None else ""
+        cards.append(
+            f'<div class="fw-cond"><div class="l">{icon("wind_power")}Wind &amp; rain</div>'
+            f'<div class="v">{wind}</div><div class="l" style="margin-top:4px">{rain}</div></div>'
+        )
+    if cards:
+        st.html('<div class="fw-conds" style="margin-top:12px">' + "".join(cards) + "</div>")
+
+
 def balance(grow: GrowPlan) -> None:
     gaps = "".join(f'<span class="fw-pill cream">{escape(g)}</span>' for g in grow.gaps)
     st.html(f'<div class="fw-note">{icon("balance")}<span style="flex:1 1 200px">{escape(grow.balance_notes)}</span>{gaps}</div>')
@@ -627,7 +671,7 @@ def weather_card(snapshot: SensorSnapshot, mode: str) -> str:
     if air_lines:
         tiles += _pair_tile("air", "Air", air_lines, _worst(*air_labels) if air_labels else ("Reading", "good"))
     tiles += _pair_tile("shield", "Safety", safe_lines, _worst(*safe_labels))
-    source = "Sample reading" if mode == "mock" else "Live"
+    source = {"live": "Live", "fallback": "Recorded (offline)", "mock": "Sample reading"}[snapshot.source]
     return (
         f'<div class="fw-card fw-wx"><div class="chead"><div class="ctitle">{icon("partly_cloudy_day")}Weather</div>'
         f'<span class="fw-pill ghost">{source}</span></div>'

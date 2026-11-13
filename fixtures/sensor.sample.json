@@ -10,14 +10,13 @@
   "frost_risk": true,
   "soil_moisture_root": 0.46,
   "soil_temp_c": 5.2,
-  "humidity_pct": 85,
   "wind_kph": 14,
   "rain_today_mm": 3.2,
   "air": {
     "us_aqi": 26,
     "pm2_5": 4.3,
     "pm10": 4.5,
-    "co2_ppm": 445,
+    "co2_ppm": 428,
     "carbon_monoxide": 143.0,
     "ozone": 61.0,
     "nitrogen_dioxide": 4.8

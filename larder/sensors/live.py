@@ -138,7 +138,9 @@ class LiveSensor:
             air = self.parse_air(self._fetch(self.air_url(), self.timeout))
         except LiveSensorUnavailable:
             air = None  # weather and soil still count without the air reading
-        snapshot = snapshot.model_copy(update={"air": air})
+        snapshot = snapshot.model_copy(
+            update={"air": air, "co2_ppm": air.co2_ppm if air is not None else None}
+        )
         _cache[url] = (time.monotonic(), snapshot)
         return snapshot
 
@@ -210,7 +212,7 @@ class LiveSensor:
             frost_risk=low <= FROST_LOW_C,
             soil_moisture_root=None if raw_root is None else max(0.0, min(1.0, float(raw_root) / SATURATED_VWC)),
             soil_temp_c=None if soil_temp_6 is None else float(soil_temp_6),
-            humidity_pct=None if humidity is None else float(humidity),
+            humidity=None if humidity is None else max(0.0, min(1.0, float(humidity) / 100)),
             wind_kph=None if wind is None else float(wind),
             rain_today_mm=None if rain[0] is None else float(rain[0]),
             source="live",

@@ -55,12 +55,11 @@ class SensorSnapshot(BaseModel):
     # cannot read them leaves them out rather than guessing.
     soil_moisture_root: float | None = Field(default=None, ge=0, le=1)  # 9–27 cm
     soil_temp_c: float | None = None
-    humidity_pct: float | None = Field(default=None, ge=0, le=100)
     wind_kph: float | None = Field(default=None, ge=0)
     rain_today_mm: float | None = Field(default=None, ge=0)
     air: AirQuality | None = None
     # Site-station readings used by the dashboard's Weather card.
-    humidity: float | None = Field(default=None, ge=0, le=1)
+    humidity: float | None = Field(default=None, ge=0, le=1)  # 0..1 relative humidity
     co2_ppm: float | None = Field(default=None, ge=0)
     radiation_usv_h: float | None = Field(default=None, ge=0)
     # Where this reading came from. "fallback" means the live feed failed
