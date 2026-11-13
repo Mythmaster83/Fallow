@@ -53,342 +53,343 @@ GROUP_IDEAS = {
 
 CSS = """
 <style>
+/* Fallow design system.
+   Color has jobs: charcoal ink for text and the current page, lime for the one
+   action that matters, red / amber / green only for status, lavender as a quiet
+   brand accent. Everything else is neutral. One radius scale (12 / 8 / 6),
+   1px borders instead of shadows, Plus Jakarta for words, tabular figures for
+   numbers. Motion only where it carries meaning (achievements). */
 :root{
-  --lav-bg:#BBA6F0; --panel:#F6F5F2; --card:#FFFFFF; --ink:#1C1C28; --muted:#7D7C8C; --line:#ECEBF0;
-  --dark:#1E1E2A; --lime:#D7F26E; --lime-ink:#3F5A00;
-  --t-peach:#FCE6DA; --t-lime:#EEF8CF; --t-lav:#E6E2FB; --t-cream:#FFF0D6; --t-red:#FDE0DC;
+  --bg:#F5F4F0; --panel:#F5F4F0; --card:#FFFFFF; --sunk:#F3F2EE;
+  --ink:#17171F; --ink-2:#3E3D4A; --muted:#74737F; --faint:#A6A5B0;
+  --line:#E7E5EC; --line-2:#F0EFF3;
+  --dark:#1C1C26; --dark-2:#2A2A36;
+  --lime:#D4EF6A; --lime-hover:#C8E658; --lime-ink:#3F5A00;
+  --lav:#8E7BE0; --lav-soft:#EFECFB;
+  --ok:#4E7A00; --ok-bg:#EDF5DA; --warn:#9A6200; --warn-bg:#FBF0D9;
+  --hot:#B3470F; --hot-bg:#FCEBE1; --bad:#B4331F; --bad-bg:#FBE6E2;
+  --t-peach:var(--hot-bg); --t-lime:var(--ok-bg); --t-lav:var(--lav-soft); --t-cream:var(--warn-bg); --t-red:var(--bad-bg);
+  --r-lg:12px; --r:8px; --r-sm:6px;
 }
-[data-testid="stAppViewContainer"]{background:var(--lav-bg)}
-[data-testid="stHeader"]{background:transparent}
-[data-testid="stMainBlockContainer"]{background:var(--panel); border-radius:32px; max-width:1180px;
-  margin:72px auto 32px; padding:28px 32px 40px !important; box-shadow:0 30px 60px -30px rgba(60,40,120,.35)}
-@media (max-width:640px){
-  [data-testid="stAppViewContainer"]{background:var(--panel)}
-  [data-testid="stMainBlockContainer"]{border-radius:0; margin:48px 0 0; padding:16px 16px 40px !important; box-shadow:none}
-}
+
+/* ---- Page frame: full bleed, content column ---- */
+[data-testid="stAppViewContainer"]{background:var(--bg)}
+[data-testid="stHeader"]{display:none}
+[data-testid="stMainBlockContainer"]{max-width:1160px; margin:0 auto; padding:92px 32px 64px !important}
 .ms{font-family:'Material Symbols Rounded'; font-weight:400; font-style:normal; font-size:20px; line-height:1;
   letter-spacing:normal; text-transform:none; white-space:nowrap; direction:ltr; -webkit-font-smoothing:antialiased;
   font-feature-settings:'liga'; display:inline-block}
-.fw-top{display:flex; align-items:center; justify-content:space-between; gap:12px}
-.fw-hello{font-size:28px; font-weight:800; letter-spacing:-0.03em; margin:0; color:var(--ink); line-height:1.15}
-.fw-sub{color:var(--muted); font-size:14px; margin-top:4px}
-.fw-avatar{width:48px; height:48px; border-radius:50%; background:var(--lime); flex-shrink:0;
-  display:flex; align-items:center; justify-content:center; color:var(--dark); box-shadow:0 0 0 3px #fff}
-.fw-avatar .ms{font-size:24px}
+
+/* ---- Page header ---- */
+.fw-top{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding-bottom:4px}
 .fw-lhs{display:flex; align-items:center; gap:12px; min-width:0}
-.fw-topbtns{display:flex; align-items:center; gap:10px; flex-shrink:0}
-.fw-sbtn{width:48px; height:48px; border-radius:50%; background:var(--card); color:var(--ink); display:flex; align-items:center; justify-content:center; text-decoration:none; transition:transform .2s, background .2s}
-.fw-sbtn:hover{transform:scale(1.06); background:var(--t-lime); color:var(--ink)}
-.fw-search{display:flex; align-items:center; gap:10px; background:var(--card); border-radius:999px; height:48px;
-  padding:0 18px; color:var(--muted); font-size:14px; text-decoration:none; margin-top:16px}
-.fw-search:hover{color:var(--ink)}
-.fw-h{display:flex; align-items:center; justify-content:space-between; margin:26px 0 12px}
-.fw-h h3{font-size:20px; font-weight:700; margin:0; color:var(--ink); letter-spacing:-0.02em; padding:0}
-.fw-h a{font-size:13px; color:var(--ink); font-weight:600}
-.fw-pill{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; padding:6px 12px;
-  border-radius:999px; white-space:nowrap}
-.fw-pill.lime{background:var(--t-lime); color:var(--lime-ink)}
-.fw-pill.lav{background:var(--t-lav); color:#3D358F}
-.fw-pill.peach{background:var(--t-peach); color:#8A3B12}
-.fw-pill.cream{background:var(--t-cream); color:#7A5200}
-.fw-pill.red{background:var(--t-red); color:#A42A1A}
-.fw-pill.ghost{background:var(--card); color:var(--ink); border:1px solid var(--line)}
-.fw-tile{width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center;
-  flex-shrink:0; color:var(--ink)}
-.fw-tile.lime{background:var(--t-lime)} .fw-tile.lav{background:var(--t-lav)}
-.fw-tile.peach{background:var(--t-peach)} .fw-tile.cream{background:var(--t-cream)} .fw-tile.red{background:var(--t-red)}
-.fw-card{background:var(--card); border-radius:22px; padding:18px}
-.fw-feature{background:var(--dark); color:#fff; border-radius:24px; padding:22px; position:relative; overflow:hidden;
-  margin-top:18px}
-.fw-feature .eyebrow{display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:#CFCDE0}
-.fw-feature .title{font-size:24px; font-weight:700; letter-spacing:-0.02em; margin:14px 0 6px; max-width:70%; line-height:1.2}
-.fw-feature .desc{font-size:13px; color:#B7B5C9; max-width:68%; line-height:1.5}
-.fw-feature .cta{display:inline-flex; margin-top:16px; background:var(--lime); color:var(--dark); font-weight:700;
-  font-size:13px; padding:10px 18px; border-radius:999px; text-decoration:none}
-.fw-feature .blob{position:absolute; right:-28px; bottom:-28px; width:150px; height:150px; border-radius:50%;
-  background:#2B2B3B; display:flex; align-items:center; justify-content:center}
-.fw-feature .blob .ms{font-size:64px; color:var(--lime); margin:-18px 0 0 -18px}
+.fw-avatar{display:none}
+.fw-hello{font-size:26px; font-weight:700; letter-spacing:-0.025em; margin:0; color:var(--ink); line-height:1.2}
+.fw-sub{color:var(--muted); font-size:14px; margin-top:4px}
+.fw-topbtns{display:flex; align-items:center; gap:8px; flex-shrink:0}
+.fw-sbtn{width:40px; height:40px; border-radius:var(--r); background:var(--card); border:1px solid var(--line); color:var(--ink-2);
+  display:flex; align-items:center; justify-content:center; text-decoration:none}
+.fw-sbtn:hover{border-color:var(--ink-2); color:var(--ink)}
+.fw-sbtn .ms{font-size:20px}
+.fw-search{display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+  height:42px; padding:0 14px; color:var(--muted); font-size:14px; text-decoration:none; margin-top:16px}
+.fw-search:hover{color:var(--ink); border-color:var(--ink-2)}
+
+/* ---- Section headings ---- */
+.fw-h{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin:32px 0 12px}
+.fw-h h3{font-size:17px; font-weight:700; margin:0; padding:0; color:var(--ink); letter-spacing:-0.01em}
+.fw-h a{font-size:13px; font-weight:600; color:var(--muted); text-decoration:none; white-space:nowrap}
+.fw-h a:hover{color:var(--ink)}
+
+/* ---- Status labels ---- */
+.fw-pill{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; padding:3px 8px;
+  border-radius:var(--r-sm); white-space:nowrap; line-height:1.45}
+.fw-pill .ms{font-size:14px}
+.fw-pill.lime{background:var(--ok-bg); color:var(--ok)}
+.fw-pill.cream{background:var(--warn-bg); color:var(--warn)}
+.fw-pill.peach{background:var(--hot-bg); color:var(--hot)}
+.fw-pill.red{background:var(--bad-bg); color:var(--bad)}
+.fw-pill.lav{background:var(--lav-soft); color:#4A3D99}
+.fw-pill.ghost{background:transparent; color:var(--ink-2); box-shadow:inset 0 0 0 1px var(--line)}
+
+/* ---- Icon tiles: neutral; status lives in labels, not tile colors ---- */
+.fw-tile{width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; background:var(--sunk); color:var(--ink-2)}
+.fw-tile .ms{font-size:19px}
+.fw-tile.lime, .fw-tile.lav, .fw-tile.peach, .fw-tile.cream, .fw-tile.red{background:var(--sunk)}
+
+/* ---- Surfaces ---- */
+.fw-card, .fw-stat, .fw-cond, .fw-group, .fw-group-card, .fw-empty, .fw-rows,
+[class*="st-key-card-"], .st-key-addform{background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:none}
+.fw-card{padding:18px}
+.fw-empty{padding:18px; color:var(--muted); font-size:14px}
+.fw-card .chead{display:flex; justify-content:space-between; align-items:center; gap:8px}
+.fw-card .ctitle{font-size:15px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:8px}
+.fw-card .ctitle .ms{font-size:19px; color:var(--ink-2)}
+.fw-foot{font-size:12px; color:var(--muted); margin-top:12px}
+
+/* ---- Next-action banner ---- */
+.fw-feature{background:var(--dark); color:#fff; border-radius:var(--r-lg); padding:22px 24px; position:relative; overflow:hidden; margin-top:20px}
+.fw-feature .eyebrow{display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:#B9B7CC}
+.fw-feature .eyebrow .ms{font-size:16px; color:var(--lime)}
+.fw-feature .title{font-size:22px; font-weight:700; letter-spacing:-0.02em; margin:8px 0 4px; line-height:1.25}
+.fw-feature .desc{font-size:14px; color:#B9B7CC; line-height:1.5; max-width:62ch}
+.fw-feature .cta{display:inline-flex; align-items:center; margin-top:16px; background:var(--lime); color:var(--ink); font-weight:700;
+  font-size:14px; padding:9px 16px; border-radius:var(--r); text-decoration:none}
+.fw-feature .cta:hover{background:var(--lime-hover)}
+.fw-feature .blob{display:none}
+.fw-meter3{display:flex; gap:4px; margin-top:14px; max-width:240px}
+.fw-meter3 span{flex:1; height:6px; border-radius:3px; background:#3A3A48}
+.fw-meter3 span.on{background:var(--lime)}
+.fw-meter3.light span{background:var(--line-2)}
+.fw-meter3.light span.on{background:var(--ok)}
+
+/* ---- Stat tiles ---- */
 .fw-stats{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px}
 @media (max-width:900px){.fw-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.fw-stat{background:var(--card); border-radius:22px; padding:16px; display:flex; flex-direction:column; gap:12px}
+.fw-stat{padding:16px; display:flex; flex-direction:column; gap:12px}
 .fw-stat .row{display:flex; align-items:center; gap:10px}
-.fw-stat .name{font-size:14px; font-weight:700; color:var(--ink); line-height:1.2}
+.fw-stat .name{font-size:13px; font-weight:600; color:var(--muted); line-height:1.3}
 .fw-stat .small{font-size:12px; color:var(--muted)}
-.fw-stat .v{font-size:26px; font-weight:800; letter-spacing:-0.02em; color:var(--ink)}
-.fw-chart .bars{display:flex; align-items:flex-end; justify-content:space-between; gap:10px; height:150px;
-  margin-top:12px; padding:0 4px; background-image:linear-gradient(var(--line) 1px, transparent 1px);
-  background-size:100% 37.5px}
-.fw-chart .col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative}
-.fw-chart .bar{width:10px; border-radius:6px; background:var(--dark)}
-.fw-chart .bar.hot{background:var(--lime); width:12px}
-.fw-chart .tip{position:absolute; top:-6px; background:var(--dark); color:#fff; font-size:11px; font-weight:600;
-  padding:5px 8px; border-radius:8px; white-space:nowrap; left:-4px; transform:translateY(-100%); text-transform:capitalize}
-.fw-chart .labels{display:flex; justify-content:space-between; gap:10px; padding:8px 4px 0}
-.fw-chart .labels span{flex:1; text-align:center; font-size:11px; color:var(--muted); text-transform:capitalize;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.fw-stat .v{font-size:28px; font-weight:700; letter-spacing:-0.03em; color:var(--ink); font-variant-numeric:tabular-nums}
+
+/* ---- Spoilage chart ---- */
 .fw-chart .head{display:flex; justify-content:space-between; align-items:flex-start; gap:8px}
-.fw-chart .title{font-size:18px; font-weight:700; color:var(--ink)}
-.fw-chart .note{font-size:12px; color:var(--muted); margin-top:4px}
-.fw-chart .note b{color:#5E7F00}
-.fw-rows{display:flex; flex-direction:column; gap:10px}
-.fw-row{background:var(--card); border-radius:20px; padding:14px; display:flex; align-items:center; gap:12px}
-.fw-row .main{flex:1; min-width:0}
-.fw-row .name{font-size:15px; font-weight:700; color:var(--ink); text-transform:capitalize;
+.fw-chart .title{font-size:15px; font-weight:700; color:var(--ink)}
+.fw-chart .note{font-size:12.5px; color:var(--muted); margin-top:3px}
+.fw-chart .note b{color:var(--bad)}
+.fw-chart .bars{display:flex; align-items:flex-end; justify-content:space-between; gap:10px; height:150px; margin-top:12px;
+  padding:0 4px; border-bottom:1px solid var(--line);
+  background-image:linear-gradient(var(--line-2) 1px, transparent 1px); background-size:100% 37.5px}
+.fw-chart .col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative}
+.fw-chart .bar{width:14px; border-radius:3px 3px 0 0; background:var(--ink-2)}
+.fw-chart .bar.hot{background:var(--bad); width:14px}
+.fw-chart .tip{position:absolute; top:-6px; left:50%; transform:translate(-50%,-100%); background:var(--dark); color:#fff;
+  font-size:11px; font-weight:600; padding:4px 7px; border-radius:var(--r-sm); white-space:nowrap; text-transform:capitalize}
+.fw-chart .labels{display:flex; justify-content:space-between; gap:10px; padding:8px 4px 0}
+.fw-chart .labels span{flex:1; text-align:center; font-size:11.5px; color:var(--muted); text-transform:capitalize;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.fw-row .small{font-size:12px; color:var(--muted); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.fw-row .chev{width:30px; height:30px; border-radius:50%; background:var(--panel); display:flex;
-  align-items:center; justify-content:center; flex-shrink:0; color:var(--ink)}
-.fw-row .rem{text-align:left; flex-shrink:0; min-width:64px}
-.fw-row .rem .small{margin-top:0}
-.fw-row .rem b{font-size:14px; color:var(--ink)}
+
+/* ---- Rows: always one table, divided by hairlines ---- */
+.fw-rows{display:flex; flex-direction:column; overflow:hidden}
+.fw-row{display:flex; align-items:center; gap:12px; padding:12px 16px; background:transparent; border-bottom:1px solid var(--line-2)}
+.fw-rows > .fw-row:last-child, .fw-group > .fw-row:last-child{border-bottom:0}
+.fw-row .main{flex:1; min-width:0}
+.fw-row .name{font-size:14px; font-weight:600; color:var(--ink); text-transform:capitalize; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.fw-row .small{font-size:12.5px; color:var(--muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.fw-row .chev{flex-shrink:0; color:var(--faint); display:flex}
+.fw-row .rem{flex-shrink:0; min-width:60px; text-align:right}
+.fw-row .rem .small{display:none}
+.fw-row .rem b{font-size:13px; font-weight:600; color:var(--ink-2); font-variant-numeric:tabular-nums}
+.fw-group{padding:0 16px}
+.fw-group .fw-row{padding:12px 0}
+[class*="st-key-card-"]{padding:14px 16px; gap:4px}
+[class*="st-key-card-"] .fw-row{background:transparent; padding:0 !important; border:0}
+[class*="st-key-card-"] .fw-rows{border:0; background:transparent; border-radius:0}
+/* Repeated per-card actions are quiet; lime stays for the page's main action. */
+[class*="st-key-card-crop"] .stButton button[kind="primary"], [class*="st-key-card-recipe"] .stButton button[kind="primary"]{
+  background:var(--card); color:var(--ink); box-shadow:inset 0 0 0 1px var(--line); min-height:38px}
+[class*="st-key-card-crop"] .stButton button[kind="primary"]:hover, [class*="st-key-card-recipe"] .stButton button[kind="primary"]:hover{
+  background:var(--dark); color:#fff; box-shadow:none}
 .fw-ring{display:flex; align-items:center; gap:8px; flex-shrink:0}
-.fw-ring .r{width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center}
-.fw-ring .r i{display:block; width:18px; height:18px; border-radius:50%; background:#fff}
-.fw-ring b{font-size:13px; color:var(--ink); min-width:34px}
-.fw-group{background:var(--card); border-radius:22px; padding:8px 14px}
-.fw-group .fw-row{padding:12px 0; border-radius:0; border-bottom:1px solid var(--line)}
-.fw-group .fw-row:last-child{border-bottom:0}
+.fw-ring .r{width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center}
+.fw-ring .r i{display:block; width:16px; height:16px; border-radius:50%; background:#fff}
+.fw-ring b{font-size:13px; color:var(--ink); min-width:34px; font-variant-numeric:tabular-nums}
+
+/* ---- Conditions (farm) ---- */
 .fw-conds{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px}
 @media (max-width:900px){.fw-conds{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.fw-cond{background:var(--card); border-radius:20px; padding:14px}
-.fw-cond .l{font-size:12px; color:var(--muted); display:flex; align-items:center; gap:6px}
+.fw-cond{padding:14px 16px}
+.fw-cond .l{font-size:12.5px; color:var(--muted); display:flex; align-items:center; gap:6px}
 .fw-cond .l .ms{font-size:16px}
-.fw-cond .v{font-size:17px; font-weight:700; color:var(--ink); margin-top:8px; line-height:1.2}
-.fw-cond .gauge{height:6px; background:var(--panel); border-radius:3px; margin-top:8px; overflow:hidden}
-.fw-cond .gauge span{display:block; height:100%; background:var(--dark); border-radius:3px}
-.fw-note{background:var(--t-lime); color:#2E4200; border-radius:20px; padding:14px 16px; font-size:14px;
-  font-weight:600; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-.fw-empty{background:var(--card); border-radius:20px; padding:18px; color:var(--muted); font-size:14px}
-.fw-grid2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px}
+.fw-cond .v{font-size:16px; font-weight:700; color:var(--ink); margin-top:6px; line-height:1.3}
+.fw-cond .gauge{height:4px; background:var(--line-2); border-radius:2px; margin-top:8px; overflow:hidden}
+.fw-cond .gauge span{display:block; height:100%; background:var(--ink-2); border-radius:2px}
+
+/* ---- Notes, chips, groups ---- */
+.fw-note{background:var(--ok-bg); color:#2D4400; border-radius:var(--r-lg); padding:12px 16px; font-size:14px;
+  font-weight:500; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.fw-note .ms{font-size:18px}
+.fw-grid2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px}
 @media (max-width:900px){.fw-grid2{grid-template-columns:1fr}}
-/* Streamlit widgets in the same style */
-[class*="st-key-card-"], .st-key-addform{background:var(--card); border-radius:22px; padding:16px; gap:6px}
-[class*="st-key-card-"] .fw-row{background:transparent}
-.stButton button[kind="primary"]{background:var(--lime); color:var(--dark); border:0; font-weight:700; border-radius:999px; min-height:48px}
-.stButton button[kind="primary"]:hover{background:#C9E85A; color:var(--dark)}
-.stButton button[kind="tertiary"]{color:var(--muted)}
-[data-testid="stTextInputRootElement"], [data-baseweb="select"] > div, [data-testid="stNumberInputContainer"],
-[data-testid="stDateInputField"]{background:var(--panel) !important; border-radius:14px !important}
-/* health + recipes */
 .fw-groups{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px}
 @media (max-width:900px){.fw-groups{grid-template-columns:1fr}}
-.fw-group-card{background:var(--card); border-radius:22px; padding:16px; display:flex; flex-direction:column; gap:10px}
+.fw-groups > .fw-row{background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg)}
+.fw-group-card{padding:16px; display:flex; flex-direction:column; gap:10px}
 .fw-group-card .top{display:flex; align-items:center; gap:10px}
 .fw-group-card .name{font-size:15px; font-weight:700; color:var(--ink); flex:1}
-.fw-group-card .lbl{font-size:12px; color:var(--muted)}
+.fw-group-card .lbl{font-size:12.5px; color:var(--muted)}
+.fw-group-card .idea{font-size:13px; color:var(--muted); line-height:1.5; border-top:1px solid var(--line-2); padding-top:10px}
 .fw-chips{display:flex; flex-wrap:wrap; gap:6px}
-.fw-chip2{font-size:12px; padding:4px 10px; border-radius:999px; background:var(--panel); color:var(--ink)}
-.fw-chip2.dim{color:var(--muted); text-decoration:line-through}
-.fw-group-card .idea{font-size:13px; color:var(--muted); line-height:1.45; border-top:1px solid var(--line); padding-top:10px}
-.fw-meter3{display:flex; gap:6px; margin-top:14px; max-width:58%; position:relative; z-index:1}
-.fw-meter3 span{flex:1; height:8px; border-radius:4px; background:#3A3A4C}
-.fw-meter3 span.on{background:var(--lime)}
+.fw-chip2{font-size:12.5px; padding:3px 9px; border-radius:var(--r-sm); background:var(--sunk); color:var(--ink-2)}
+.fw-chip2.dim{color:var(--faint); text-decoration:line-through}
+
+/* ---- Recipes ---- */
 .fw-recipe .head{display:flex; gap:12px; align-items:flex-start}
-.fw-recipe .title{font-size:17px; font-weight:700; color:var(--ink); line-height:1.25}
+.fw-recipe .title{font-size:16px; font-weight:700; color:var(--ink); line-height:1.3}
 .fw-recipe .meta{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px}
-.fw-recipe .why{font-size:13px; color:var(--muted); margin:10px 0}
-.fw-recipe h4{font-size:13px; font-weight:700; color:var(--ink); margin:12px 0 8px; padding:0}
+.fw-recipe .why{font-size:13.5px; color:var(--muted); margin:10px 0; line-height:1.5}
+.fw-recipe h4{font-size:13px; font-weight:700; color:var(--ink); margin:14px 0 8px; padding:0}
 .fw-steps{margin:0 !important; padding:0 !important; list-style:none; counter-reset:s; display:flex; flex-direction:column; gap:8px}
-.fw-steps li{margin:0 !important; padding:0 !important; counter-increment:s; display:flex; gap:10px; font-size:14px; line-height:1.45; color:var(--ink)}
-.fw-steps li::before{content:counter(s); flex-shrink:0; width:24px; height:24px; border-radius:50%; background:var(--t-lime);
-  color:var(--lime-ink); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center}
-/* weather + health cards */
+.fw-steps li{margin:0 !important; padding:0 !important; counter-increment:s; display:flex; gap:10px; font-size:14px; line-height:1.5; color:var(--ink)}
+.fw-steps li::before{content:counter(s); flex-shrink:0; width:22px; height:22px; border-radius:var(--r-sm); background:var(--sunk);
+  color:var(--ink-2); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums}
+
+/* ---- Weather + Health cards ---- */
 .fw-duo{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:12px; align-items:stretch}
-.fw-duo>.fw-card{display:flex; flex-direction:column}
-.fw-duo>.fw-card .fw-foot{margin-top:auto; padding-top:12px}
-@media (max-width:640px){
-  .fw-duo>.fw-card{padding:14px 12px}
-  .fw-duo>.fw-card .chead{flex-direction:column; align-items:flex-start; gap:6px}
-  .fw-duo>.fw-card .ctitle{font-size:15px}
-  .fw-duo>.fw-card .chead .fw-pill{font-size:10px; padding:3px 8px}
-  .fw-duo .fw-mini{grid-template-columns:1fr; gap:8px; margin-top:10px}
-  .fw-duo .fw-mini .m{padding:10px}
-  .fw-duo .fw-mini .v{font-size:16px; margin:4px 0}
-  .fw-duo .fw-mini .fw-pill{font-size:10px; padding:3px 8px; white-space:normal}
-  .fw-duo>.fw-card.fw-wx .now{flex-direction:column; align-items:flex-start; gap:4px; margin:10px 0 0}
-  .fw-duo>.fw-card.fw-wx .deg{font-size:38px}
-}
-.fw-card .chead{display:flex; justify-content:space-between; align-items:center; gap:8px}
-.fw-card .ctitle{font-size:18px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:8px}
+.fw-duo > .fw-card{display:flex; flex-direction:column}
+.fw-duo > .fw-card .fw-foot{margin-top:auto; padding-top:12px}
 .fw-wx .now{display:flex; align-items:center; gap:14px; margin:14px 0 4px}
-.fw-wx .deg{font-size:46px; font-weight:800; letter-spacing:-0.04em; color:var(--ink); line-height:1}
+.fw-wx .deg{font-size:42px; font-weight:700; letter-spacing:-0.04em; color:var(--ink); line-height:1; font-variant-numeric:tabular-nums}
 .fw-wx .cond{font-size:15px; font-weight:700; color:var(--ink)}
 .fw-mini{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:14px}
-.fw-mini .m{background:var(--panel); border-radius:16px; padding:12px}
-.fw-mini .k{font-size:12px; color:var(--muted); display:flex; align-items:center; gap:6px}
+.fw-mini .m{background:var(--sunk); border-radius:var(--r); padding:12px}
+.fw-mini .k{font-size:12.5px; color:var(--muted); display:flex; align-items:center; gap:6px}
 .fw-mini .k .ms{font-size:16px}
-.fw-mini .v{font-size:18px; font-weight:800; color:var(--ink); margin:6px 0 6px; letter-spacing:-0.02em}
-.fw-mini .pair{display:flex; align-items:baseline; gap:5px; margin:6px 0; font-size:16px; color:var(--ink)}
-.fw-mini .pair .ms{align-self:center; color:var(--muted)}
-.fw-mini .pair b{font-weight:800; letter-spacing:-0.02em}
-.fw-mini .pair small{font-size:12px; font-weight:600; color:var(--muted)}
-.fw-mini .v small{font-size:12px; font-weight:600; color:var(--muted); margin-left:3px}
-.fw-meter3.light span{background:var(--panel)}
-.fw-meter3.light span.on{background:#8DC63F}
-.fw-foot{font-size:12px; color:var(--muted); margin-top:12px}
-/* achievements: popup, cycle stepper, badges */
-.fw-ach-wrap{position:fixed; inset:0; z-index:999999; display:flex; align-items:flex-start; justify-content:center;
-  padding-top:90px; pointer-events:none; animation:fw-ach-out .45s ease-in 6.5s forwards}
-.fw-ach-wrap:has(input:checked){display:none}
-.fw-ach{pointer-events:auto; position:relative; width:min(340px,88vw); background:var(--dark); color:#fff; border-radius:28px;
-  padding:26px 22px 20px; text-align:center; box-shadow:0 30px 70px -20px rgba(30,20,80,.6); overflow:visible}
-.fw-ach .x{position:absolute; top:10px; right:12px; width:36px; height:36px; border-radius:50%; display:flex;
-  align-items:center; justify-content:center; color:#CFCDE0; cursor:pointer}
-.fw-ach .x input{position:absolute; opacity:0; width:0; height:0}
-.fw-ach-badge{width:92px; height:92px; margin:-70px auto 10px; border-radius:50%; background:var(--lime); color:var(--dark);
-  display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; box-shadow:0 0 0 6px var(--dark), 0 0 0 9px #D7F26E55}
-.fw-ach-badge .ms{font-size:44px}
-.fw-ach-badge .shine{position:absolute; top:-20%; left:-60%; width:40%; height:140%; background:rgba(255,255,255,.55); transform:rotate(25deg)}
-.fw-ach .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--lime); font-weight:800}
-.fw-ach .title{font-size:24px; font-weight:800; letter-spacing:-0.02em; margin:6px 0 4px}
-.fw-ach .desc{font-size:13px; color:#B7B5C9; line-height:1.45}
-.fw-ach .more{display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin-top:10px}
-.fw-ach .more span{font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; background:#2B2B3B; color:#E6E4F5}
-.fw-ach .xpline{display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin:16px 0 6px; color:#CFCDE0}
-.fw-ach .xpline b{color:var(--lime); font-size:14px}
-.fw-ach .bar{height:10px; border-radius:5px; background:#2B2B3B; overflow:hidden}
-.fw-ach .bar span{display:block; height:100%; border-radius:5px; background:var(--lime); width:var(--to)}
-.fw-ach .lvlup{display:inline-block; margin-top:12px; font-size:12px; font-weight:800; color:var(--dark); background:var(--lime);
-  padding:5px 12px; border-radius:999px}
-.fw-confetti{position:absolute; left:50%; top:30px; width:9px; height:14px; border-radius:2px; opacity:0}
+.fw-mini .v{font-size:18px; font-weight:700; color:var(--ink); margin:6px 0; letter-spacing:-0.02em; font-variant-numeric:tabular-nums}
+.fw-mini .v small, .fw-mini .pair small{font-size:12px; font-weight:500; color:var(--muted); margin-left:3px}
+.fw-mini .pair{display:flex; align-items:baseline; gap:5px; margin:6px 0; font-size:15px; color:var(--ink)}
+.fw-mini .pair .ms{align-self:center; color:var(--faint); font-size:16px}
+.fw-mini .pair b{font-weight:700; font-variant-numeric:tabular-nums}
+@media (max-width:640px){
+  .fw-duo{grid-template-columns:1fr}
+  .fw-duo .fw-mini{gap:8px}
+}
+
+/* ---- Your cycle: stepper, badges, XP ---- */
 .fw-cycle{display:flex; align-items:flex-start; justify-content:space-between; position:relative; margin:18px 4px 6px}
-.fw-cycle .line{position:absolute; top:23px; left:12%; right:12%; height:4px; border-radius:2px; background:var(--panel)}
-.fw-cycle .line span{display:block; height:100%; border-radius:2px; background:#8DC63F}
+.fw-cycle .line{position:absolute; top:21px; left:12%; right:12%; height:2px; background:var(--line)}
+.fw-cycle .line span{display:block; height:100%; background:var(--ok)}
 .fw-step{position:relative; z-index:1; flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none; color:var(--ink)}
-.fw-step .dot{width:50px; height:50px; border-radius:50%; background:var(--panel); color:var(--muted); display:flex; align-items:center;
-  justify-content:center; position:relative; transition:transform .2s ease}
-.fw-step:hover .dot{transform:scale(1.08) rotate(-4deg)}
-.fw-step.done .dot{background:var(--lime); color:var(--dark)}
-.fw-step.next .dot{background:var(--dark); color:var(--lime)}
-.fw-step .chk{position:absolute; right:-2px; bottom:-2px; width:20px; height:20px; border-radius:50%; background:var(--dark); color:var(--lime);
-  display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 2px #fff}
-.fw-step .chk .ms{font-size:14px}
-.fw-step .lbl{font-size:12px; font-weight:700; text-align:center; line-height:1.25}
-.fw-badges{display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:8px; margin-top:14px}
-@media (max-width:640px){.fw-badges{grid-template-columns:repeat(4,minmax(0,1fr))}}
-.fw-badge{aspect-ratio:1; border-radius:16px; display:flex; align-items:center; justify-content:center; background:var(--panel);
-  color:#B9B8C6; transition:transform .2s ease; perspective:200px}
-.fw-badge.on{background:var(--t-lime); color:var(--lime-ink)}
-.fw-badge.on:nth-child(3n+2){background:var(--t-lav); color:#3D358F}
-.fw-badge.on:nth-child(3n){background:var(--t-peach); color:#8A3B12}
-.fw-badge:hover{transform:translateY(-3px) rotateY(18deg)}
-.fw-xp{display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-top:14px}
+.fw-step .dot{width:44px; height:44px; border-radius:50%; background:var(--card); border:1px solid var(--line); color:var(--muted);
+  display:flex; align-items:center; justify-content:center; position:relative}
+.fw-step.done .dot{background:var(--ok-bg); border-color:transparent; color:var(--ok)}
+.fw-step.next .dot{background:var(--dark); border-color:var(--dark); color:var(--lime)}
+.fw-step .chk{position:absolute; right:-3px; bottom:-3px; width:18px; height:18px; border-radius:50%; background:var(--ok); color:#fff;
+  display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 2px var(--card)}
+.fw-step .chk .ms{font-size:13px}
+.fw-step .lbl{font-size:12.5px; font-weight:600; text-align:center; line-height:1.3}
+.fw-badges{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
+.fw-badge{width:40px; height:40px; border-radius:var(--r); display:flex; align-items:center; justify-content:center;
+  background:var(--sunk); color:var(--faint)}
+.fw-badge .ms{font-size:19px}
+.fw-badge.on{background:var(--ok-bg); color:var(--ok)}
+.fw-xp{display:flex; justify-content:space-between; font-size:12.5px; color:var(--muted); margin-top:14px}
 .fw-xp b{color:var(--ink)}
-.fw-xpbar{height:10px; border-radius:5px; background:var(--panel); overflow:hidden; margin-top:6px}
-.fw-xpbar span{display:block; height:100%; border-radius:5px; background:var(--dark)}
-@keyframes fw-ach-in{0%{opacity:0; transform:translateY(-30px) scale(.8)} 60%{opacity:1; transform:translateY(4px) scale(1.04)} 100%{transform:none}}
+.fw-xpbar{height:6px; border-radius:3px; background:var(--line-2); overflow:hidden; margin-top:6px}
+.fw-xpbar span{display:block; height:100%; border-radius:3px; background:var(--ink-2)}
+
+/* ---- Achievement popup: the one place with motion ---- */
+.fw-ach-wrap{position:fixed; inset:0; z-index:999999; display:flex; align-items:flex-start; justify-content:center;
+  padding-top:96px; pointer-events:none; animation:fw-ach-out .35s ease-in 5s forwards}
+.fw-ach-wrap:has(input:checked){display:none}
+.fw-ach{pointer-events:auto; position:relative; width:min(340px,88vw); background:var(--dark); color:#fff; border-radius:16px;
+  padding:24px 22px 20px; text-align:center; box-shadow:0 24px 60px -24px rgba(20,20,30,.6)}
+.fw-ach .x{position:absolute; top:10px; right:10px; width:32px; height:32px; border-radius:var(--r); display:flex;
+  align-items:center; justify-content:center; color:#B9B7CC; cursor:pointer}
+.fw-ach .x input{position:absolute; opacity:0; width:0; height:0}
+.fw-ach-badge{width:64px; height:64px; margin:0 auto 12px; border-radius:16px; background:var(--lime); color:var(--ink);
+  display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden}
+.fw-ach-badge .ms{font-size:34px}
+.fw-ach-badge .shine{display:none}
+.fw-ach .eyebrow{font-size:12px; font-weight:700; color:var(--lime)}
+.fw-ach .title{font-size:20px; font-weight:700; letter-spacing:-0.02em; margin:4px 0}
+.fw-ach .desc{font-size:13.5px; color:#B9B7CC; line-height:1.5}
+.fw-ach .more{display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin-top:10px}
+.fw-ach .more span{font-size:12px; font-weight:600; padding:3px 9px; border-radius:var(--r-sm); background:var(--dark-2); color:#E6E4F5}
+.fw-ach .xpline{display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; margin:16px 0 6px; color:#B9B7CC}
+.fw-ach .xpline b{color:var(--lime)}
+.fw-ach .bar{height:6px; border-radius:3px; background:var(--dark-2); overflow:hidden}
+.fw-ach .bar span{display:block; height:100%; border-radius:3px; background:var(--lime); width:var(--to)}
+.fw-ach .lvlup{display:inline-block; margin-top:12px; font-size:12px; font-weight:700; color:var(--ink); background:var(--lime);
+  padding:4px 10px; border-radius:var(--r-sm)}
+.fw-confetti{display:none}
+@keyframes fw-ach-in{from{opacity:0; transform:translateY(-12px)} to{opacity:1; transform:none}}
 @keyframes fw-ach-out{to{opacity:0; visibility:hidden}}
-@keyframes fw-spin-in{0%{transform:scale(0) rotate(-200deg)} 70%{transform:scale(1.15) rotate(10deg)} 100%{transform:scale(1) rotate(0)}}
-@keyframes fw-shine{0%{left:-60%} 100%{left:140%}}
 @keyframes fw-xp{from{width:var(--from)} to{width:var(--to)}}
-@keyframes fw-burst{0%{opacity:1; transform:translate(0,0) rotate(0)} 100%{opacity:0; transform:translate(var(--x),var(--y)) rotate(var(--r))}}
-@keyframes fw-pulse{0%{box-shadow:0 0 0 0 rgba(215,242,110,.7)} 100%{box-shadow:0 0 0 14px rgba(215,242,110,0)}}
-@keyframes fw-glow{0%,100%{box-shadow:0 0 0 6px var(--dark), 0 0 0 9px #D7F26E55} 50%{box-shadow:0 0 0 6px var(--dark), 0 0 0 16px #D7F26E33}}
 @media (prefers-reduced-motion: no-preference){
-  .fw-ach{animation:fw-ach-in .6s cubic-bezier(.2,.8,.2,1) both}
-  .fw-ach-badge{animation:fw-spin-in .8s cubic-bezier(.2,.8,.2,1) .15s both, fw-glow 1.6s ease-in-out 1s infinite}
-  .fw-ach-badge .shine{animation:fw-shine 1.1s ease-in-out .8s both}
-  .fw-ach .bar span{animation:fw-xp 1.2s cubic-bezier(.2,.7,.2,1) .7s both}
-  .fw-ach .lvlup{animation:fw-pop .5s ease-out 1.8s both}
-  .fw-confetti{animation:fw-burst 1.4s cubic-bezier(.15,.7,.3,1) both}
-  .fw-step.next .dot{animation:fw-pulse 1.4s ease-out infinite}
+  .fw-ach{animation:fw-ach-in .25s ease-out both}
+  .fw-ach .bar span{animation:fw-xp .9s cubic-bezier(.2,.7,.2,1) .3s both}
 }
-/* motion: slide-in, staggered; off when the device asks for reduced motion */
-@keyframes fw-slide{from{opacity:0; transform:translateY(16px)} to{opacity:1; transform:none}}
-@keyframes fw-slide-x{from{opacity:0; transform:translateX(28px)} to{opacity:1; transform:none}}
-@keyframes fw-grow{from{transform:scaleY(0)} to{transform:scaleY(1)}}
-@keyframes fw-fill{from{transform:scaleX(0)} to{transform:scaleX(1)}}
-@keyframes fw-pop{0%{transform:scale(.6); opacity:0} 70%{transform:scale(1.08)} 100%{transform:scale(1); opacity:1}}
-@media (prefers-reduced-motion: no-preference){
-  .fw-top,.fw-search,.fw-feature,.fw-h,.fw-stat,.fw-card,.fw-row,.fw-cond,.fw-group-card,.fw-note,.fw-empty,
-  [class*="st-key-card-"],.st-key-addform{animation:fw-slide .55s cubic-bezier(.2,.7,.2,1) both}
-  .fw-search{animation-delay:.05s} .fw-feature{animation-delay:.1s}
-  .fw-feature .blob{animation:fw-slide-x .7s cubic-bezier(.2,.7,.2,1) .25s both}
-  .fw-feature .cta{animation:fw-pop .45s ease-out .45s both}
-  .fw-avatar{animation:fw-pop .5s ease-out .1s both}
-  .fw-stats>*:nth-child(2),.fw-rows>*:nth-child(2),.fw-duo>*:nth-child(2),.fw-conds>*:nth-child(2),.fw-groups>*:nth-child(2),.fw-group>.fw-row:nth-child(2){animation-delay:.08s}
-  .fw-stats>*:nth-child(3),.fw-rows>*:nth-child(3),.fw-conds>*:nth-child(3),.fw-groups>*:nth-child(3),.fw-group>.fw-row:nth-child(3){animation-delay:.16s}
-  .fw-stats>*:nth-child(4),.fw-rows>*:nth-child(4),.fw-conds>*:nth-child(4){animation-delay:.24s}
-  .fw-rows>*:nth-child(5){animation-delay:.32s}
-  .fw-chart .bar{transform-origin:bottom; animation:fw-grow .7s cubic-bezier(.2,.7,.2,1) .2s both}
-  .fw-chart .col:nth-child(2) .bar{animation-delay:.26s} .fw-chart .col:nth-child(3) .bar{animation-delay:.32s}
-  .fw-chart .col:nth-child(4) .bar{animation-delay:.38s} .fw-chart .col:nth-child(5) .bar{animation-delay:.44s}
-  .fw-chart .col:nth-child(6) .bar{animation-delay:.5s} .fw-chart .col:nth-child(7) .bar{animation-delay:.56s}
-  .fw-chart .tip{animation:fw-pop .4s ease-out .9s both}
-  .fw-meter3 span.on,.fw-cond .gauge span{transform-origin:left; animation:fw-fill .7s cubic-bezier(.2,.7,.2,1) .35s both}
-  .fw-row,.fw-stat,.fw-crop,.fw-feature .cta,.fw-search{transition:transform .2s ease, box-shadow .2s ease}
-  .fw-row:hover,.fw-stat:hover{transform:translateY(-2px); box-shadow:0 10px 24px -14px rgba(60,40,120,.35)}
-  .fw-feature .cta:hover{transform:translateY(-1px) scale(1.03)}
-}
+
+/* ---- Streamlit widgets ---- */
+.stButton button[kind="primary"]{background:var(--lime); color:var(--ink); border:0; font-weight:700; border-radius:var(--r); min-height:42px}
+.stButton button[kind="primary"]:hover{background:var(--lime-hover); color:var(--ink)}
+.stButton button[kind="secondary"]{border-radius:var(--r); border-color:var(--line); color:var(--ink-2)}
+.stButton button[kind="secondary"]:hover{border-color:var(--ink-2); color:var(--ink)}
+.stButton button[kind="tertiary"]{color:var(--muted)}
+.stButton button[kind="tertiary"]:hover{color:var(--bad)}
+[data-testid="stTextInputRootElement"], [data-baseweb="select"] > div, [data-testid="stNumberInputContainer"],
+[data-testid="stDateInputField"]{background:var(--sunk) !important; border-radius:var(--r) !important}
+[data-testid="stSegmentedControl"] button, [data-testid="stPills"] button{border-radius:var(--r) !important}
+[data-testid="stExpander"] details{border-radius:var(--r-lg) !important; border-color:var(--line) !important; background:var(--card)}
+
 /* ---- Product nav ----
-   Desktop: a white floating bar lined up with the page panel; the current page
-   is a charcoal pill. Phone: logo + level stay on top, the tabs become a
-   floating charcoal tab bar at the bottom. No transform/filter on the top bar,
-   so the tab group can be position:fixed to the viewport on phones. */
-[data-testid="stHeader"]{display:none}
-[data-testid="stMainBlockContainer"]{margin-top:96px}
-.st-key-fw-topbar{position:fixed; top:14px; left:50%; margin-left:-590px; width:1180px; max-width:calc(100vw - 28px);
-  z-index:999990; height:58px; padding:0 10px 0 16px; background:var(--card); border-radius:18px;
-  box-shadow:0 12px 30px -16px rgba(60,40,120,.45); flex-wrap:nowrap !important; gap:12px !important}
-@media (max-width:1208px){.st-key-fw-topbar{left:14px; margin-left:0; width:auto; right:14px}}
+   A full-width top bar: brand, page tabs, cycle level. The current page is a
+   charcoal tab. When space runs short the tabs drop their labels and show
+   icons only (each keeps a tooltip). On phones the tabs move to a bottom bar.
+   No transform/filter on the top bar, so the tab group can be fixed to the
+   viewport on phones. */
+.st-key-fw-topbar{position:fixed; top:0; left:0; right:0; z-index:999990; height:64px; padding:0 max(24px, calc((100vw - 1160px) / 2 + 32px));
+  background:var(--card); border-bottom:1px solid var(--line); flex-wrap:nowrap !important; gap:16px !important}
 .st-key-fw-topbar > div{width:auto !important; flex:0 0 auto}
 .st-key-fw-topbar > div:has(.st-key-fw-tabs){flex:1 1 auto !important; min-width:0}
 .st-key-fw-topbar .stElementContainer:has(> [data-testid="stHtml"] style:only-child){display:none}
-.fw-brandmark{display:flex; align-items:center; gap:10px; white-space:nowrap; text-decoration:none}
-.fw-brandmark img{width:32px; height:32px; border-radius:9px}
+.fw-brandmark{display:flex; align-items:center; gap:10px; white-space:nowrap}
+.fw-brandmark img{width:30px; height:30px; border-radius:8px}
 .fw-brandmark b{font-size:17px; font-weight:800; letter-spacing:-0.02em; color:var(--ink)}
-.st-key-fw-tabs{flex:1 1 auto !important; justify-content:center; flex-wrap:nowrap !important; gap:4px !important;
-  overflow-x:auto; scrollbar-width:none}
+.st-key-fw-tabs{flex:1 1 auto !important; justify-content:center; flex-wrap:nowrap !important; gap:2px !important}
 .st-key-fw-tabs > div, .st-key-fw-tabs [class*="st-key-fw-tab-"], .st-key-fw-tabs [class*="st-key-fw-tab-"] > div{width:auto !important; flex:0 0 auto}
-.st-key-fw-tabs a{height:40px; padding:0 14px !important; border-radius:12px !important; background:transparent;
-  color:var(--muted) !important; transition:background .15s, color .15s}
+.st-key-fw-tabs a{height:38px; padding:0 12px !important; border-radius:var(--r) !important; background:transparent;
+  color:var(--muted) !important; gap:8px}
 .st-key-fw-tabs a *{color:inherit !important}
 .st-key-fw-tabs a p{font-size:14px !important; font-weight:600 !important; white-space:nowrap}
-.st-key-fw-tabs a [data-testid="stIconMaterial"]{font-size:19px !important}
-.st-key-fw-tabs a:hover{background:var(--t-lav); color:var(--ink) !important}
-.fw-level{display:flex; align-items:center; gap:10px; padding:6px 12px 6px 6px; border-radius:14px; background:var(--panel);
-  white-space:nowrap; text-decoration:none}
-.fw-level .badge{width:30px; height:30px; border-radius:9px; background:var(--dark); color:var(--lime); display:flex;
-  align-items:center; justify-content:center; font-weight:800; font-size:13px}
-.fw-level .txt{display:flex; flex-direction:column; gap:4px; min-width:88px}
+.st-key-fw-tabs a [data-testid="stIconMaterial"]{font-size:20px !important}
+.st-key-fw-tabs a:hover{background:var(--sunk); color:var(--ink) !important}
+.fw-level{display:flex; align-items:center; gap:10px; white-space:nowrap}
+.fw-level .badge{width:30px; height:30px; border-radius:8px; background:var(--dark); color:var(--lime); display:flex;
+  align-items:center; justify-content:center; font-weight:700; font-size:13px; font-variant-numeric:tabular-nums}
+.fw-level .txt{display:flex; flex-direction:column; gap:5px; min-width:84px}
 .fw-level .txt b{font-size:12.5px; font-weight:700; color:var(--ink); line-height:1}
-.fw-level .bar{height:4px; border-radius:2px; background:var(--line); overflow:hidden}
-.fw-level .bar i{display:block; height:100%; background:var(--lime-ink); border-radius:2px}
-@media (max-width:1000px){.st-key-fw-tabs a p{display:none} .st-key-fw-tabs a{padding:0 12px !important}}
+.fw-level .bar{height:4px; border-radius:2px; background:var(--line-2); overflow:hidden}
+.fw-level .bar i{display:block; height:100%; background:var(--ok); border-radius:2px}
+
+/* Medium widths: icons only, no text anywhere in the bar */
+@media (max-width:1060px){
+  .st-key-fw-tabs a{padding:0 !important; width:42px !important; justify-content:center}
+  .st-key-fw-tabs a p{display:none !important}
+  .fw-level .txt{display:none}
+  .fw-brandmark b{display:none}
+}
+/* Phones: brand + level on top, icon-only tab bar along the bottom */
 @media (max-width:760px){
-  .st-key-fw-topbar{top:0; left:0; right:0; height:56px; border-radius:0; padding:0 12px;
-    box-shadow:0 1px 0 var(--line); justify-content:space-between}
-  [data-testid="stMainBlockContainer"]{margin-top:56px !important; padding-bottom:112px !important}
-  .st-key-fw-tabs{position:fixed !important; left:12px; right:12px; bottom:12px; width:auto !important; height:64px; padding:6px; box-sizing:border-box;
-    background:var(--dark); border-radius:20px; box-shadow:0 14px 34px -10px rgba(28,28,40,.55);
-    justify-content:space-between; gap:2px !important; overflow:visible}
-  .st-key-fw-tabs > div, .st-key-fw-tabs [class*="st-key-fw-tab-"]{flex:1 1 0 !important}
-  .st-key-fw-tabs [class*="st-key-fw-tab-"] div, .st-key-fw-tabs a{width:100% !important}
-  .st-key-fw-tabs a{height:52px; padding:0 !important; flex-direction:column; justify-content:center; gap:2px;
-    color:#A9A7BC !important; border-radius:14px !important}
-  .st-key-fw-tabs a p{display:block; font-size:10px !important; letter-spacing:.01em; overflow:hidden; text-overflow:ellipsis; max-width:100%}
-  .st-key-fw-tabs *{min-width:0}
-  .st-key-fw-tabs a [data-testid="stIconMaterial"]{font-size:22px !important}
-  .st-key-fw-tabs a:hover{background:#2B2B3B; color:#fff !important}
-  .fw-level .txt{min-width:0} .fw-level .bar{display:none}
+  .st-key-fw-topbar{height:56px; padding:0 16px; justify-content:space-between}
+  .fw-brandmark b{display:none}
+  [data-testid="stMainBlockContainer"]{padding:80px 16px 104px !important}
+  .st-key-fw-tabs{position:fixed !important; left:0; right:0; bottom:0; width:auto !important; height:auto;
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom)); box-sizing:border-box;
+    background:var(--card); border-top:1px solid var(--line); justify-content:space-around; gap:0 !important}
+  .st-key-fw-tabs > div, .st-key-fw-tabs [class*="st-key-fw-tab-"]{flex:1 1 0 !important; display:flex; justify-content:center}
+  .st-key-fw-tabs a{width:48px !important; height:44px; border-radius:12px !important}
+  .st-key-fw-tabs a [data-testid="stIconMaterial"]{font-size:23px !important}
 }
 /* ---- Pantry: Add food panel ---- */
-.st-key-addform{gap:12px !important; padding:20px !important; border-radius:22px}
+.st-key-addform{gap:12px !important; padding:20px !important}
 .fw-addhead{display:flex; gap:12px; align-items:center; padding-bottom:14px; border-bottom:1px solid var(--line)}
-.fw-addhead .t{font-size:18px; font-weight:800; color:var(--ink); letter-spacing:-0.02em}
+.fw-addhead .t{font-size:16px; font-weight:700; color:var(--ink); letter-spacing:-0.02em}
 .fw-addhead .s{font-size:12.5px; color:var(--muted); margin-top:2px; line-height:1.4}
 .fw-addlbl{font-size:12px; font-weight:600; color:var(--muted); margin-bottom:-6px}
 .st-key-quickadd{flex-wrap:wrap !important; gap:6px !important}
 .st-key-quickadd > div{width:auto !important; flex:0 0 auto}
-.st-key-quickadd button{min-height:32px !important; padding:4px 12px !important; border-radius:999px !important;
+.st-key-quickadd button{min-height:32px !important; padding:4px 12px !important; border-radius:var(--r) !important;
   border:1px solid var(--line) !important; background:var(--panel) !important; font-size:13px !important}
-.st-key-quickadd button:hover{border-color:var(--ink) !important; background:var(--card) !important}
+.st-key-quickadd button:hover{border-color:var(--ink-2) !important; background:var(--card) !important}
 .st-key-addform [data-testid="stWidgetLabel"] p{font-size:12.5px !important; font-weight:600 !important; color:var(--muted) !important}
-.st-key-addform [data-testid="stPills"] button{border-radius:12px !important}
-.fw-estimate{background:var(--panel); border-radius:16px; padding:12px 14px}
+
+.fw-estimate{background:var(--sunk); border-radius:var(--r); padding:12px 14px}
 .fw-estimate .k{display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--muted)}
 .fw-estimate .v{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:6px}
-.fw-estimate .v b{font-size:16px; color:var(--ink)}
+.fw-estimate .v b{font-size:15px; color:var(--ink)}
 .fw-estimate .s{font-size:12px; color:var(--muted); margin-top:4px; line-height:1.4}
 </style>
 """
@@ -457,14 +458,11 @@ def navbar(pages: list, current: object) -> None:  # list[StreamlitPage], Stream
         with st.container(key="fw-tabs", horizontal=True, vertical_alignment="center", gap=None):
             for index, page in enumerate(pages):
                 with st.container(key=f"fw-tab-{index}"):
-                    st.page_link(page, label=NAV_LABELS.get(page.title, page.title))
+                    st.page_link(page, label=NAV_LABELS.get(page.title, page.title), help=page.title)
                 if page == current:
                     st.html(
                         f"<style>.st-key-fw-tab-{index} a{{background:var(--dark) !important; color:#fff !important}}"
-                        f".st-key-fw-tab-{index} a [data-testid=stIconMaterial]{{color:var(--lime) !important}}"
-                        "@media (max-width:760px){"
-                        f".st-key-fw-tab-{index} a{{background:var(--lime) !important; color:var(--ink) !important}}"
-                        f".st-key-fw-tab-{index} a [data-testid=stIconMaterial]{{color:var(--ink) !important}}}}</style>"
+                        f".st-key-fw-tab-{index} a [data-testid=stIconMaterial]{{color:var(--lime) !important}}</style>"
                     )
         st.html(
             f'<div class="fw-level" title="Your cycle: {pct:.0f}% to the next level">'
