@@ -117,6 +117,13 @@ class InventoryStore:
         with self._connect() as conn:
             conn.execute("DELETE FROM inventory WHERE id = ?", (item_id,))
 
+    def reset(self, fixture: Path | None = None) -> list[InventoryItem]:
+        """Wipe every item and the step history, then reload the sample."""
+        with self._connect() as conn:
+            conn.execute("DELETE FROM inventory")
+            conn.execute("DELETE FROM events")
+        return self.seed_from_fixture(fixture or default_inventory_fixture())
+
     def seed_from_fixture(self, path: Path) -> list[InventoryItem]:
         items = load_inventory_fixture(path)
         for item in items:

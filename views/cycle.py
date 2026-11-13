@@ -223,3 +223,11 @@ if events:
     )
 else:
     st.caption("No steps taken yet. Use the tabs above.")
+
+
+with st.expander("Demo tools"):
+    st.caption("Put the pantry, garden, and compost back to the sample data and clear the history.")
+    if st.button("Reset demo data", icon=":material/restart_alt:", key="reset_demo"):
+        store.reset()
+        st.session_state["cycle_flash"] = "Reset to the sample data. History cleared."
+        st.rerun()
