@@ -267,7 +267,7 @@ def cad_region() -> str:
     lines = ['        <div class="cad-grid">']
     for f in files[:4]:
         src = f"cad/{f.name}"
-        caption = html.escape(f.stem.replace("_", " ").replace("-", " "))
+        caption = html.escape(re.sub(r"^\d+[-_ ]*", "", f.stem).replace("_", " ").replace("-", " ").capitalize())
         if f.suffix.lower() in CAD_VIDEOS:
             media = f'<video src="{src}" autoplay loop muted playsinline></video>'
         else:
