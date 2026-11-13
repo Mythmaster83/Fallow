@@ -64,8 +64,8 @@ python deploy/build_static.py      # writes dist/
 python deploy/serve_spa.py 8502    # preview at http://localhost:8502
 ```
 
-The workflow needs the repository secrets `CLOUDFLARE_API_TOKEN` and
-`CLOUDFLARE_ACCOUNT_ID`. The first visit downloads Python, so it takes a few
+The workflow reads `CLOUDFLARE_API_TOKEN` and
+`CLOUDFLARE_ACCOUNT_ID` from the `Fallow` environment secrets. The first visit downloads Python, so it takes a few
 seconds. Each visitor gets their own copy of the sample pantry, and a page
 reload starts it fresh. The live sensor and the LLM need network sockets the
 browser does not have, so the site uses the mock sensor and the shelf-life

@@ -1,6 +1,6 @@
 # Builds the in-browser (stlite) copy of Fallow and publishes it to Cloudflare
 # Workers as static files. Works on the free plan: no Python runs on Cloudflare.
-# Needs repository secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID.
+# Needs CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID on the "Fallow" environment.
 name: Deploy static site to Cloudflare
 
 on:
@@ -18,6 +18,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # The Cloudflare secrets are stored on the "Fallow" environment.
+    environment: Fallow
     permissions:
       contents: read
     steps:
