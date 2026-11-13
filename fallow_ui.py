@@ -75,6 +75,7 @@ CSS = """
 .fw-avatar{width:48px; height:48px; border-radius:50%; background:var(--lime); flex-shrink:0;
   display:flex; align-items:center; justify-content:center; color:var(--dark); box-shadow:0 0 0 3px #fff}
 .fw-avatar .ms{font-size:24px}
+.fw-lhs{display:flex; align-items:center; gap:12px; min-width:0}
 .fw-topbtns{display:flex; align-items:center; gap:10px; flex-shrink:0}
 .fw-sbtn{width:48px; height:48px; border-radius:50%; background:var(--card); color:var(--ink); display:flex; align-items:center; justify-content:center; text-decoration:none; transition:transform .2s, background .2s}
 .fw-sbtn:hover{transform:scale(1.06); background:var(--t-lime); color:var(--ink)}
@@ -217,6 +218,10 @@ CSS = """
 .fw-mini .k{font-size:12px; color:var(--muted); display:flex; align-items:center; gap:6px}
 .fw-mini .k .ms{font-size:16px}
 .fw-mini .v{font-size:18px; font-weight:800; color:var(--ink); margin:6px 0 6px; letter-spacing:-0.02em}
+.fw-mini .pair{display:flex; align-items:baseline; gap:5px; margin:6px 0; font-size:16px; color:var(--ink)}
+.fw-mini .pair .ms{align-self:center; color:var(--muted)}
+.fw-mini .pair b{font-weight:800; letter-spacing:-0.02em}
+.fw-mini .pair small{font-size:12px; font-weight:600; color:var(--muted)}
 .fw-mini .v small{font-size:12px; font-weight:600; color:var(--muted); margin-left:3px}
 .fw-meter3.light span{background:var(--panel)}
 .fw-meter3.light span.on{background:#8DC63F}
@@ -369,9 +374,10 @@ def top(title: str, subtitle: str, avatar_icon: str = "eco", search: bool = Fals
         else ""
     )
     st.html(
-        f'<div class="fw-top"><div><p class="fw-hello">{escape(title)}</p>'
-        f'<div class="fw-sub">{escape(subtitle)}</div></div>'
-        f'<div class="fw-topbtns">{sb}<div class="fw-avatar">{icon(avatar_icon)}</div></div></div>'
+        f'<div class="fw-top"><div class="fw-lhs"><div class="fw-avatar">{icon(avatar_icon)}</div>'
+        f'<div style="min-width:0"><p class="fw-hello">{escape(title)}</p>'
+        f'<div class="fw-sub">{escape(subtitle)}</div></div></div>'
+        f'<div class="fw-topbtns">{sb}</div></div>'
     )
 
 
@@ -587,19 +593,40 @@ def _mini(icon_name: str, key: str, value: str, unit: str, label: tuple[str, str
     )
 
 
+_RANK = {"good": 0, "watch": 1, "alert": 2}
+
+
+def _worst(*labels: tuple[str, str]) -> tuple[str, str]:
+    return max(labels, key=lambda label: _RANK[label[1]])
+
+
+def _pair_tile(icon_name: str, key: str, lines: list[tuple[str, str, str]], label: tuple[str, str]) -> str:
+    rows = "".join(
+        f'<div class="pair">{icon(i, 15)}<b>{escape(v)}</b><small>{escape(u)}</small></div>' for i, v, u in lines
+    )
+    return (
+        f'<div class="m"><div class="k">{icon(icon_name)}{escape(key)}</div>{rows}'
+        f'<span class="fw-pill {TONE_PILL[label[1]]}">{escape(label[0])}</span></div>'
+    )
+
+
 def weather_card(snapshot: SensorSnapshot, mode: str) -> str:
     frost = ("Frost risk", "alert") if snapshot.frost_risk else ("No frost", "good")
-    cells = [
-        _mini("humidity_percentage", "Humidity", f"{snapshot.humidity * 100:.0f}" if snapshot.humidity is not None else "n/a",
-              "%" if snapshot.humidity is not None else "", None),
-        _mini("ac_unit", "Frost", "Tonight", "", frost),
-    ]
+    air_lines, air_labels = [], []
+    if snapshot.humidity is not None:
+        air_lines.append(("humidity_percentage", f"{snapshot.humidity * 100:.0f}", "% humidity"))
     if snapshot.co2_ppm is not None:
-        cells.append(_mini("co2", "Air CO\u2082", f"{snapshot.co2_ppm:.0f}", "ppm", co2_label(snapshot.co2_ppm)))
+        air_lines.append(("co2", f"{snapshot.co2_ppm:.0f}", "ppm CO\u2082"))
+        air_labels.append(co2_label(snapshot.co2_ppm))
+    safe_lines = [("ac_unit", "Frost" if snapshot.frost_risk else "None", "tonight")]
+    safe_labels = [frost]
     if snapshot.radiation_usv_h is not None:
-        cells.append(
-            _mini("radiology", "Radiation", f"{snapshot.radiation_usv_h:.2f}", "\u00b5Sv/h", radiation_label(snapshot.radiation_usv_h))
-        )
+        safe_lines.append(("radiology", f"{snapshot.radiation_usv_h:.2f}", "\u00b5Sv/h"))
+        safe_labels.append(radiation_label(snapshot.radiation_usv_h))
+    tiles = ""
+    if air_lines:
+        tiles += _pair_tile("air", "Air", air_lines, _worst(*air_labels) if air_labels else ("Reading", "good"))
+    tiles += _pair_tile("shield", "Safety", safe_lines, _worst(*safe_labels))
     source = "Sample reading" if mode == "mock" else "Live"
     return (
         f'<div class="fw-card fw-wx"><div class="chead"><div class="ctitle">{icon("partly_cloudy_day")}Weather</div>'
@@ -607,7 +634,7 @@ def weather_card(snapshot: SensorSnapshot, mode: str) -> str:
         f'<div class="now"><div class="deg">{snapshot.temp_c:.0f}&deg;</div>'
         f'<div><div class="cond">{escape(snapshot.weather)}</div>'
         f'<div class="small" style="font-size:13px;color:var(--muted)">{escape(snapshot.location)}</div></div></div>'
-        f'<div class="fw-mini">{"".join(cells)}</div></div>'
+        f'<div class="fw-mini">{tiles}</div></div>'
     )
 
 
