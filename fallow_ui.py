@@ -16,6 +16,7 @@ from html import escape
 import streamlit as st
 
 from larder.health.nutrition import NutritionReport
+from larder.health.vitals import Vitals, stress_label
 from larder.meals.recipes import Recipe
 from larder.models import GrowPlan, InventoryItem, MealPlan, SpoilageRisk
 from larder.sensors.base import SensorSnapshot
@@ -103,7 +104,27 @@ CSS = """
   background:#2B2B3B; display:flex; align-items:center; justify-content:center}
 .fw-feature .blob .ms{font-size:64px; color:var(--lime); margin:-18px 0 0 -18px}
 .fw-stats{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px}
-@media (max-width:900px){.fw-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fw-stats.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:900px){.fw-stats,.fw-stats.cols-3{grid-template-columns:1fr}}
+.fw-split{display:grid; grid-template-columns:1fr 1fr; background:var(--card); border-radius:22px; overflow:hidden}
+.fw-half{padding:18px 18px 16px; min-width:0}
+.fw-half + .fw-half{border-left:1px solid var(--line)}
+@media (max-width:700px){
+  .fw-split{grid-template-columns:1fr}
+  .fw-half + .fw-half{border-left:0; border-top:1px solid var(--line)}
+}
+.fw-half-h{display:flex; align-items:center; gap:12px}
+.fw-half-h .kicker{font-size:12px; color:var(--muted); font-weight:600}
+.fw-half-h .place{font-size:16px; font-weight:700; color:var(--ink); margin-top:2px}
+.fw-metrics{display:flex; gap:18px; margin-top:16px}
+.fw-metrics b{display:block; font-size:22px; font-weight:800; letter-spacing:-0.02em; color:var(--ink)}
+.fw-metrics span{display:block; font-size:12px; color:var(--muted); margin-top:2px}
+.fw-warns{display:flex; flex-wrap:wrap; gap:6px; margin-top:14px}
+.fw-vitals{display:grid; grid-template-columns:1fr 1fr; gap:12px 16px; margin-top:16px}
+.fw-vital .l{font-size:12px; color:var(--muted); display:flex; align-items:center; gap:4px}
+.fw-vital .l .ms{font-size:16px}
+.fw-vital b{display:block; font-size:22px; font-weight:800; letter-spacing:-0.02em; color:var(--ink); margin-top:4px}
+.fw-vital .u{font-size:12px; color:var(--muted); font-weight:600}
 .fw-stat{background:var(--card); border-radius:22px; padding:16px; display:flex; flex-direction:column; gap:12px}
 .fw-stat .row{display:flex; align-items:center; gap:10px}
 .fw-stat .name{font-size:14px; font-weight:700; color:var(--ink); line-height:1.2}
@@ -278,7 +299,53 @@ def stats(rows: list[tuple[str, str, str, str]]) -> None:
         f'<div class="name">{escape(label)}</div></div><div class="v">{escape(value)}</div></div>'
         for ic, tone, value, label in rows
     )
-    st.html(f'<div class="fw-stats">{cells}</div>')
+    cols = " cols-3" if len(rows) == 3 else ""
+    st.html(f'<div class="fw-stats{cols}">{cells}</div>')
+
+
+def _vital(glyph: str, label: str, value: str, unit: str) -> str:
+    return (
+        f'<div class="fw-vital"><div class="l">{icon(glyph)}{escape(label)}</div>'
+        f'<b>{escape(value)} <span class="u">{escape(unit)}</span></b></div>'
+    )
+
+
+def condition_banner(snapshot: SensorSnapshot | None, vitals: Vitals | None, warnings: list[str]) -> None:
+    """One card split in half: weather and warnings on the left, vitals on the right."""
+    if snapshot is None:
+        weather = '<div class="fw-metrics"><div><b>—</b><span>No weather reading</span></div></div>'
+        place = "Weather"
+    else:
+        soil = snapshot.soil_condition.capitalize()
+        weather = (
+            '<div class="fw-metrics">'
+            f'<div><b>{snapshot.temp_c:.0f}&deg;C</b><span>{escape(snapshot.weather)}</span></div>'
+            f'<div><b>{escape(soil)}</b><span>Soil</span></div>'
+            "</div>"
+        )
+        place = snapshot.location
+    chips = "".join(f'<span class="fw-pill peach">{escape(note)}</span>' for note in warnings)
+    warn_row = f'<div class="fw-warns">{chips}</div>' if chips else ""
+    if vitals is None:
+        body = '<div class="fw-metrics"><div><b>—</b><span>No wearable reading</span></div></div>'
+    else:
+        body = (
+            '<div class="fw-vitals">'
+            + _vital("favorite", "Heart rate", str(vitals.heart_rate_bpm), "bpm")
+            + _vital("spo2", "Oxygen", str(vitals.spo2_percent), "%")
+            + _vital("psychology", "Stress", stress_label(vitals.stress), str(vitals.stress))
+            + _vital("air", "Respiration", str(vitals.respiration_per_min), "/min")
+            + "</div>"
+        )
+    st.html(
+        '<div class="fw-split">'
+        f'<section class="fw-half"><div class="fw-half-h"><div class="fw-tile lav">{icon("cloud")}</div>'
+        f'<div><div class="kicker">Weather</div><div class="place">{escape(place)}</div></div></div>'
+        f"{weather}{warn_row}</section>"
+        f'<section class="fw-half"><div class="fw-half-h"><div class="fw-tile peach">{icon("monitor_heart")}</div>'
+        f'<div><div class="kicker">Vitals</div><div class="place">Wearable</div></div></div>'
+        f"{body}</section></div>"
+    )
 
 
 def empty(text: str) -> None:
