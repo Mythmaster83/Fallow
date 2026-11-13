@@ -13,7 +13,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    environment: Fallow
     permissions:
       contents: read
     steps:
@@ -24,16 +23,19 @@ jobs:
         run: |
           missing=0
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "CLOUDFLARE_API_TOKEN is not set."
+            echo "CLOUDFLARE_API_TOKEN is missing from this job."
             missing=1
+          else
+            echo "CLOUDFLARE_API_TOKEN is present."
           fi
           if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
-            echo "CLOUDFLARE_ACCOUNT_ID is not set."
+            echo "CLOUDFLARE_ACCOUNT_ID is missing from this job."
             missing=1
+          else
+            echo "CLOUDFLARE_ACCOUNT_ID is present."
           fi
           if [ "$missing" -ne 0 ]; then
-            echo "Add both as repository secrets, or as secrets on the Fallow environment."
-            echo "Each secret is one value. The token is the Cloudflare API token. The account ID is the Cloudflare account ID."
+            echo "The workflow reads repository Actions secrets with these exact names."
             exit 1
           fi
 
