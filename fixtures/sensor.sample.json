@@ -1,0 +1,11 @@
+{
+  "captured_at": "2026-11-13T12:00:00Z",
+  "location": "Hudson Valley, NY",
+  "latitude": 41.7,
+  "longitude": -73.93,
+  "weather": "Cool and clear",
+  "temp_c": 7.0,
+  "soil_condition": "moist loam",
+  "soil_moisture": 0.45,
+  "frost_risk": true
+}
