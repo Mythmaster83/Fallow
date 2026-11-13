@@ -13,7 +13,7 @@ import sqlite3
 from pathlib import Path
 
 from larder import project_root
-from larder.models import InventoryItem
+from larder.models import CycleEvent, InventoryItem, Transition
 
 
 def default_db_path() -> Path:
@@ -64,6 +64,14 @@ class InventoryStore:
                 )
                 """
             )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS events (
+                    seq INTEGER PRIMARY KEY AUTOINCREMENT,
+                    payload TEXT NOT NULL
+                )
+                """
+            )
 
     def list_items(self) -> list[InventoryItem]:
         with self._connect() as conn:
@@ -81,6 +89,29 @@ class InventoryStore:
                 """,
                 (item.id, payload),
             )
+
+    def get(self, item_id: str) -> InventoryItem | None:
+        with self._connect() as conn:
+            row = conn.execute("SELECT payload FROM inventory WHERE id = ?", (item_id,)).fetchone()
+        return None if row is None else InventoryItem.model_validate_json(row["payload"])
+
+    def save(self, transition: Transition) -> None:
+        """Persist a lifecycle step: upsert its items, append its events."""
+        for item in transition.items:
+            self.upsert(item)
+        with self._connect() as conn:
+            conn.executemany(
+                "INSERT INTO events (payload) VALUES (?)",
+                [(event.model_dump_json(),) for event in transition.events],
+            )
+
+    def list_events(self, limit: int = 50) -> list[CycleEvent]:
+        """Most recent first."""
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT payload FROM events ORDER BY seq DESC LIMIT ?", (limit,)
+            ).fetchall()
+        return [CycleEvent.model_validate_json(row["payload"]) for row in rows]
 
     def delete(self, item_id: str) -> None:
         with self._connect() as conn:

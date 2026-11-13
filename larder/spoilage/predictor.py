@@ -47,7 +47,7 @@ def heuristic_risks(
     today = today or date.today()
     risks: list[SpoilageRisk] = []
     for item in items:
-        if item.quantity <= 0:
+        if not item.is_food:
             continue
         days, reason = _days_and_reason(item, today)
         risks.append(
@@ -75,7 +75,7 @@ def predict_spoilage(
     ``LLMClient.from_env()``, which is ``None`` when no API key is set.
     """
     today = today or date.today()
-    considered = [item for item in items if item.quantity > 0]
+    considered = [item for item in items if item.is_food]
     if not considered:
         return []
     fallback = heuristic_risks(considered, today=today)

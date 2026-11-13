@@ -14,6 +14,37 @@ from pydantic import BaseModel, Field
 RiskLevel = Literal["low", "medium", "high", "critical"]
 RiskSource = Literal["llm", "heuristic"]
 
+# Where a thing is in the dirt-to-plate-and-back loop.
+LifecycleState = Literal[
+    "seed",
+    "growing",
+    "harvested",
+    "raw",
+    "opened",
+    "cooked",
+    "consumed",
+    "trashed",
+    "scraps",
+    "compost",
+    "soil_amendment",
+    "applied",
+]
+
+# States in which the thing is food you can eat. Only these count toward
+# spoilage, meal plans, and pantry reserves.
+FOOD_STATES: frozenset[str] = frozenset({"harvested", "raw", "opened", "cooked"})
+
+# Places a thing can sit. Moving between them recalculates expiry.
+STORAGE_LOCATIONS: tuple[str, ...] = (
+    "fridge",
+    "freezer",
+    "pantry",
+    "counter",
+    "root cellar",
+    "ground",
+    "compost bin",
+)
+
 
 class InventoryItem(BaseModel):
     """One ingredient or staple on hand."""
@@ -26,6 +57,37 @@ class InventoryItem(BaseModel):
     acquired_on: date
     expires_on: date | None = None
     location: str = "pantry"
+    state: LifecycleState = "raw"
+    state_since: date | None = None
+    parent_id: str | None = None
+
+    @property
+    def is_food(self) -> bool:
+        """True while this is edible food on hand (not seed, scraps, or soil)."""
+        return self.state in FOOD_STATES and self.quantity > 0
+
+
+class CycleEvent(BaseModel):
+    """One step an item took through the lifecycle or between storage spots."""
+
+    item_id: str
+    item_name: str
+    from_state: LifecycleState | None
+    to_state: LifecycleState
+    location: str
+    on: date
+    note: str = ""
+
+
+class Transition(BaseModel):
+    """The result of moving one item: rows to save and events to log.
+
+    ``items`` holds the updated item first, then anything the step produced
+    (for example the scraps left over from cooking).
+    """
+
+    items: list[InventoryItem]
+    events: list[CycleEvent]
 
 
 class SpoilageRisk(BaseModel):
@@ -74,3 +136,4 @@ class GrowPlan(BaseModel):
     crops: list[GrowCrop]
     gaps: list[str]
     balance_notes: str
+    soil_notes: str = ""

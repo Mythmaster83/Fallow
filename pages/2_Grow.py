@@ -54,6 +54,10 @@ if grow.gaps:
 else:
     st.caption("Fresh food, calorie staples, and protein all last past the next few days.")
 
+if grow.soil_notes:
+    st.subheader("Soil")
+    st.write(grow.soil_notes)
+
 st.subheader("Plant")
 if grow.crops:
     st.dataframe(

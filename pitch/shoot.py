@@ -8,6 +8,8 @@ What it does:
 1. Starts ``streamlit run app.py`` headless on a free port, with a fresh
    database seeded from the sample fixture, SENSOR_MODE=mock and no LLM key,
    so every run produces the same shots.
+   It then walks part of the loop (plant kale, screen compost, cook carrots)
+   so the Cycle page has history to show.
 2. Visits the dashboard plus every file in ``pages/`` and saves a PNG per page
    to ``pitch/screenshots/``.
 3. Rewrites the ``SHOTS:*`` regions of ``pitch/index.html``:
@@ -217,6 +219,35 @@ def features_region(slugs: list[str]) -> str:
     return "\n".join(lines) + "\n"
 
 
+CAD_DIR = PITCH / "cad"
+CAD_IMAGES = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
+CAD_VIDEOS = {".mp4", ".webm"}
+
+
+def cad_region() -> str:
+    """Show whatever renders the CAD team dropped into pitch/cad/ (max 4)."""
+    files = sorted(
+        f for f in CAD_DIR.glob("*") if f.suffix.lower() in CAD_IMAGES | CAD_VIDEOS
+    ) if CAD_DIR.is_dir() else []
+    if not files:
+        return (
+            '        <div class="feature-card"><div class="todo">'
+            "CAD renders go here — drop images or a short .mp4 into pitch/cad/"
+            "</div></div>\n"
+        )
+    lines = ['        <div class="cad-grid">']
+    for f in files[:4]:
+        src = f"cad/{f.name}"
+        caption = html.escape(f.stem.replace("_", " ").replace("-", " "))
+        if f.suffix.lower() in CAD_VIDEOS:
+            media = f'<video src="{src}" autoplay loop muted playsinline></video>'
+        else:
+            media = f'<img src="{src}" alt="{caption}">'
+        lines.append(f"          <figure>{media}<figcaption>{caption}</figcaption></figure>")
+    lines.append("        </div>")
+    return "\n".join(lines) + "\n"
+
+
 def replace_region(text: str, name: str, body: str) -> str:
     pattern = re.compile(
         rf"(<!-- SHOTS:{name}:START -->\n).*?(<!-- SHOTS:{name}:END -->)", re.DOTALL
@@ -230,17 +261,47 @@ def update_deck(slugs: list[str]) -> None:
     text = DECK.read_text(encoding="utf-8")
     text = replace_region(text, "DEMO", demo_region(slugs))
     text = replace_region(text, "FEATURES", features_region(slugs))
+    text = replace_region(text, "CAD", cad_region())
     DECK.write_text(text, encoding="utf-8")
     print(f"  updated {DECK.relative_to(ROOT)}")
+
+
+def seed_demo_history(db_path: Path) -> None:
+    """Walk part of the loop so the Cycle page has a story to show.
+
+    Uses the same larder functions the pages call. Spinach and chicken are left
+    alone so the dashboard still leads with them.
+    """
+    sys.path.insert(0, str(ROOT))
+    from datetime import date
+
+    from larder.lifecycle import advance, plant
+    from larder.store import open_store
+
+    today = date.today()
+    store = open_store(db_path)
+
+    def get(item_id: str):  # noqa: ANN202 - local helper
+        item = store.get(item_id)
+        if item is None:
+            raise RuntimeError(f"Fixture is missing {item_id!r}; update seed_demo_history.")
+        return item
+
+    store.save(plant("kale", today, amendment=get("leaf-mould"), item_id="kale-bed"))
+    store.save(advance(get("kitchen-compost"), "soil_amendment", today, note="screened the finished pile"))
+    store.save(advance(get("carrots"), "cooked", today, note="roasted"))
+    store.save(advance(get("carrots-scraps"), "compost", today, note="tops and peels on the pile"))
 
 
 def main() -> None:
     port = free_port()
     base = f"http://127.0.0.1:{port}"
     with tempfile.TemporaryDirectory(prefix="fallow-shots-") as tmp:
+        db_path = Path(tmp) / "fallow.db"
+        seed_demo_history(db_path)
         env = {
             **os.environ,
-            "FALLOW_DB_PATH": str(Path(tmp) / "fallow.db"),
+            "FALLOW_DB_PATH": str(db_path),
             "SENSOR_MODE": "mock",
             "LLM_API_KEY": "",
         }
