@@ -14,7 +14,10 @@ and ``FALLOW_LOCATION``. Without them the sample fixture's place is used.
 
 from __future__ import annotations
 
+import importlib
+import io
 import json
+import sys
 import time
 import urllib.error
 import urllib.parse
@@ -70,12 +73,28 @@ def soil_label(relative: float) -> str:
     return "wet soil"
 
 
+def _browser_get(url: str) -> str:
+    """GET through the browser when Python runs in Pyodide (the website).
+
+    Pyodide has no sockets, so urllib cannot connect there; ``open_url`` makes
+    the request with the browser's own XMLHttpRequest. Open-Meteo allows
+    cross-origin requests, so this works from any site.
+    """
+    http = importlib.import_module("pyodide.http")
+    open_url: Callable[[str], io.StringIO] = getattr(http, "open_url")
+    return open_url(url).read()
+
+
 def _http_fetch(url: str, timeout: float) -> dict[str, Any]:
-    request = urllib.request.Request(url, headers={"User-Agent": "fallow-planner"})
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            payload: object = json.loads(response.read().decode("utf-8"))
-    except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
+        if sys.platform == "emscripten":
+            raw = _browser_get(url)
+        else:
+            request = urllib.request.Request(url, headers={"User-Agent": "fallow-planner"})
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                raw = response.read().decode("utf-8")
+        payload: object = json.loads(raw)
+    except Exception as exc:  # network, CORS, or bad JSON: never crash the page
         raise LiveSensorUnavailable(f"Open-Meteo did not answer: {exc}") from exc
     if not isinstance(payload, dict):
         raise LiveSensorUnavailable("Open-Meteo returned something other than a JSON object.")

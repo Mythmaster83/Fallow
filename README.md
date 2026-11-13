@@ -100,8 +100,9 @@ python deploy/serve_spa.py 8502    # open http://localhost:8502
 
 The workflow reads `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` from the
 `Fallow` environment secrets. Each visitor's live demo starts from the sample
-pantry and resets on reload. In the browser the live sensor and the LLM have no
-network access, so the demo uses the mock sensor and the shelf-life table.
+pantry and resets on reload. The live sensor reads Open-Meteo through the
+browser (falling back to the sample reading offline); the LLM is off, so
+spoilage uses the shelf-life table.
 
 ## Web demo, 3D watch and hardware
 

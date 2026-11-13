@@ -80,7 +80,8 @@ APP_PAGE = """<!doctype html>
         // sqlite3 ships as a separate Pyodide package; it must be named.
         requirements: ["pydantic", "sqlite3"],
         files,
-        env: {{ SENSOR_MODE: "mock" }},
+        // Real weather, soil and air from Open-Meteo; falls back to the sample offline.
+        env: {{ SENSOR_MODE: "live" }},
         disableProgressToasts: true,
       }},
       document.getElementById("root"),
