@@ -1,0 +1,72 @@
+[
+  {
+    "id": "spinach",
+    "name": "spinach",
+    "category": "leafy_greens",
+    "quantity": 1,
+    "unit": "bag",
+    "acquired_on": "2026-11-11",
+    "expires_on": "2026-11-13",
+    "location": "fridge"
+  },
+  {
+    "id": "chicken",
+    "name": "chicken",
+    "category": "meat",
+    "quantity": 1.5,
+    "unit": "lb",
+    "acquired_on": "2026-11-12",
+    "expires_on": "2026-11-14",
+    "location": "fridge"
+  },
+  {
+    "id": "carrots",
+    "name": "carrots",
+    "category": "produce",
+    "quantity": 6,
+    "unit": "count",
+    "acquired_on": "2026-11-10",
+    "expires_on": "2026-11-15",
+    "location": "fridge"
+  },
+  {
+    "id": "milk",
+    "name": "milk",
+    "category": "dairy",
+    "quantity": 1,
+    "unit": "quart",
+    "acquired_on": "2026-11-10",
+    "expires_on": "2026-11-16",
+    "location": "fridge"
+  },
+  {
+    "id": "bread",
+    "name": "bread",
+    "category": "bread",
+    "quantity": 1,
+    "unit": "loaf",
+    "acquired_on": "2026-11-12",
+    "expires_on": "2026-11-15",
+    "location": "counter"
+  },
+  {
+    "id": "rice",
+    "name": "rice",
+    "category": "grain",
+    "quantity": 2,
+    "unit": "kg",
+    "acquired_on": "2026-11-01",
+    "expires_on": null,
+    "location": "pantry"
+  },
+  {
+    "id": "beans",
+    "name": "beans",
+    "category": "pantry",
+    "quantity": 4,
+    "unit": "cans",
+    "acquired_on": "2026-11-01",
+    "expires_on": null,
+    "location": "pantry"
+  }
+]
