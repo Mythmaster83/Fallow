@@ -4,7 +4,7 @@
       index.html          landing page: "Watch the presentation" / "Try the live demo"
       web/                the pitch deck, clickable demo, 3D watch and probe (as-is)
       app/index.html      the real Fallow app, running in the visitor's browser
-      app/src/...         the app's Python files, fetched by the page
+      app/src/...         copies of the app files (the page carries them inline; the icon is linked from here)
       app/app/static/...  fonts and logo (the app links them as app/static/...)
 
 The live app uses stlite: Pyodide (Python compiled to WebAssembly) runs the
@@ -16,8 +16,8 @@ Usage: python deploy/build_static.py [out_dir]   (default: dist)
 
 from __future__ import annotations
 
-import hashlib
 import ast
+import base64
 import json
 import shutil
 import sys
@@ -75,9 +75,15 @@ APP_PAGE = """<!doctype html>
     <b>Starting Fallow</b><span>The first visit downloads Python, so it takes a few seconds.</span></div></div>
   <script type="module">
     import {{ mount }} from "https://cdn.jsdelivr.net/npm/@stlite/browser@{version}/build/stlite.js";
-    // Each URL carries the file's content hash, so a new deploy never mixes
-    // cached old files with new ones.
-    const files = Object.fromEntries(Object.entries({files}).map(([p, v]) => [p, {{ url: "{prefix}src/" + p + "?v=" + v }}]));
+    // Every app file ships inside this page (one request instead of ~45):
+    // text as-is, images as base64. A new deploy is a new page, so old and new
+    // files never mix.
+    const bundle = {files};
+    const unbase64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+    const files = Object.fromEntries(
+      Object.entries(bundle.text).map(([p, data]) => [p, {{ data }}])
+        .concat(Object.entries(bundle.binary).map(([p, b64]) => [p, {{ data: unbase64(b64) }}])),
+    );
     files["data/.keep"] = "";
     mount(
       {{
@@ -137,6 +143,23 @@ def app_css() -> str:
     raise SystemExit("fallow_ui.py has no plain CSS string constant")
 
 
+BINARY_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".woff", ".woff2"}
+
+
+def bundle_json(files: list[str]) -> str:
+    """All app files as one JSON object for the page: {"text": {...}, "binary": {path: base64}}.
+    Safe to drop inside a <script>: no "</" can close the tag early."""
+    text: dict[str, str] = {}
+    binary: dict[str, str] = {}
+    for rel in files:
+        raw = (ROOT / rel).read_bytes()
+        if Path(rel).suffix.lower() in BINARY_SUFFIXES:
+            binary[rel] = base64.b64encode(raw).decode("ascii")
+        else:
+            text[rel] = raw.decode("utf-8")
+    return json.dumps({"text": text, "binary": binary}, ensure_ascii=False).replace("</", "<\\/")
+
+
 def _copy_tree(src: Path, dest: Path) -> None:
     shutil.copytree(src, dest, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__"))
 
@@ -160,8 +183,7 @@ def build(out: Path) -> None:
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / rel, dest)
     _copy_tree(ROOT / "static", out / "app" / "app" / "static")
-    hashes = {rel: hashlib.sha1((ROOT / rel).read_bytes()).hexdigest()[:10] for rel in files}
-    page = APP_PAGE.format(version=STLITE_VERSION, files=json.dumps(hashes), prefix=APP_PREFIX, css=app_css().strip())
+    page = APP_PAGE.format(version=STLITE_VERSION, files=bundle_json(files), prefix=APP_PREFIX, css=app_css().strip())
     (out / "app" / "index.html").write_text(page, encoding="utf-8")
 
     print(f"Built the site into {out}: landing, web/, and {len(files)} app files under app/")
