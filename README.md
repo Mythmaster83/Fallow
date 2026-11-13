@@ -53,6 +53,24 @@ The inventory is a SQLite file at `data/fallow.db`. The first launch copies
 in `fixtures/inventory.sample.json`. Delete that database file to load the
 sample again.
 
+## Deploy
+
+A push to `main` publishes Fallow to Cloudflare (free plan) through
+`.github/workflows/deploy-cloudflare.yml`. The site is static: stlite runs the
+Streamlit app in the visitor's browser, so Cloudflare only serves files.
+
+```bash
+python deploy/build_static.py      # writes dist/
+python deploy/serve_spa.py 8502    # preview at http://localhost:8502
+```
+
+The workflow needs the repository secrets `CLOUDFLARE_API_TOKEN` and
+`CLOUDFLARE_ACCOUNT_ID`. The first visit downloads Python, so it takes a few
+seconds. Each visitor gets their own copy of the sample pantry, and a page
+reload starts it fresh. The live sensor and the LLM need network sockets the
+browser does not have, so the site uses the mock sensor and the shelf-life
+table.
+
 ## Tests
 
 ```bash

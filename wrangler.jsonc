@@ -1,0 +1,12 @@
+// Static-assets-only Worker: Cloudflare serves files, the visitor's browser
+// runs Python (stlite). No Worker code runs, so the free plan is enough.
+// Build dist/ first with: python deploy/build_static.py
+{
+  "name": "fallow",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    // /pantry, /farm, ... are app screens, not files: serve index.html.
+    "not_found_handling": "single-page-application"
+  }
+}
