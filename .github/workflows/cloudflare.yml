@@ -31,9 +31,8 @@ jobs:
         run: npx --yes @stlite/cloudflare@0.8.0 build "$GITHUB_WORKSPACE" -o /tmp/fallow-dist --entrypoint app.py --name fallow
 
       - name: Deploy
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: /tmp/fallow-dist
-          command: deploy
+        working-directory: /tmp/fallow-dist
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4.162.0 deploy
