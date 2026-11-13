@@ -116,11 +116,18 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 .core .lv{font-size:18px;color:var(--muted);font-weight:700}
 .core .xpbar{height:12px;border-radius:9px;background:var(--line);margin-top:12px;overflow:hidden}
 .core .xpbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--lime));transition:width .6s var(--ease)}
-.detail{margin-top:30px;padding:30px 34px;min-height:220px}
+.detail{margin-top:30px;padding:30px 34px;min-height:412px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
 .detail h3{font-size:34px;font-weight:800;display:flex;align-items:center;gap:12px}
 .detail h3 .ms{font-size:40px;color:var(--lime-ink)}
 .detail p{font-size:22px;line-height:1.5;color:var(--muted);margin-top:12px}
 .detail .tag{margin-top:14px;background:var(--lav2)}
+.detail{position:relative}
+.detail.has-img{padding-right:170px}
+.detail .dimg{position:absolute;right:22px;top:50%;transform:translateY(-50%);height:190px;width:auto;filter:drop-shadow(0 14px 20px rgba(0,0,0,.18))}
+.detail.has-img p{font-size:19px}
+.detail .flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:18px;font-size:16px;font-weight:700;color:var(--ink)}
+.detail .flow > span:not(.ms){background:var(--panel);padding:6px 12px;border-radius:999px}
+.detail .flow .ms{font-size:18px;color:#4E8A1F}
 #s3 .ctl{display:flex;gap:12px;margin-top:26px}
 .toast{position:absolute;left:50%;top:60px;transform:translate(-50%,-160%);background:var(--dark);color:#fff;border-radius:26px;padding:20px 30px 20px 20px;display:flex;align-items:center;gap:18px;box-shadow:0 24px 60px rgba(0,0,0,.35);transition:transform .7s var(--spring);z-index:20}
 .toast.show{transform:translate(-50%,0)}
@@ -327,7 +334,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 </section>
 
 <!-- 2. Problem -->
-<section class="slide" id="s3" data-notes="(about 15 sec) Fallow is one loop. Pantry tracks what's spoiling. Meals use it first. Scraps go to compost and back into the soil. Grow tells you what to plant to fill the gaps. Health checks your body is getting what it needs. Every full loop earns an achievement, so it feels like a game. Hit Play loop.">
+<section class="slide" id="s3" data-notes="(about 15 sec) Fallow is one loop. Pantry tracks what's spoiling. Meals use it first. Scraps go to compost and back into the soil. The Fallow Stake probe in the garden bed reads the soil and air and sends it to your phone, so Grow can tell you what to plant to fill the gaps. Health checks your body is getting what it needs. Every full loop earns an achievement, so it feels like a game. Hit Play loop.">
   <div class="grid">
     <div>
       <div class="eyebrow rv" style="--d:0"><span class="ms">all_inclusive</span>How it works</div>
@@ -717,11 +724,11 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 
   /* slide 3: the loop */
   const STEPS = [
-    { k: "Pantry", ic: "inventory_2", c: "#F2A766", t: "Know what's spoiling", d: "Log what you have. Fallow estimates days left for each item from a shelf life table and flags what's at risk first.", tag: "Spoilage risk score" },
-    { k: "Meals", ic: "restaurant", c: "#3F5A00", t: "Cook it before it goes", d: "Meals are planned around the items closest to spoiling, so food gets eaten instead of thrown out.", tag: "Use it first planner" },
-    { k: "Compost", ic: "recycling", c: "#8E77D9", t: "Scraps back to soil", d: "Trimmings from every meal are logged into the compost. Finished compost feeds the next bed, so nothing is wasted and the loop closes.", tag: "Dirt to plate and back" },
-    { k: "Grow", ic: "potted_plant", c: "#4E8A1F", t: "Plant what you'll run short of", d: "Soil and weather sensors plus your pantry gaps decide what to plant now: protein, calorie staples or fresh food.", tag: "Sensor grow advisor" },
-    { k: "Health", ic: "favorite", c: "#E5533F", t: "Check your body keeps up", d: "Nutrition balance by food group, plus blood oxygen and heart rate from the watch, so you see what's covered and what's missing.", tag: "Nutrition + vitals" },
+    { k: "Pantry", ic: "inventory_2", c: "#F2A766", t: "Know what's spoiling", d: "Log what you have. Fallow estimates days left for each item from a shelf life table and flags what's at risk first.", tag: "Spoilage risk score", flow: ["Log your food", "Days left", "At-risk first"] },
+    { k: "Meals", ic: "restaurant", c: "#3F5A00", t: "Cook it before it goes", d: "Meals are planned around the items closest to spoiling, so food gets eaten instead of thrown out.", tag: "Use it first planner", flow: ["Closest to spoiling", "Meal plan", "Eaten in time"] },
+    { k: "Compost", ic: "recycling", c: "#8E77D9", t: "Scraps back to soil", d: "Trimmings from every meal are logged into the compost. Finished compost feeds the next bed, so nothing is wasted and the loop closes.", tag: "Dirt to plate and back", flow: ["Meal scraps", "Compost bin", "Next garden bed"] },
+    { k: "Grow", ic: "potted_plant", c: "#4E8A1F", t: "Plant what you'll run short of", d: "The Fallow Stake probe sits in the bed and reads soil moisture, pH and temperature, plus the air's CO₂ and humidity. It sends them to your phone over Bluetooth, and with your pantry gaps that decides what to plant now.", tag: "Fallow Stake probe + grow advisor", img: "media/probe-plus.png", flow: ["Soil + air readings", "Your phone", "What to plant"] },
+    { k: "Health", ic: "favorite", c: "#E5533F", t: "Check your body keeps up", d: "Nutrition balance by food group, plus blood oxygen and heart rate from the watch, so you see what's covered and what's missing.", tag: "Nutrition + vitals", flow: ["Food groups", "Heart rate + oxygen", "What's missing"] },
   ];
   const ring = $(".ring");
   const pos = [[350, 100], [588, 273], [497, 552], [203, 552], [112, 273]];
@@ -743,7 +750,9 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   }
   function show(i, lit) {
     const s = STEPS[i];
-    $("#detail").innerHTML = `<h3><span class="ms" style="color:${s.c}">${s.ic}</span>${s.t}</h3><p>${s.d}</p><span class="pill tag">${s.tag}</span>`;
+    const flow = s.flow ? `<div class="flow">${s.flow.map(f => `<span>${f}</span>`).join('<span class="ms">arrow_forward</span>')}</div>` : "";
+    $("#detail").classList.toggle("has-img", !!s.img);
+    $("#detail").innerHTML = `${s.img ? `<img class="dimg" src="${s.img}" alt="">` : ""}<h3><span class="ms" style="color:${s.c}">${s.ic}</span>${s.t}</h3><p>${s.d}</p>${flow}<span class="pill tag">${s.tag}</span>`;
     $$(".node").forEach((n, j) => n.classList.toggle("lit", lit && j === i));
   }
   let lTimers = [];
