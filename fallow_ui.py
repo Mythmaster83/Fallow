@@ -526,6 +526,45 @@ CSS = """
 .fw-ach{border-radius:26px; background:rgba(28,28,38,.88); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
   border:1px solid rgba(255,255,255,.1); box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 30px 70px -24px rgba(20,14,60,.6)}
 .fw-ach-badge{border-radius:20px; background:linear-gradient(180deg, #E0F48A, #CDEA5C); box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+/* ---- Cycle page: the loop as three glass phases ---- */
+.fw-loop{display:grid; grid-template-columns:1fr auto 1fr auto 1fr; align-items:stretch; gap:10px; margin-top:22px}
+.fw-phase{background:var(--glass); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-edge); border-radius:var(--r-glass); box-shadow:inset 0 1px 0 rgba(255,255,255,.9), var(--glass-sh); padding:16px}
+.fw-phase .ph-head{display:flex; align-items:center; gap:12px; padding-bottom:12px; margin-bottom:8px; border-bottom:1px solid rgba(23,23,31,.06)}
+.fw-phase .ph-name{font-size:17px; font-weight:700; letter-spacing:-0.02em; color:var(--ink); text-shadow:var(--raise)}
+.fw-phase .ph-sub{font-size:12.5px; color:var(--muted); margin-top:2px}
+.fw-phase .ph-stages{display:flex; flex-direction:column; gap:4px}
+.fw-stage{display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:12px; color:var(--muted); font-size:14px}
+.fw-stage .ms{color:var(--faint)}
+.fw-stage span{flex:1; text-align:left}
+.fw-phase, .fw-phase *{text-align:left}
+.fw-stage b{min-width:26px; height:22px; padding:0 7px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:700; background:rgba(23,23,31,.05); color:var(--faint); font-variant-numeric:tabular-nums}
+.fw-stage.on{background:rgba(255,255,255,.75); color:var(--ink); box-shadow:inset 0 1px 0 #fff, 0 1px 2px rgba(23,23,31,.05)}
+.fw-stage.on .ms{color:var(--lav-ink)}
+.fw-stage.on span{font-weight:600}
+.fw-stage.on b{background:linear-gradient(180deg, #E0F48A, #CDEA5C); color:var(--ink)}
+.fw-loop-arrow{display:flex; align-items:center; color:var(--lav)}
+.fw-return{display:flex; align-items:center; justify-content:center; gap:8px; margin:12px 0 4px; font-size:13px; color:var(--muted);
+  padding:10px 14px; border-radius:999px; border:1px dashed rgba(91,70,199,.35); background:rgba(255,255,255,.35)}
+.fw-return .ms{color:var(--lav-ink)}
+@media (max-width:900px){
+  .fw-loop{grid-template-columns:1fr}
+  .fw-loop-arrow{justify-content:center; transform:rotate(90deg); height:24px}
+}
+.st-key-card-cycle-actions{padding:18px 20px !important; gap:14px !important}
+.st-key-card-cycle-actions [data-testid="stSegmentedControl"]{margin-bottom:4px}
+/* compost progress + history timeline */
+.fw-prog{flex-shrink:0; width:150px; text-align:right}
+.fw-prog .lbl{font-size:12.5px; font-weight:600; color:var(--ink-2); margin-bottom:6px}
+.fw-prog .bar{height:6px; border-radius:3px; background:rgba(23,23,31,.07); overflow:hidden}
+.fw-prog .bar i{display:block; height:100%; border-radius:3px; background:linear-gradient(90deg, var(--lav), var(--lav-ink))}
+.fw-tl .when{width:40px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; line-height:1.05}
+.fw-tl .when b{font-size:17px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums}
+.fw-tl .when span{font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.04em}
+.fw-tl .fw-tile{width:34px; height:34px; border-radius:10px}
+.fw-tl .fw-tile .ms{font-size:18px}
+@media (max-width:640px){.fw-prog{width:96px}}
 </style>
 """
 
