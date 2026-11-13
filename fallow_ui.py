@@ -75,6 +75,9 @@ CSS = """
 .fw-avatar{width:48px; height:48px; border-radius:50%; background:var(--lime); flex-shrink:0;
   display:flex; align-items:center; justify-content:center; color:var(--dark); box-shadow:0 0 0 3px #fff}
 .fw-avatar .ms{font-size:24px}
+.fw-topbtns{display:flex; align-items:center; gap:10px; flex-shrink:0}
+.fw-sbtn{width:48px; height:48px; border-radius:50%; background:var(--card); color:var(--ink); display:flex; align-items:center; justify-content:center; text-decoration:none; transition:transform .2s, background .2s}
+.fw-sbtn:hover{transform:scale(1.06); background:var(--t-lime); color:var(--ink)}
 .fw-search{display:flex; align-items:center; gap:10px; background:var(--card); border-radius:999px; height:48px;
   padding:0 18px; color:var(--muted); font-size:14px; text-decoration:none; margin-top:16px}
 .fw-search:hover{color:var(--ink)}
@@ -346,11 +349,16 @@ def today_label() -> str:
     return date.today().strftime("%A, %b %d").replace(" 0", " ")
 
 
-def top(title: str, subtitle: str, avatar_icon: str = "eco") -> None:
+def top(title: str, subtitle: str, avatar_icon: str = "eco", search: bool = False) -> None:
+    sb = (
+        f'<a class="fw-sbtn" href="pantry" target="_self" aria-label="Search your pantry">{icon("search")}</a>'
+        if search
+        else ""
+    )
     st.html(
         f'<div class="fw-top"><div><p class="fw-hello">{escape(title)}</p>'
         f'<div class="fw-sub">{escape(subtitle)}</div></div>'
-        f'<div class="fw-avatar">{icon(avatar_icon)}</div></div>'
+        f'<div class="fw-topbtns">{sb}<div class="fw-avatar">{icon(avatar_icon)}</div></div></div>'
     )
 
 

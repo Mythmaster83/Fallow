@@ -34,8 +34,7 @@ except (LiveSensorUnavailable, ValueError, ValidationError, FileNotFoundError, O
 grow = build_grow_plan(snapshot, items, risks=risks) if snapshot else None
 sensor_mode = os.environ.get("SENSOR_MODE", "mock").strip().lower() or "mock"
 
-ui.top(ui.greeting(), f"{ui.today_label()} · spoilage from {ui.source_note(risks)}")
-ui.search_link("Search your pantry")
+ui.top(ui.greeting(), f"{ui.today_label()} · spoilage from {ui.source_note(risks)}", search=True)
 
 # Dark feature card: the one thing to do next.
 if plan.meals and risks:
