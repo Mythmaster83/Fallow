@@ -1083,6 +1083,11 @@ function setupFilm() {
 .endc .mk{width:64px;height:64px;border-radius:18px}.endc b{font-size:44px;letter-spacing:-.03em;display:block}.endc span{font-size:20px;color:#D7F26E;font-weight:700}
 .lbl.film span{font-size:15px;padding:7px 13px}.cnt{position:fixed;right:64px;top:62px;z-index:9;font:800 20px 'Plus Jakarta Sans',sans-serif;color:#9C9AAE;opacity:0}`;
   document.head.appendChild(css);
+  const FP = new URLSearchParams(location.search);
+  const CLEAN = FP.has("clean");
+  if (FP.get("bg")) { const bgc = FP.get("bg") === "none" ? "transparent" : "#" + FP.get("bg"); document.documentElement.style.background = bgc; document.body.style.background = bgc; }
+  if (CLEAN) css.textContent += ".cap,.cnt,.endc{display:none!important}";
+  if (CLEAN) { floor.visible = false; grid.visible = false; }
   const mkSvg = document.querySelector(".brand .mk svg").cloneNode(true);
   mkSvg.setAttribute("width", "46"); mkSvg.setAttribute("height", "46");
   mkSvg.querySelector("g").setAttribute("fill", "#1E1E2A");
@@ -1108,7 +1113,8 @@ function setupFilm() {
     entries.forEach(e => e.group.position.copy(e.offset).multiplyScalar(E));
     if (boardDeco) boardDeco.visible = E > 0.12;
     const z = eIO(clamp((s - 9.6) / 3.2));
-    const ang = a0 - 0.32 + s * 0.045, r = r0 * (1.08 - 0.3 * z), h = h0 * (1.08 - 0.3 * z);
+    const zf = CLEAN ? +(FP.get("zoom") || 1) : 1;
+    const ang = a0 - 0.32 + s * 0.045, r = r0 * (1.08 - 0.3 * z) * zf, h = h0 * (1.08 - 0.3 * z) * zf;
     tg.set(0, 0.7 - 0.45 * z, 0);
     camera.position.set(tg.x + Math.cos(ang) * r, tg.y + h, tg.z + Math.sin(ang) * r);
     camera.lookAt(tg);

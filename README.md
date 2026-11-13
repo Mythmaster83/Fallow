@@ -90,14 +90,20 @@ fonts, and the 3D page also loads Three.js from a CDN).
   blood oxygen, CO2, humidity, soil pH and soil moisture. Tap the face to
   change screens. Controls sit in a bottom bar (View, Watch screen,
   Sensors, Parts) so the watch fills the screen.
-- `web/pitch/index.html`: the HackPerimeter pitch deck. Ten slides with the
+- `web/pitch/index.html`: the HackPerimeter pitch deck. Eleven slides with the
   demo and the 3D watch running live inside, a pantry clock, a playable loop
   and the grow advisor. Arrow keys move slides, T starts a 90 second timer,
   N shows speaker notes, F goes full screen. Keep it inside `web/` so it can
-  find `../demo/` and `../watch3d/`. Slides 6 and 7 compare the three probe
-  tiers with the watch and list every part with prices.
+  find `../demo/`, `../watch3d/` and `../probe3d/`. Slide 6 compares the three
+  probe tiers with the watch, slide 7 shows the probe live, and slide 8 lists
+  every part with prices next to the assembly video.
+- `web/probe3d/index.html`: the Fallow Stake, our garden probe design, in 3D.
+  Switch between Probe Lite, Plus and Pro to snap modules on and off, and
+  explode it to see every part with labels. `?still=1&tier=pro` renders a
+  transparent still for slides.
 - `web/pitch/media/fallow-assembly.mp4`: 15 second video that names every
-  part of the watch and then assembles it. Re-render it from the 3D viewer
+  part of the watch and then assembles it. `fallow-assembly-clean.mp4` is the
+  same on the slide background with no captions (`&clean=1&bg=F6F5F2`). Re-render it from the 3D viewer
   with `web/watch3d/index.html?film=1` (call `window.__film(seconds)`).
 - `hardware/cad/`: the Onshape STEP files (Assembly 1).
 - `hardware/fallow-watch.glb`: the same assembly as one GLB, one named node

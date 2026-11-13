@@ -216,8 +216,10 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 .slide.on .tier{opacity:1;transform:none}
 .slide.on .tier:hover{transform:translateY(-8px)}
 .tier.sel{box-shadow:0 0 0 4px var(--dark),0 24px 50px rgba(30,30,42,.18)}
-.tier .art{height:112px;display:grid;place-items:center;margin:-4px 0 4px}
-.tier .art svg{height:112px;width:auto;overflow:visible}
+.tier .art{height:172px;display:grid;place-items:center;margin:-10px 0 2px}
+.tier .art img{height:172px;width:auto;filter:drop-shadow(0 10px 14px rgba(30,30,42,.18));transition:transform .5s var(--spring)}
+.tier .art img.w{height:190px;margin-top:-14px}
+.tier:hover .art img{transform:translateY(-6px) rotate(-3deg)}
 .tier .nm{font-size:26px;font-weight:800;letter-spacing:-.02em}
 .tier .tg{font-size:15px;color:var(--muted);margin-top:2px;min-height:40px;line-height:1.3}
 .tier .pr{font-size:38px;font-weight:800;letter-spacing:-.03em;margin:4px 0 2px}
@@ -239,7 +241,11 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 @keyframes flow{to{stroke-dashoffset:-22}}
 .blink{animation:blink 1.2s infinite}
 /* bom */
-#bom .bgrid{display:grid;grid-template-columns:760px 1fr;gap:40px;margin-top:6px}
+#bom .bgrid{display:grid;grid-template-columns:760px 1fr;gap:40px;margin-top:6px;position:relative}
+#bom > .eyebrow,#bom > h2,#bom .bgrid > div:first-child{position:relative;z-index:2}
+.vbig{position:absolute;right:-140px;top:-190px;width:860px;height:860px;z-index:1}
+.vbig video{width:100%;height:100%;object-fit:cover;-webkit-mask-image:radial-gradient(closest-side,#000 80%,transparent 100%);mask-image:radial-gradient(closest-side,#000 80%,transparent 100%)}
+.vrep{position:absolute;right:170px;bottom:120px;background:#fff;box-shadow:0 6px 18px rgba(30,30,42,.12)}
 .btabs{display:flex;gap:6px;margin-top:22px;background:#fff;padding:6px;border-radius:999px;width:max-content;box-shadow:0 1px 0 var(--line)}
 .btabs button{padding:11px 20px;border-radius:999px;font-weight:700;font-size:17px;color:var(--muted);transition:all .25s var(--ease)}
 .btabs button.on{background:var(--dark);color:#fff}
@@ -410,6 +416,23 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   <div class="tierfoot rv" style="--d:6" id="tierFoot"></div>
 </section>
 
+<!-- 7. The probe -->
+<section class="slide" id="stake" data-notes="(about 10 sec) This is our own probe design, the Fallow Stake. A seed-pod head with an LED ring that glows the bed's status, and modules that snap on: the air collar, the CO2 chamber and the solar cap. Tap a tier and watch it change, then explode it.">
+  <div class="split">
+    <div>
+      <div class="eyebrow rv" style="--d:0"><span class="ms">yard</span>Our probe design</div>
+      <h2 class="rv" style="--d:1">Meet the Fallow Stake.</h2>
+      <div class="tries">
+        <div class="try rv" style="--d:2"><span class="ms">lightbulb</span>Seed-pod head with an LED ring that glows the bed's status at a glance.</div>
+        <div class="try rv" style="--d:3"><span class="ms">layers</span>One stake, snap-on modules: air collar, CO₂ chamber, solar cap.</div>
+        <div class="try rv" style="--d:4"><span class="ms">straighten</span>Ground flange keeps it level. Copper bands read moisture, the tip reads temperature.</div>
+        <div class="try rv" style="--d:5"><span class="ms">smartphone</span>Bluetooth to any phone. Pro adds a long-range antenna.</div>
+      </div>
+    </div>
+    <div class="frame rv" style="--d:2;background:#14141c"><span class="pill live" style="top:18px;right:18px;bottom:auto;left:auto">LIVE 3D</span><div class="loading" style="color:#8E8DA0">Loading the probe...</div><iframe data-src="probe3d/index.html" title="Fallow Stake probe 3D model" loading="lazy"></iframe></div>
+  </div>
+</section>
+
 <!-- 7. Parts and assembly -->
 <section class="slide" id="bom" data-notes="(about 10 sec) Here's every part we need, with real prices. The watch is about 80 dollars in parts, the Lite probe about 13. And this is the watch coming together: every part named, then assembled into one product.">
   <div class="eyebrow rv" style="--d:0"><span class="ms">inventory</span>Bill of materials</div>
@@ -420,9 +443,9 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
       <div class="card blist rv" style="--d:3"><div id="bomRows"></div><div class="btotal"><span>Parts total</span><b id="bomTotal">$0</b></div></div>
       <p class="bnote rv" style="--d:4">Approximate single-unit prototype prices in USD from DigiKey, RobotShop, Seeed and retail listings. Volume pricing is lower.</p>
     </div>
-    <div class="vcard rv" style="--d:2">
-      <video id="asmVid" muted loop playsinline preload="none" poster="media/fallow-assembly-poster.jpg" data-src="media/fallow-assembly.mp4"></video>
-      <div class="vbar"><span><span class="ms">movie</span>Every part named, then assembled</span><button class="btn lime" id="vidReplay"><span class="ms">replay</span>Replay</button></div>
+    <div class="vbig rv" style="--d:2">
+      <video id="asmVid" muted loop playsinline preload="none" poster="media/fallow-assembly-clean-poster.jpg" data-src="media/fallow-assembly-clean.mp4"></video>
+      <button class="btn ghost vrep" id="vidReplay"><span class="ms">replay</span>Replay</button>
     </div>
   </div>
 </section>
@@ -786,13 +809,13 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   const phone = `<g transform="translate(92 26)"><rect width="26" height="44" rx="6" fill="#fff" stroke="#1E1E2A" stroke-width="3"/><rect x="5" y="8" width="16" height="22" rx="2" fill="#D7F26E"/></g><path class="flow" d="M78 44 C86 40 88 44 92 46" stroke="#8DC63F" stroke-width="3" fill="none"/>`;
   const TIERS = [
     { k: "lite", nm: "Probe Lite", tg: "Stick it in the bed, read it on any phone.", pr: 19, f: [1, 1, 0, 0, 0, 0, 0, 0], chip: ["smartphone", "Any phone, Bluetooth"],
-      art: probeSvg(40, phone) },
+      art: `<img src="media/probe-lite.png" alt="Probe Lite">` },
     { k: "plus", nm: "Probe Plus", tg: "Adds soil pH and air humidity.", pr: 39, f: [1, 1, 1, 1, 0, 0, 0, 0], chip: ["smartphone", "Any phone, Bluetooth"],
-      art: probeSvg(52, `<rect x="72" y="70" width="6" height="70" rx="3" fill="#7BB6F0"/>` + phone) },
+      art: `<img src="media/probe-plus.png" alt="Probe Plus">` },
     { k: "pro", nm: "Probe Pro", tg: "Adds CO₂ and radiation. Solar, stays out all season.", pr: 99, f: [1, 1, 1, 1, 1, 1, 0, 0], chip: ["solar_power", "Any phone, solar powered"],
-      art: probeSvg(64, `<rect x="72" y="70" width="6" height="70" rx="3" fill="#7BB6F0"/><g transform="translate(26 4) rotate(-12)"><rect width="68" height="20" rx="4" fill="#2E6DB4"/><path d="M17 0v20M34 0v20M51 0v20" stroke="#7BB6F0" stroke-width="2"/></g><line x1="86" y1="22" x2="96" y2="0" stroke="#1E1E2A" stroke-width="3" stroke-linecap="round"/>` + phone) },
+      art: `<img src="media/probe-pro.png" alt="Probe Pro">` },
     { k: "watch", nm: "Fallow Watch", tg: "Compact and all in one. Your body, the air and the soil on your wrist.", pr: 129, best: true, f: [1, 1, 2, 1, 1, 0, 1, 1], chip: ["watch", "Best: no phone needed"],
-      art: `<svg viewBox="0 0 120 160"><rect x="38" y="0" width="44" height="40" rx="10" fill="#9580E3"/><rect x="38" y="120" width="44" height="40" rx="10" fill="#9580E3"/><rect x="24" y="30" width="72" height="100" rx="22" fill="#4A4D58"/><rect x="30" y="36" width="60" height="88" rx="17" fill="#07080B"/><path d="M38 82h10l5-12 6 22 5-10h18" stroke="#8DC63F" stroke-width="3" fill="none" stroke-linejoin="round"/><circle cx="60" cy="56" r="8" fill="none" stroke="#D7F26E" stroke-width="3"/><text x="60" y="112" font-size="11" font-weight="800" text-anchor="middle" fill="#D7F26E" font-family="Plus Jakarta Sans">98%</text><rect x="96" y="66" width="8" height="18" rx="3" fill="#D9DCE2"/></svg>` },
+      art: `<img src="media/watch.png" alt="Fallow Watch" class="w">` },
   ];
   $("#tierRow").innerHTML = TIERS.map((t, i) => `<button class="tier ${t.best ? "best" : ""}" data-k="${t.k}" style="transition-delay:${200 + i * 110}ms">${t.best ? '<span class="ribbon">BEST</span>' : ""}<div class="art">${t.art}</div><div class="nm">${t.nm}</div><div class="tg">${t.tg}</div><div class="pr">$${t.pr}<small>target price</small></div><ul>${FEAT.map((f, j) => `<li class="${t.f[j] ? "y" : "n"}"><span class="ms">${t.f[j] ? "check_circle" : "remove"}</span>${f}${t.f[j] === 2 ? " (via probe)" : ""}</li>`).join("")}</ul><span class="chip"><span class="ms">${t.chip[0]}</span>${t.chip[1]}</span></button>`).join("");
   const TFOOT = {
