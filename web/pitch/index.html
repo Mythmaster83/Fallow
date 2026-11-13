@@ -273,6 +273,16 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 .vbar .ms{color:var(--lime)}
 .vbar .btn .ms{color:var(--dark)}
 
+/* QR: scan to try the live site */
+.qr{display:flex;align-items:center;gap:16px;background:#fff;color:var(--dark);border-radius:24px;padding:14px 18px 14px 14px;box-shadow:0 18px 40px rgba(0,0,0,.28)}
+.qr img{width:128px;height:128px;display:block;border-radius:6px}
+.qr b{display:block;font-size:20px;line-height:1.2}
+.qr span{display:block;font-size:14px;color:#6E6D7C;margin-top:6px}
+#s1 .qr{position:absolute;right:70px;bottom:56px;flex-direction:column;gap:8px;padding:14px;text-align:center}
+#s1 .qr img{width:150px;height:150px}
+#s1 .qr b{font-size:16px}
+#s8 .next > div.qr{background:#fff;color:var(--dark);margin-top:6px;padding:14px 18px 14px 14px;font-weight:400}
+#s8 .qr img{width:150px;height:150px}
 /* hud */
 #hud{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:7px;border-radius:999px;background:rgba(20,20,28,.82);backdrop-filter:blur(10px);color:#fff;z-index:50;transition:opacity .4s}
 #hud.idle{opacity:.15}
@@ -312,6 +322,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
     <div class="o" style="left:232px;bottom:-48px"><span class="ms" style="color:#8DC63F">potted_plant</span></div>
     <div class="o" style="left:-48px;top:232px"><span class="ms" style="color:#F27A8A">favorite</span></div>
   </div>
+  <div class="qr rv" style="--d:3"><img src="media/qr-site.svg" alt="QR code: fallow.aliahmedaziz08.workers.dev"><b>Scan to try it</b></div>
   <div class="hint"><kbd>→</kbd> next <kbd>T</kbd> 90 sec timer <kbd>N</kbd> notes <kbd>F</kbd> full screen</div>
 </section>
 
@@ -531,7 +542,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
       <div class="stack rv" style="--d:3">
         <span class="pill">Python</span><span class="pill">Streamlit</span><span class="pill">Pydantic</span><span class="pill">SQLite</span><span class="pill">JavaScript</span><span class="pill">Three.js</span><span class="pill">CAD (STEP)</span>
       </div>
-      <p class="team rv" style="--d:4">Built by <b>Ali Ahmed</b> and <b>Al Sadik</b></p>
+      <p class="team rv" style="--d:4">Built by <b>Asraful Sarker</b>, <b>Al Sadik</b>, <b>Nathan Barro</b> and <b>Ali Ahamed</b></p>
       <a class="repo rv" style="--d:5" href="https://github.com/Mythmaster83/Fallow" target="_blank" rel="noopener"><span class="ms">code</span>github.com/Mythmaster83/Fallow</a>
     </div>
     <div class="next">
@@ -539,6 +550,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
       <div class="rv" style="--d:3"><span class="ms">precision_manufacturing</span>Build the probe and watch prototype from our CAD.</div>
       <div class="rv" style="--d:4"><span class="ms">cloud_off</span>Offline mode, so it works when the power or the internet is out.</div>
       <div class="rv" style="--d:5"><span class="ms">groups</span>Field test with a community garden and a food pantry.</div>
+      <div class="qr rv" style="--d:6"><img src="media/qr-site.svg" alt="QR code: fallow.aliahmedaziz08.workers.dev"><div><b>Try Fallow on your phone</b><span>fallow.aliahmedaziz08.workers.dev</span></div></div>
     </div>
   </div>
 </section>
