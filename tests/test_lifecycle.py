@@ -139,3 +139,20 @@ def test_store_saves_items_and_events(tmp_path: Path) -> None:
     assert store.get("carrots-scraps") is not None
     events = store.list_events()
     assert [e.to_state for e in events] == ["scraps", "cooked"]  # newest first
+
+
+def test_reset_restores_the_sample_and_clears_history(tmp_path: Path) -> None:
+    from larder.store import default_inventory_fixture, load_inventory_fixture
+
+    store = InventoryStore(tmp_path / "t.db")
+    store.seed_from_fixture(default_inventory_fixture())
+    spinach = store.get("spinach")
+    assert spinach is not None
+    store.save(advance(spinach, "cooked", TODAY))
+    store.upsert(_food("extra", "extra", "produce"))
+    store.reset()
+    sample = load_inventory_fixture(default_inventory_fixture())
+    assert {i.id for i in store.list_items()} == {i.id for i in sample}
+    restored = store.get("spinach")
+    assert restored is not None and restored.state == "raw"
+    assert store.list_events() == []

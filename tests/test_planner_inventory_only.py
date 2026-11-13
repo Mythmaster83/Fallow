@@ -113,3 +113,26 @@ def test_soonest_food_is_the_first_meal() -> None:
     plan = plan_meals(items, today=TODAY)
     assert plan.meals[0].item_ids[0] == "salmon"
     assert plan.priority_item_ids[0] == "salmon"
+
+
+def test_short_food_group_goes_first_within_the_same_urgency() -> None:
+    items = [
+        _item("bread", "bread", "bread", expires_on=TODAY + timedelta(days=1)),
+        _item("chicken", "chicken", "meat", expires_on=TODAY + timedelta(days=2)),
+        _item("rice", "rice", "grain", acquired_on=TODAY),
+    ]
+    plain = plan_meals(items, today=TODAY, needs=[])
+    assert plain.meals[0].item_ids[0] == "bread"  # soonest first
+    plan = plan_meals(items, today=TODAY, needs=["protein"])
+    assert plan.meals[0].item_ids[0] == "chicken"
+    assert "protein" in plan.meals[0].why
+    _assert_inventory_only(plan, items)
+
+
+def test_a_need_never_beats_a_worse_urgency_band() -> None:
+    items = [
+        _item("spinach", "spinach", "leafy_greens", expires_on=TODAY),
+        _item("chicken", "chicken", "meat", expires_on=TODAY + timedelta(days=2)),
+    ]
+    plan = plan_meals(items, today=TODAY, needs=["protein"])
+    assert plan.meals[0].item_ids[0] == "spinach"

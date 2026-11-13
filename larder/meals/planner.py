@@ -9,8 +9,11 @@ from __future__ import annotations
 
 from datetime import date
 
+from larder.grow.balance import buckets_for, find_gaps
 from larder.models import InventoryItem, MealPlan, PlannedMeal, SpoilageRisk
 from larder.spoilage.predictor import heuristic_risks
+
+_BAND = {"critical": 0, "high": 1, "medium": 2, "low": 3}
 
 _STAPLE_CATEGORIES = {"grain", "pantry", "bread"}
 
@@ -33,6 +36,7 @@ def plan_meals(
     risks: list[SpoilageRisk] | None = None,
     horizon_days: int = 3,
     today: date | None = None,
+    needs: list[str] | None = None,
 ) -> MealPlan:
     """Plan up to ``horizon_days`` meals from food already on hand.
 
@@ -54,7 +58,20 @@ def plan_meals(
         )
 
     usable = _risks_for(active, risks, today)
-    urgent = [risk for risk in usable if risk.risk != "low"]
+    # What the body and shelf are short on (Health). Within the same urgency
+    # band, food that fills a short group is cooked first; a short group never
+    # jumps ahead of food that spoils sooner in a worse band.
+    if needs is None:
+        needs = find_gaps(active, risks=usable, today=today)
+    wanted = set(needs)
+
+    def _fills(risk: SpoilageRisk) -> list[str]:
+        return sorted(buckets_for(by_id[risk.item_id]) & wanted)
+
+    urgent = sorted(
+        (risk for risk in usable if risk.risk != "low"),
+        key=lambda r: (_BAND[r.risk], 0 if _fills(r) else 1, r.days_remaining, r.item_name),
+    )
     priority_ids = [risk.item_id for risk in urgent]
     if not urgent:
         return MealPlan(
@@ -80,7 +97,7 @@ def plan_meals(
                 name=_MEAL_NAMES.get(item.category, f"Cook the {item.name} first"),
                 item_ids=item_ids,
                 uses=uses,
-                why=_why(item, risk),
+                why=_why(item, risk, _fills(risk)),
             )
         )
 
@@ -131,11 +148,12 @@ def _calmest_staple(
     return max(staples, key=lambda item: risks_by_id[item.id].days_remaining)
 
 
-def _why(item: InventoryItem, risk: SpoilageRisk) -> str:
+def _why(item: InventoryItem, risk: SpoilageRisk, fills: list[str] | None = None) -> str:
     if risk.days_remaining < 0:
         timing = f"{item.name} is already overdue"
     elif risk.days_remaining == 0:
         timing = f"{item.name} expires today"
     else:
         timing = f"{item.name} has {risk.days_remaining} day(s) left"
-    return f"{timing} ({risk.risk} risk). Cook it before opening food that can wait."
+    need = f" It also covers what you're short on: {', '.join(fills)}." if fills else ""
+    return f"{timing} ({risk.risk} risk). Cook it before opening food that can wait.{need}"
