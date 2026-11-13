@@ -76,7 +76,7 @@ SCRIPTS = {
         (300, _set_range("#day", 0)),
         (900, None),
     ],
-    "s3-loop": [(900, _click("#loopPlay")), (9500, _click("#loopReset")), (1200, None)],
+    "s3-loop": [(900, _click("#loopPlay")), (10600, _click("#loopReset")), (1200, None)],  # 5 steps x 1.3 s, then the 3.6 s popup
     "s4-live-demo": [
         (1500, None),
         (1200, _frame_click("#s4 iframe", "text=Watch")),
