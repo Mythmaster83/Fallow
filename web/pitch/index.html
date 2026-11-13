@@ -327,11 +327,11 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 </section>
 
 <!-- 2. Problem -->
-<section class="slide" id="s3" data-notes="(about 15 sec) Fallow is one loop. Pantry tracks what's spoiling. Meals use it first. Grow tells you what to plant to fill the gaps. Health checks your body is getting what it needs. Every full loop earns an achievement, so it feels like a game. Hit Play loop.">
+<section class="slide" id="s3" data-notes="(about 15 sec) Fallow is one loop. Pantry tracks what's spoiling. Meals use it first. Scraps go to compost and back into the soil. Grow tells you what to plant to fill the gaps. Health checks your body is getting what it needs. Every full loop earns an achievement, so it feels like a game. Hit Play loop.">
   <div class="grid">
     <div>
       <div class="eyebrow rv" style="--d:0"><span class="ms">all_inclusive</span>How it works</div>
-      <h2 class="rv" style="--d:1">One loop, four jobs.</h2>
+      <h2 class="rv" style="--d:1">One loop, five jobs.</h2>
       <p class="lead rv" style="--d:2">Every step feeds the next. Tap a circle, or play the whole cycle.</p>
       <div class="card detail rv" style="--d:3" id="detail"></div>
       <div class="ctl rv" style="--d:4">
@@ -719,11 +719,12 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   const STEPS = [
     { k: "Pantry", ic: "inventory_2", c: "#F2A766", t: "Know what's spoiling", d: "Log what you have. Fallow estimates days left for each item from a shelf life table and flags what's at risk first.", tag: "Spoilage risk score" },
     { k: "Meals", ic: "restaurant", c: "#3F5A00", t: "Cook it before it goes", d: "Meals are planned around the items closest to spoiling, so food gets eaten instead of thrown out.", tag: "Use it first planner" },
+    { k: "Compost", ic: "recycling", c: "#8E77D9", t: "Scraps back to soil", d: "Trimmings from every meal are logged into the compost. Finished compost feeds the next bed, so nothing is wasted and the loop closes.", tag: "Dirt to plate and back" },
     { k: "Grow", ic: "potted_plant", c: "#4E8A1F", t: "Plant what you'll run short of", d: "Soil and weather sensors plus your pantry gaps decide what to plant now: protein, calorie staples or fresh food.", tag: "Sensor grow advisor" },
     { k: "Health", ic: "favorite", c: "#E5533F", t: "Check your body keeps up", d: "Nutrition balance by food group, plus blood oxygen and heart rate from the watch, so you see what's covered and what's missing.", tag: "Nutrition + vitals" },
   ];
   const ring = $(".ring");
-  const pos = [[350, 100], [600, 350], [350, 600], [100, 350]];
+  const pos = [[350, 100], [588, 273], [497, 552], [203, 552], [112, 273]];
   STEPS.forEach((s, i) => {
     const b = document.createElement("button");
     b.className = "node"; b.id = "nd" + i;
@@ -759,19 +760,19 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
     STEPS.forEach((_, i) => {
       lTimers.push(setTimeout(() => {
         show(i, true);
-        $("#arc").style.strokeDashoffset = 1571 - (1571 * (i + 1)) / 4;
+        $("#arc").style.strokeDashoffset = 1571 - (1571 * (i + 1)) / STEPS.length;
         if (i > 0) $("#nd" + (i - 1)).classList.add("done");
         setXp((i + 1) * 15);
       }, i * 1300));
     });
     lTimers.push(setTimeout(() => {
-      $("#nd3").classList.add("done");
+      $("#nd" + (STEPS.length - 1)).classList.add("done");
       $$(".node").forEach(n => n.classList.remove("lit"));
       setXp(100);
       $("#toast").classList.add("show");
       confetti($("#s3"));
       lTimers.push(setTimeout(() => $("#toast").classList.remove("show"), 3600));
-    }, 4 * 1300 + 200));
+    }, STEPS.length * 1300 + 200));
   }
   $("#loopPlay").onclick = playLoop;
   $("#loopReset").onclick = resetLoop;
