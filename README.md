@@ -42,8 +42,8 @@ streamlit run app.py
 ```
 
 Streamlit prints a local address, usually `http://localhost:8501`. Open that
-in a browser. The top bar has Dashboard, Pantry, Soil & farm, Health, and
-Food & recipes.
+in a browser. The top bar has Dashboard, Pantry, Soil & farm, Health,
+Food & recipes, and Cycle.
 
 Leave this command running while you use the site. Stop it with Ctrl+C in
 that terminal. Nothing here is deployed to the public internet; it runs on

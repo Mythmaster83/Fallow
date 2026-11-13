@@ -11,6 +11,7 @@ from __future__ import annotations
 from datetime import date, datetime
 
 from larder.grow.balance import explain_balance, find_gaps
+from larder.lifecycle import compost_ready_on
 from larder.models import GrowCrop, GrowPlan, InventoryItem, SpoilageRisk
 from larder.sensors.base import SensorSnapshot
 
@@ -124,7 +125,27 @@ def build_grow_plan(
         crops=crops,
         gaps=gaps,
         balance_notes=explain_balance(gaps, crops),
+        soil_notes=soil_notes(items, when),
     )
+
+
+def soil_notes(items: list[InventoryItem], today: date) -> str:
+    """Say what the compost loop has ready to feed the next planting."""
+    finished = [i for i in items if i.state == "soil_amendment" and i.quantity > 0]
+    piles = [i for i in items if i.state == "compost" and i.quantity > 0]
+    sentences: list[str] = []
+    if finished:
+        names = ", ".join(f"{i.quantity:g} {i.unit} {i.name}" for i in finished)
+        sentences.append(f"Finished compost on hand ({names}): dig it in before planting.")
+    for pile in piles:
+        ready = compost_ready_on(pile)
+        if ready is None:
+            continue
+        if ready <= today:
+            sentences.append(f"The {pile.name} pile is ready to screen into soil amendment.")
+        else:
+            sentences.append(f"The {pile.name} pile should be finished around {ready.isoformat()}.")
+    return " ".join(sentences)
 
 
 def _snapshot_day(captured_at: datetime) -> date:

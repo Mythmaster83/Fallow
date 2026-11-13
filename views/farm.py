@@ -41,6 +41,8 @@ ui.conditions(snapshot)
 
 ui.heading("Pantry balance", "Food health", "health")
 ui.balance(grow)
+if grow.soil_notes:
+    st.caption(grow.soil_notes)
 
 ui.heading("Plant")
 if grow.crops:

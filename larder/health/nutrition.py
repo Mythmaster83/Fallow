@@ -47,7 +47,7 @@ def nutrition_report(
     ``short``: the group has food, but all of it spoils within the window.
     ``missing``: nothing in the pantry belongs to the group.
     """
-    active = [item for item in items if item.quantity > 0]
+    active = [item for item in items if item.is_food]
     if risks is None:
         risks = heuristic_risks(active, today=today)
     by_id = {risk.item_id: risk for risk in risks}

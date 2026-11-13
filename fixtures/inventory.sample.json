@@ -68,5 +68,41 @@
     "acquired_on": "2026-11-01",
     "expires_on": null,
     "location": "pantry"
+  },
+  {
+    "id": "garlic-bed",
+    "name": "garlic",
+    "category": "produce",
+    "quantity": 1,
+    "unit": "bed",
+    "acquired_on": "2026-10-20",
+    "expires_on": null,
+    "location": "ground",
+    "state": "growing",
+    "state_since": "2026-10-20"
+  },
+  {
+    "id": "kitchen-compost",
+    "name": "kitchen compost",
+    "category": "scraps",
+    "quantity": 20,
+    "unit": "gal",
+    "acquired_on": "2026-09-10",
+    "expires_on": null,
+    "location": "compost bin",
+    "state": "compost",
+    "state_since": "2026-09-10"
+  },
+  {
+    "id": "leaf-mould",
+    "name": "leaf mould",
+    "category": "scraps",
+    "quantity": 2,
+    "unit": "wheelbarrow",
+    "acquired_on": "2026-06-01",
+    "expires_on": null,
+    "location": "compost bin",
+    "state": "soil_amendment",
+    "state_since": "2026-10-01"
   }
 ]
