@@ -13,7 +13,8 @@ from larder.llm.client import load_project_env
 
 load_project_env()
 
-st.set_page_config(page_title="Fallow", page_icon=":material/eco:", layout="wide")
+st.set_page_config(page_title="Fallow", page_icon="static/fallow-logo-app-192.png", layout="wide")
+st.logo("static/fallow-logo-app-192.png", size="large")
 inject_css()
 
 nav = st.navigation(
