@@ -43,7 +43,7 @@ def plan_meals(
     if horizon_days < 1:
         raise ValueError("horizon_days must be at least 1")
 
-    active = [item for item in items if item.quantity > 0]
+    active = [item for item in items if item.is_food]
     by_id = {item.id: item for item in active}
     if not active:
         return MealPlan(

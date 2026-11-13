@@ -32,7 +32,7 @@ def find_gaps(
     today: date | None = None,
 ) -> list[str]:
     """Return the reserve groups the pantry cannot cover past the short window."""
-    active = [item for item in items if item.quantity > 0]
+    active = [item for item in items if item.is_food]
     if risks is None:
         risks = heuristic_risks(active, today=today)
     by_id = {risk.item_id: risk for risk in risks}

@@ -33,7 +33,7 @@ st.title("Fallow")
 st.caption(
     "Nothing rots, nothing is wasted, everything is planned. "
     "The pantry, the next meals, and what to plant are on this page. "
-    "Inventory and Grow are in the sidebar."
+    "Inventory, Grow, and the full Cycle are in the sidebar."
 )
 
 store = open_store()
@@ -106,6 +106,8 @@ else:
         delta_color="off",
     )
     st.write(grow.balance_notes)
+    if grow.soil_notes:
+        st.write(grow.soil_notes)
     if grow.gaps:
         st.caption("Thin reserves: " + ", ".join(grow.gaps))
     st.dataframe(

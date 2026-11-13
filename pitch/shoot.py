@@ -8,6 +8,8 @@ What it does:
 1. Starts ``streamlit run app.py`` headless on a free port, with a fresh
    database seeded from the sample fixture, SENSOR_MODE=mock and no LLM key,
    so every run produces the same shots.
+   It then walks part of the loop (plant kale, screen compost, cook carrots)
+   so the Cycle page has history to show.
 2. Visits the dashboard plus every file in ``pages/`` and saves a PNG per page
    to ``pitch/screenshots/``.
 3. Rewrites the ``SHOTS:*`` regions of ``pitch/index.html``:
@@ -264,13 +266,42 @@ def update_deck(slugs: list[str]) -> None:
     print(f"  updated {DECK.relative_to(ROOT)}")
 
 
+def seed_demo_history(db_path: Path) -> None:
+    """Walk part of the loop so the Cycle page has a story to show.
+
+    Uses the same larder functions the pages call. Spinach and chicken are left
+    alone so the dashboard still leads with them.
+    """
+    sys.path.insert(0, str(ROOT))
+    from datetime import date
+
+    from larder.lifecycle import advance, plant
+    from larder.store import open_store
+
+    today = date.today()
+    store = open_store(db_path)
+
+    def get(item_id: str):  # noqa: ANN202 - local helper
+        item = store.get(item_id)
+        if item is None:
+            raise RuntimeError(f"Fixture is missing {item_id!r}; update seed_demo_history.")
+        return item
+
+    store.save(plant("kale", today, amendment=get("leaf-mould"), item_id="kale-bed"))
+    store.save(advance(get("kitchen-compost"), "soil_amendment", today, note="screened the finished pile"))
+    store.save(advance(get("carrots"), "cooked", today, note="roasted"))
+    store.save(advance(get("carrots-scraps"), "compost", today, note="tops and peels on the pile"))
+
+
 def main() -> None:
     port = free_port()
     base = f"http://127.0.0.1:{port}"
     with tempfile.TemporaryDirectory(prefix="fallow-shots-") as tmp:
+        db_path = Path(tmp) / "fallow.db"
+        seed_demo_history(db_path)
         env = {
             **os.environ,
-            "FALLOW_DB_PATH": str(Path(tmp) / "fallow.db"),
+            "FALLOW_DB_PATH": str(db_path),
             "SENSOR_MODE": "mock",
             "LLM_API_KEY": "",
         }
