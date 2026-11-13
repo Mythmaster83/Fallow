@@ -397,6 +397,135 @@ CSS = """
 .fw-estimate .v{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:6px}
 .fw-estimate .v b{font-size:15px; color:var(--ink)}
 .fw-estimate .s{font-size:12px; color:var(--muted); margin-top:4px; line-height:1.4}
+/* =====================================================================
+   Glass layer: the look Apple's own apps use. Translucent frosted tiles
+   over a softly colored canvas, a bright top edge, layered depth, system
+   type with raised titles, gradient squircle icons, capsule controls.
+   Same palette: lavender brand, lime action, charcoal ink, status tints.
+   ===================================================================== */
+:root{
+  --glass:rgba(255,255,255,.58); --glass-strong:rgba(255,255,255,.74); --glass-inner:rgba(255,255,255,.55);
+  --glass-edge:rgba(255,255,255,.85); --glass-line:rgba(23,23,31,.06);
+  --glass-blur:blur(22px) saturate(170%);
+  --glass-sh:0 1px 1px rgba(23,23,31,.03), 0 10px 30px -12px rgba(48,36,110,.20), 0 30px 60px -40px rgba(48,36,110,.25);
+  --r-glass:22px;
+  --sys:-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI Variable Display", "Segoe UI", "Plus Jakarta Sans", system-ui, sans-serif;
+  --raise:0 1px 0 rgba(255,255,255,.95), 0 1px 1px rgba(23,23,31,.06), 0 8px 18px rgba(48,36,110,.12);
+}
+
+/* Canvas: color fields for the glass to pick up */
+[data-testid="stAppViewContainer"]{
+  background:
+    radial-gradient(900px 520px at 12% -8%, rgba(187,166,240,.85), transparent 62%),
+    radial-gradient(760px 480px at 92% 6%, rgba(212,239,106,.45), transparent 60%),
+    radial-gradient(900px 700px at 70% 70%, rgba(187,166,240,.28), transparent 65%),
+    radial-gradient(700px 600px at 0% 95%, rgba(212,239,106,.22), transparent 60%),
+    #F3F1F7 !important;
+  background-attachment:fixed !important}
+
+/* System type everywhere except icon fonts */
+[data-testid="stApp"] :is(p, span, div, a, button, input, label, h1, h2, h3, h4, li, small, b, em, textarea, select):not(.ms):not([data-testid="stIconMaterial"]){
+  font-family:var(--sys)}
+[data-testid="stApp"]{-webkit-font-smoothing:antialiased}
+
+/* Raised titles */
+.fw-hello{font-size:34px; font-weight:700; letter-spacing:-0.03em; color:var(--ink); text-shadow:var(--raise)}
+.fw-sub{color:var(--ink-2); opacity:.7}
+.fw-h h3{font-size:20px; font-weight:700; letter-spacing:-0.02em; text-shadow:var(--raise)}
+.fw-card .ctitle, .fw-chart .title, .fw-group-card .name, .fw-addhead .t{font-weight:700; letter-spacing:-0.015em; text-shadow:var(--raise)}
+.fw-stat .v, .fw-wx .deg, .fw-mini .v, .fw-mini .pair b{font-weight:700; letter-spacing:-0.035em; text-shadow:var(--raise)}
+.fw-h a{color:var(--lav-ink); font-weight:600}
+
+/* Glass tiles: one standard surface */
+.fw-card, .fw-stat, .fw-cond, .fw-group, .fw-group-card, .fw-empty, .fw-rows, .fw-groups > .fw-row,
+[class*="st-key-card-"], .st-key-addform, [data-testid="stExpander"] details{
+  background:var(--glass) !important; -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-edge) !important; border-radius:var(--r-glass) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9), var(--glass-sh) !important}
+[class*="st-key-card-"] .fw-rows{background:transparent !important; border:0 !important; box-shadow:none !important; backdrop-filter:none; -webkit-backdrop-filter:none}
+.fw-row{border-bottom-color:rgba(23,23,31,.05)}
+
+/* Inner tiles: lighter frosted wells */
+.fw-mini .m, .fw-estimate{background:var(--glass-inner) !important; border:1px solid rgba(255,255,255,.75); border-radius:16px !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+[data-testid="stTextInputRootElement"], [data-baseweb="select"] > div, [data-testid="stNumberInputContainer"], [data-testid="stDateInputField"]{
+  background:rgba(255,255,255,.65) !important; border:1px solid rgba(23,23,31,.07) !important; border-radius:12px !important}
+
+/* Icons: gradient squircles, like app icons */
+.fw-tile, .fw-tile.lime, .fw-tile.lav, .fw-tile.peach, .fw-tile.cream, .fw-tile.red{
+  width:40px; height:40px; border-radius:12px; color:#fff;
+  background:linear-gradient(160deg, #B5A6F2 0%, #7E69DC 100%) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45), 0 4px 10px -4px rgba(91,70,199,.55)}
+.fw-tile .ms{font-size:21px; text-shadow:0 1px 1px rgba(40,20,120,.25)}
+.fw-card .ctitle .ms{color:var(--lav-ink)}
+
+/* Status chips: soft capsules with a highlight */
+.fw-pill{border-radius:999px; box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+.fw-pill.ghost{background:rgba(255,255,255,.6); box-shadow:inset 0 0 0 1px rgba(23,23,31,.08)}
+
+/* Next-action: dark glass with the brand glow */
+.fw-feature{border-radius:24px !important; border:1px solid rgba(255,255,255,.08);
+  background:radial-gradient(420px 220px at 100% 0%, rgba(212,239,106,.22), transparent 70%),
+             radial-gradient(520px 260px at 0% 120%, rgba(142,123,224,.40), transparent 70%),
+             rgba(28,28,38,.92) !important;
+  -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10), 0 24px 50px -24px rgba(28,20,70,.55) !important}
+.fw-feature .title{font-weight:700; letter-spacing:-0.03em; text-shadow:0 1px 0 rgba(255,255,255,.06), 0 6px 18px rgba(0,0,0,.35)}
+.fw-feature .blob{border-radius:22px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+
+/* Capsule controls */
+.stButton button[kind="primary"], .fw-feature .cta{border-radius:999px !important;
+  background:linear-gradient(180deg, #E0F48A 0%, #CDEA5C 100%) !important; color:var(--ink) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 6px 14px -6px rgba(90,120,0,.55) !important}
+.stButton button[kind="primary"]:hover, .fw-feature .cta:hover{filter:brightness(1.03)}
+.stButton button[kind="secondary"], .st-key-quickadd button{border-radius:999px !important; background:rgba(255,255,255,.65) !important;
+  border:1px solid rgba(23,23,31,.08) !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+[class*="st-key-card-crop"] .stButton button[kind="primary"], [class*="st-key-card-recipe"] .stButton button[kind="primary"]{
+  background:rgba(255,255,255,.7) !important; box-shadow:inset 0 1px 0 #fff, inset 0 0 0 1px rgba(23,23,31,.08) !important}
+[data-testid="stSegmentedControl"] button, [data-testid="stPills"] button{border-radius:999px !important}
+.fw-sbtn{border-radius:999px; background:var(--glass-strong); border:1px solid var(--glass-edge);
+  -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur); box-shadow:inset 0 1px 0 #fff, var(--glass-sh)}
+
+/* Charts and progress in brand gradients */
+.fw-chart .bar{background:linear-gradient(180deg, #B5A6F2, #8E7BE0); border-radius:8px 8px 3px 3px}
+.fw-chart .bar.hot{background:linear-gradient(180deg, #F27A64, #D9452F)}
+.fw-badge{border-radius:12px; background:rgba(255,255,255,.55); border:1px solid rgba(255,255,255,.8)}
+.fw-badge.on{background:linear-gradient(160deg, #B5A6F2, #7E69DC); color:#fff; border-color:transparent;
+  box-shadow:0 4px 10px -4px rgba(91,70,199,.55)}
+.fw-step .dot{background:rgba(255,255,255,.7); border-color:rgba(255,255,255,.9); box-shadow:var(--glass-sh)}
+.fw-step.done .dot{background:linear-gradient(180deg, #E0F48A, #CDEA5C)}
+.fw-step.next .dot{background:var(--dark)}
+
+/* ---- Glass nav ----
+   The frosted layer is a pseudo-element, not a filter on the bar itself, so
+   the phone tab bar inside it can still be fixed to the viewport. */
+.st-key-fw-topbar{background:transparent !important; border-bottom:0 !important; box-shadow:none !important}
+.st-key-fw-topbar::before{content:""; position:absolute; inset:0; z-index:-1; background:rgba(255,255,255,.55);
+  -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
+  border-bottom:1px solid rgba(255,255,255,.75); box-shadow:0 8px 24px -18px rgba(48,36,110,.45)}
+.st-key-fw-tabs{background:rgba(255,255,255,.45); border:1px solid rgba(255,255,255,.8); border-radius:999px; padding:4px !important;
+  box-shadow:inset 0 1px 0 #fff, 0 2px 8px -4px rgba(48,36,110,.25); flex:0 1 auto !important; width:auto !important; margin:0 auto}
+.st-key-fw-topbar > div:has(.st-key-fw-tabs){display:flex; justify-content:center}
+.st-key-fw-tabs a{border-radius:999px !important}
+.st-key-fw-tabs a:hover{background:rgba(255,255,255,.7)}
+.fw-brandmark b{font-weight:700; letter-spacing:-0.02em; text-shadow:var(--raise)}
+.fw-brandmark img{border-radius:9px; box-shadow:0 4px 10px -4px rgba(91,70,199,.5)}
+.fw-level .badge{border-radius:999px; box-shadow:inset 0 1px 0 rgba(255,255,255,.15)}
+@media (max-width:760px){
+  .st-key-fw-tabs{left:12px !important; right:12px !important; bottom:calc(12px + env(safe-area-inset-bottom)) !important;
+    padding:6px !important; border-radius:30px; background:rgba(255,255,255,.62) !important;
+    -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
+    border:1px solid rgba(255,255,255,.85) !important; border-top:1px solid rgba(255,255,255,.85) !important;
+    box-shadow:inset 0 1px 0 #fff, 0 16px 36px -14px rgba(48,36,110,.45) !important; margin:0}
+  .st-key-fw-tabs a{width:50px !important; height:46px; border-radius:999px !important}
+  [data-testid="stMainBlockContainer"]{padding-bottom:120px !important}
+}
+
+/* Achievement popup: dark glass */
+.fw-ach{border-radius:26px; background:rgba(28,28,38,.88); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
+  border:1px solid rgba(255,255,255,.1); box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 30px 70px -24px rgba(20,14,60,.6)}
+.fw-ach-badge{border-radius:20px; background:linear-gradient(180deg, #E0F48A, #CDEA5C); box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
 </style>
 """
 
