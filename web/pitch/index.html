@@ -255,6 +255,10 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 #bom > .eyebrow,#bom > h2,#bom .bgrid > div:first-child{position:relative;z-index:2}
 .vbig{position:absolute;right:-140px;top:-190px;width:860px;height:860px;z-index:1}
 .vbig video{width:100%;height:100%;object-fit:cover;-webkit-mask-image:radial-gradient(closest-side,#000 80%,transparent 100%);mask-image:radial-gradient(closest-side,#000 80%,transparent 100%)}
+.vbig video,.vbig iframe{transition:opacity .35s}
+.vbig iframe{position:absolute;left:20px;top:215px;width:700px;height:560px;border:0;background:transparent;opacity:0;pointer-events:none}
+.vbig[data-k="probe"] video{opacity:0}
+.vbig[data-k="probe"] iframe{opacity:1;pointer-events:auto}
 .vrep{position:absolute;right:170px;bottom:120px;background:#fff;box-shadow:0 6px 18px rgba(30,30,42,.12)}
 .btabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
 .btabs button{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:22px;background:#fff;box-shadow:0 1px 0 var(--line),0 10px 24px rgba(30,30,42,.06);text-align:left;transition:all .25s var(--ease)}
@@ -496,6 +500,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
     </div>
     <div class="vbig rv" style="--d:2">
       <video id="asmVid" muted loop playsinline preload="none" poster="media/fallow-assembly-clean-poster.jpg" data-src="media/fallow-assembly-clean.mp4"></video>
+      <iframe id="asmProbe" data-src="probe3d/index.html?embed&amp;explode=1" title="Fallow Stake parts, exploded" loading="lazy" tabindex="-1"></iframe>
       <button class="btn ghost vrep" id="vidReplay"><span class="ms">replay</span>Replay</button>
     </div>
   </div>
@@ -880,10 +885,23 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
       ["deployed_code", "3D printed pod head, stem, flange", "Weatherproof, our design", 3],
     ] },
   };
-  let bomShown = 0, bomAnim = null;
+  let bomShown = 0, bomAnim = null, bomKind = "watch";
+  const vid = $("#asmVid"), vbig = $(".vbig"), probeFrame = $("#asmProbe");
+  /* right side follows the tab: the watch assembly video, or the probe coming apart */
+  function playBomVisual() {
+    if (cur !== slides.findIndex(s => s.id === "bom")) return;
+    if (bomKind === "probe") {
+      vid.pause();
+      if (probeFrame.contentWindow && probeFrame.src) probeFrame.contentWindow.postMessage("replay", "*");
+    } else {
+      if (!vid.src) vid.src = vid.dataset.src;
+      vid.currentTime = 0; vid.play().catch(() => {});
+    }
+  }
   $("#bomTabs").innerHTML = Object.entries(BOM).map(([k, v]) => { const c = v.rows.reduce((a, r) => a + r[3], 0); return `<button data-k="${k}"><span class="ms">${k === "watch" ? "watch" : "yard"}</span><span class="bt"><b>${v.nm}</b><small>$${c} to build · sells for $${v.price}</small></span></button>`; }).join("");
   function showBom(k) {
     $$("#bomTabs button").forEach(b => b.classList.toggle("on", b.dataset.k === k));
+    if (k !== bomKind) { bomKind = k; vbig.dataset.k = k; playBomVisual(); }
     const rows = BOM[k].rows;
     $("#bomRows").innerHTML = rows.map((r, i) => `<div class="brow" style="--i:${i}"><span class="ms">${r[0]}</span><div><b>${r[1]}</b><small>${r[2]}</small></div><span class="c">$${r[3]}</span></div>`).join("");
     const to = rows.reduce((a, r) => a + r[3], 0), from = bomShown, t0 = performance.now();
@@ -897,17 +915,14 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   }
   $$("#bomTabs button").forEach(b => b.addEventListener("click", () => showBom(b.dataset.k)));
   showBom("watch");
-  const vid = $("#asmVid");
-  $("#vidReplay").onclick = () => { vid.currentTime = 0; vid.play().catch(() => {}); };
+  $("#vidReplay").onclick = playBomVisual;
 
   /* per slide entry effects */
   function onEnter(id) {
     if (id === "s7") { const c = $("#cmp"); c.classList.remove("reveal"); setTimeout(() => c.classList.add("reveal"), 900); }
     if (id !== "s3") stopLoop();
-    if (id === "bom") {
-      if (!vid.src) vid.src = vid.dataset.src;
-      vid.currentTime = 0; vid.play().catch(() => {});
-    } else if (vid && !vid.paused) vid.pause();
+    if (id === "bom") playBomVisual();
+    else if (vid && !vid.paused) vid.pause();
   }
 
   const start = parseInt(location.hash.slice(1), 10);

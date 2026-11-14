@@ -77,9 +77,13 @@ import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.j
 
 const Q = new URLSearchParams(location.search);
 const STILL = Q.has("still");
-if (STILL) { document.body.classList.add("still"); document.documentElement.style.background = "transparent"; }
+// embed: the clean, transparent look of `still`, but animated. With explode=1 it
+// starts assembled, then comes apart with every part named. The page around it
+// can post "replay" to run that again.
+const EMBED = Q.has("embed");
+if (STILL || EMBED) { document.body.classList.add("still"); document.documentElement.style.background = "transparent"; }
 const view = document.getElementById("view");
-if (STILL) view.style.bottom = "0";
+if (STILL || EMBED) view.style.bottom = "0";
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: STILL });
 renderer.setPixelRatio(Math.min(2, devicePixelRatio));
 renderer.setClearColor(0x000000, 0);
@@ -220,7 +224,7 @@ for (let i = 0; i < 90; i++) {
   const gh = 4 + Math.random() * 6; const b = mesh(new THREE.ConeGeometry(0.9, gh, 5), grassMat, x, gh / 2 - 0.5, z);
   b.rotation.set((Math.random() - .5) * .5, 0, (Math.random() - .5) * .5); soil.add(b);
 }
-if (STILL) soil.visible = false;
+if (STILL || EMBED) soil.visible = false;
 
 /* ---------- state ---------- */
 const TIERS = {
@@ -277,7 +281,7 @@ function resize() {
   const w = view.clientWidth, h = view.clientHeight;
   renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
 }
-function layout() { document.documentElement.style.setProperty("--dockh", STILL ? "0px" : `${document.getElementById("dock").offsetHeight + 24}px`); resize(); }
+function layout() { document.documentElement.style.setProperty("--dockh", STILL || EMBED ? "0px" : `${document.getElementById("dock").offsetHeight + 24}px`); resize(); }
 addEventListener("resize", layout);
 
 const clock = new THREE.Clock(), v3 = new THREE.Vector3();
@@ -300,6 +304,7 @@ function step(dt, now) {
   M.tubeGlow.emissiveIntensity = Math.random() < 0.08 ? 2.4 : 0.7;
 }
 const linesEl = document.getElementById("lines");
+const LINE = EMBED ? "#6E9F2A" : "#D7F26E"; // lime leader lines vanish on a light page
 function drawLabels() {
   const show = document.getElementById("lbls").checked && ex > 0.5;
   const w = view.clientWidth, h = view.clientHeight;
@@ -317,7 +322,7 @@ function drawLabels() {
     const lx = side === "r" ? cx + Math.min(260, w * 0.2) : cx - Math.min(260, w * 0.2);
     p.label.classList.add("on", "side"); p.label.classList.toggle("l", side === "l");
     p.label.style.left = `${lx}px`; p.label.style.top = `${ly}px`;
-    svg += `<path d="M${ax} ${ay} L${(ax + lx) / 2} ${ly} L${lx} ${ly}" stroke="#D7F26E" stroke-width="1.5" fill="none" opacity=".85"/><circle cx="${ax}" cy="${ay}" r="3.5" fill="#D7F26E"/>`;
+    svg += `<path d="M${ax} ${ay} L${(ax + lx) / 2} ${ly} L${lx} ${ly}" stroke="${LINE}" stroke-width="1.5" fill="none" opacity=".85"/><circle cx="${ax}" cy="${ay}" r="3.5" fill="${LINE}"/>`;
   });
   linesEl.innerHTML = svg;
 }
@@ -328,6 +333,8 @@ function frame() {
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
 }
+const embedExplode = EMBED ? exT : 0;
+if (EMBED) exT = 0;
 setTier(tier); setExplode(exT); layout();
 parts.forEach(p => { p.scale = p.tgtScale; const a = p.at(tier); p.cur.set(a[0] + p.ex[0] * exT, a[1] + p.ex[1] * exT + (exT ? 50 : 0), a[2] + p.ex[2] * exT); });
 ex = exT; lift = exT ? 50 : 0;
@@ -341,6 +348,12 @@ if (STILL) {
   renderer.render(scene, camera);
   window.__ready = true;
 } else frame();
+if (EMBED && embedExplode) {
+  let timer = 0;
+  const play = () => { clearTimeout(timer); setExplode(0); timer = setTimeout(() => setExplode(embedExplode), 900); };
+  play();
+  addEventListener("message", e => { if (e.data === "replay") play(); });
+}
 </script>
 </body>
 </html>
